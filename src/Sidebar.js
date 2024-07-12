@@ -12,7 +12,7 @@ function Sidebar() {
                 <div className="sidebar-brand-icon rotate-n-15">
                     <FontAwesomeIcon icon={faFaceLaughWink} size={"2x"} />
                 </div>
-                <div className="sidebar-brand-text mx-3">SB Admin <sup>2</sup></div>
+                <div className="sidebar-brand-text mx-3">SAINIK BOOK ADMIN </div>
             </a>
 
             {/* <!-- Divider --> */}
@@ -32,7 +32,7 @@ function Sidebar() {
             <li className="nav-item active">
                 <Link className="nav-link" to="/portal/user-list">
                     <FontAwesomeIcon icon={faUsers} style={{ marginRight: "0.5rem" }} />
-                    <span>Users</span>
+                    <span>Students</span>
                 </Link>
             </li>
 

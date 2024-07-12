@@ -176,7 +176,7 @@ function Topbar() {
                 <li className="nav-item dropdown no-arrow">
                     <Link className="nav-link dropdown-toggle" to="/" id="userDropdown" role="button"
                         data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        <span className="mr-2 d-none d-lg-inline text-gray-600 small">Douglas McGee</span>
+                        <span className="mr-2 d-none d-lg-inline text-gray-600 small">Dabad Academy</span>
                         <FontAwesomeIcon icon={faCircleUser} size={"xl"} />
                     </Link>
                     {/* <!-- Dropdown - User Information --> */}
