@@ -31,10 +31,26 @@ function Userlist() {
     }
   };
 
+  const handleDelete = async (id) => {
+    const confirmDelete = window.confirm("Are you sure you want to delete the data?");
+    if (confirmDelete) {
+      try {
+        await axios.delete(`http://ec2-13-202-53-68.ap-south-1.compute.amazonaws.com:3000/api/users/${id}`);
+        getUsers();
+      } catch (error) {
+        console.error("Error deleting user:", error);
+      }
+    }
+  };
+
   return (
     <>
       <div className="d-sm-flex align-items-center justify-content-between mb-4">
         <h1 className="h3 mb-0 text-gray-800">Student-List</h1>
+        <Link to="/portal/create-user" className="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm">
+          <FontAwesomeIcon icon={faUser} className="creatinguser mr-2" />
+          Create User
+        </Link>
       </div>
       <div className="card shadow mb-4">
         <div className="card-header py-3">
@@ -82,6 +98,7 @@ function Userlist() {
                         <td>
                           <Link to={`/portal/user-view/${user.u_id}`} className="btn btn-primary btn-sm mr-1">View</Link>
                           <Link to={`/portal/user-edit/${user.u_id}`} className="btn btn-info btn-sm mr-1">Edit</Link>
+                          <button onClick={() => handleDelete(user.u_id)} className="btn btn-danger btn-sm mr-1">Delete</button>
                         </td>
                       </tr>
                     ))
