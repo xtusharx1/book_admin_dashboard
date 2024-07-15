@@ -11,19 +11,22 @@ import Portal from './Portal';
 import UserCreate from './UserCreate';
 import UserView from './UserView';
 import UserEdit from './UserEdit';
-
+import Librarylist from './Librarylist';
+import Bookview from './Bookview';
 function App() {
   return (
     <BrowserRouter>
       <Routes>
         <Route path='/' element={<Login />} />
-
+        
         <Route path='/portal' element={<Portal />}>
           <Route path='dashboard' element={<Dashboard />} />
           <Route path='user-list' element={<Userlist />} />
           <Route path='create-user' element={<UserCreate />} />
           <Route path='user-view/:id' element={<UserView />} />
           <Route path='user-edit/:id' element={<UserEdit />} />
+          <Route path='Library-list' element={<Librarylist/>}/>
+          <Route path='Book-view/:id' element={<Bookview/>}/>
         </Route>
       </Routes>
     </BrowserRouter>

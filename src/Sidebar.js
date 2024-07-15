@@ -1,4 +1,4 @@
-import { faFaceLaughWink, faTachographDigital, faUsers } from '@fortawesome/free-solid-svg-icons'
+import { faBook, faBookAtlas, faBookJournalWhills, faBookOpen, faBookSkull, faFaceLaughWink, faHomeAlt, faMagnifyingGlass, faMagnifyingGlassChart, faNoteSticky, faPerson, faPersonShelter, faTachographDigital, faUsers } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import React from 'react'
 import { Link } from 'react-router-dom'
@@ -33,6 +33,37 @@ function Sidebar() {
                 <Link className="nav-link" to="/portal/user-list">
                     <FontAwesomeIcon icon={faUsers} style={{ marginRight: "0.5rem" }} />
                     <span>Students</span>
+                </Link>
+            </li>
+            
+
+            {/* <!-- Nav Item - Users --> */}
+            <li className="nav-item active">
+                <Link className="nav-link" to="/portal/library-list">
+                    <FontAwesomeIcon icon={faBookOpen} style={{ marginRight: "0.5rem" }} />
+                    <span>  Library</span>
+                </Link>
+            </li>
+
+            {/* <!-- Divider --> */}
+            <hr className="sidebar-divider my-0" />
+
+            {/* <!-- Nav Item - Users --> */}
+            <li className="nav-item active">
+                <Link className="nav-link" to="/portal/user-list">
+                    <FontAwesomeIcon icon={faMagnifyingGlassChart} style={{ marginRight: "0.5rem" }} />
+                    <span>Sales</span>
+                </Link>
+            </li>
+
+            {/* <!-- Divider --> */}
+            <hr className="sidebar-divider my-0" />
+
+            {/* <!-- Nav Item - Users --> */}
+            <li className="nav-item active">
+                <Link className="nav-link" to="/portal/user-list">
+                    <FontAwesomeIcon icon={faHomeAlt} style={{ marginRight: "0.5rem" }} />
+                    <span>Apphome</span>
                 </Link>
             </li>
 
