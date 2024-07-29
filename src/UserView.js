@@ -1,29 +1,34 @@
 import axios from 'axios';
 import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
+import './userview.css';
+import '@fortawesome/fontawesome-free/css/all.min.css';
 
 function UserView() {
     const params = useParams();
+    const navigate = useNavigate();
     const [user, setUser] = useState(null);
     const [payments, setPayments] = useState([]);
+    const [cart, setCart] = useState([]);
+    const [totalSpend, setTotalSpend] = useState(0);
     const [isLoadingUser, setLoadingUser] = useState(true);
     const [isLoadingPayments, setLoadingPayments] = useState(true);
+    const [isLoadingCart, setLoadingCart] = useState(true);
 
     useEffect(() => {
-        // On Load
-        getUser();
-        getPayments();
-        console.log("Welcome to UserView");
+        const fetchData = async () => {
+            await Promise.all([getUser(), getPayments()]);
+        };
+        fetchData();
     }, []);
 
     const getUser = async () => {
         try {
             const response = await axios.get(`http://ec2-13-202-53-68.ap-south-1.compute.amazonaws.com:3000/api/users/getbyid/${params.id}`);
-            console.log("Fetched user:", response.data); // Logging the fetched user data
             setUser(response.data);
-            setLoadingUser(false);
         } catch (error) {
             console.error("Error fetching user:", error);
+        } finally {
             setLoadingUser(false);
         }
     };
@@ -31,106 +36,177 @@ function UserView() {
     const getPayments = async () => {
         try {
             const response = await axios.get(`http://ec2-13-202-53-68.ap-south-1.compute.amazonaws.com:3000/api/payments/user/${params.id}`);
-            console.log("Fetched payments:", response.data); // Logging the fetched payments data
-            setPayments(response.data);
-            setLoadingPayments(false);
+            const allPayments = response.data;
+            
+            // Separate payments into orders and cart items
+            const orders = [];
+            const cartItems = [];
+            const bookDetailsPromises = [];
+
+            allPayments.forEach(payment => {
+                bookDetailsPromises.push(
+                    axios.get(`http://ec2-13-202-53-68.ap-south-1.compute.amazonaws.com:3000/api/books/getbook/${payment.b_id}`)
+                        .then(bookResponse => ({
+                            ...payment,
+                            bookName: bookResponse.data.b_name,
+                            sellPrice: parseFloat(bookResponse.data.sell_price) // Ensure it's a number
+                        }))
+                );
+            });
+
+            // Await all book detail promises
+            const paymentsWithDetails = await Promise.all(bookDetailsPromises);
+
+            paymentsWithDetails.forEach(payment => {
+                if (payment.haspaid) {
+                    orders.push(payment);
+                } else {
+                    cartItems.push(payment);
+                }
+            });
+
+            // Calculate total spend
+            const total = orders.reduce((sum, payment) => sum + payment.sellPrice, 0);
+            setTotalSpend(total);
+            setPayments(orders);
+            setCart(cartItems);
         } catch (error) {
             console.error("Error fetching payments:", error);
+        } finally {
             setLoadingPayments(false);
+            setLoadingCart(false);
         }
     };
 
-    return (
-        <>
-            <div>UserView - {params.id}</div>
-            {/* Render user details */}
-            <div className="card shadow mb-4">
-                <div className="card-header py-3">
-                    <h6 className="m-0 font-weight-bold text-primary">User Details</h6>
-                </div>
-                <div className="card-body">
-                    {isLoadingUser ? (
-                        <img src="https://media.giphy.com/media/ZO9b1ntYVJmjZlsWlm/giphy.gif" alt="Loading" />
-                    ) : (
-                        user ? (
-                            <div className="table-responsive">
-                                <table className="table table-bordered" id="dataTable" width="100%" cellSpacing="0">
-                                    <thead>
-                                        <tr>
-                                            <th>Id</th>
-                                            <th>Name</th>
-                                            <th>E-Mail</th>
-                                            <th>Phone Number</th>
-                                            <th>Gender</th>
-                                            <th>Date of Birth</th>
-                                            <th>City</th>
-                                            <th>State</th>
-                                            <th>Class Entry</th>
-                                            <th>School Choice</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                            <td>{user.u_id}</td>
-                                            <td>{user.f_name}</td>
-                                            <td>{user.email}</td>
-                                            <td>{user.phonenumber}</td>
-                                            <td>{user.gender}</td>
-                                            <td>{new Date(user.dob).toLocaleDateString()}</td>
-                                            <td>{user.city}</td>
-                                            <td>{user.state}</td>
-                                            <td>{user.c_entry}</td>
-                                            <td>{user.c_school}</td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        ) : (
-                            <p>No user found</p>
-                        )
-                    )}
-                </div>
-            </div>
+    const handleEditClick = () => {
+        navigate(`/portal/user-edit/${params.id}`);
+    };
 
-            {/* Render payments */}
-            <div className="card shadow mb-4">
-                <div className="card-header py-3">
-                    <h6 className="m-0 font-weight-bold text-primary">Payment Details</h6>
-                </div>
-                <div className="card-body">
+    const formatDate = (dateString) => {
+        const date = new Date(dateString);
+        const options = { 
+            day: '2-digit', 
+            month: '2-digit', 
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit',
+            hour12: false // 24-hour format
+        };
+        return date.toLocaleString('en-GB', options).replace(',', ''); // Format date and time
+    };
+
+    return (
+        <div className="user-view-container">
+            <div className="user-details">
+                {isLoadingUser ? (
+                    <img src="https://media.giphy.com/media/ZO9b1ntYVJmjZlsWlm/giphy.gif" alt="Loading" />
+                ) : (
+                    user && (
+                        <div className="profile-details">
+                            <div className="profile-header">
+                                <div className="profile-initials">{user.f_name.charAt(0)}{user.l_name && user.l_name.charAt(0)}</div>
+                                <h2>{user.f_name} {user.l_name}</h2>
+                                <p>{user.school}</p>
+                            </div>
+                            <div className="profile-contact">
+                                <p><i className="fa fa-envelope"></i> {user.email}</p>
+                                <p><i className="fa fa-phone"></i> {user.phonenumber}</p>
+                                <p><i className="fa fa-map-marker"></i> {user.city}, {user.state}</p>
+                            </div>
+                            <div className="profile-other">
+                                <p>Gender: {user.gender}</p>
+                                <p>DOB: {formatDate(user.dob)}</p>
+                                <p>Student Class: {user.c_entry}</p>
+                                <p>First Choice Sainik School: {user.c_school}</p>
+                            </div>
+                            <button className="edit-button" onClick={handleEditClick}>Edit</button>
+                        </div>
+                    )
+                )}
+            </div>
+            <div className="user-orders-cart">
+                <div className="user-orders">
+                    <h3>Orders</h3>
                     {isLoadingPayments ? (
                         <img src="https://media.giphy.com/media/ZO9b1ntYVJmjZlsWlm/giphy.gif" alt="Loading" />
                     ) : (
                         payments.length > 0 ? (
-                            <div className="table-responsive">
-                                <table className="table table-bordered" id="dataTable" width="100%" cellSpacing="0">
+                            <>
+                                <table>
                                     <thead>
                                         <tr>
-                                            <th>Payment ID</th>
-                                            <th>User ID</th>
-                                            <th>Book ID</th>
-                                            <th>Has Paid</th>
+                                            <th>S No</th>
+                                            <th>Book Name</th>
+                                            <th>Date</th>
+                                            <th>Order Value</th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {payments.map(payment => (
+                                        {payments.map((payment, index) => (
                                             <tr key={payment.id}>
-                                                <td>{payment.id}</td>
-                                                <td>{payment.u_id}</td>
-                                                <td>{payment.b_id}</td>
-                                                <td>{payment.haspaid ? 'Yes' : 'No'}</td>
+                                                <td>{index + 1}</td>
+                                                <td>{payment.bookName}</td>
+                                                <td>{formatDate(payment.updated_at)}</td> {/* Show date with time */}
+                                                <td>₹{payment.sellPrice.toFixed(2)}</td> {/* Format price */}
                                             </tr>
                                         ))}
                                     </tbody>
                                 </table>
-                            </div>
+                                <div className="total-spend">
+                                    <p>Total Spend: ₹{totalSpend.toFixed(2)}</p> {/* Format total spend */}
+                                </div>
+                            </>
                         ) : (
-                            <p>No payments found for this user.</p>
+                            <p>No orders placed yet</p>
+                        )
+                    )}
+                </div>
+                <div className="user-cart">
+                    <h3>Cart</h3>
+                    {isLoadingCart ? (
+                        <img src="https://media.giphy.com/media/ZO9b1ntYVJmjZlsWlm/giphy.gif" alt="Loading" />
+                    ) : (
+                        cart.length > 0 ? (
+                            <>
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th>S No</th>
+                                            <th>Book Name</th>
+                                            <th>Date</th>
+                                            <th>Cart Value</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {cart.map((payment, index) => (
+                                            <tr key={payment.id}>
+                                                <td>{index + 1}</td>
+                                                <td>{payment.bookName}</td>
+                                                <td>{formatDate(payment.created_at)}</td> {/* Show date with time */}
+                                                <td>₹{payment.sellPrice.toFixed(2)}</td> {/* Format price */}
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                                <div className="total-cart-value">
+                                    <p>Total Cart Value: ₹{cart.reduce((sum, payment) => sum + payment.sellPrice, 0).toFixed(2)}</p> {/* Format total cart value */}
+                                </div>
+                            </>
+                        ) : (
+                            <p>No items in cart</p>
                         )
                     )}
                 </div>
             </div>
-        </>
+            <div className="user-activity">
+                <h3>Activity</h3>
+                <div className="activity-list">
+                    {/* Add activity items here */}
+                </div>
+                <button className="add-activity-button">+</button>
+            </div>
+        </div>
     );
 }
 

@@ -10,7 +10,6 @@ function Bookview() {
     const [isLoadingChapters, setLoadingChapters] = useState(true);
 
     useEffect(() => {
-        // On Load
         getBook();
         getChapters();
     }, []);
@@ -18,7 +17,7 @@ function Bookview() {
     const getBook = async () => {
         try {
             const response = await axios.get(`http://ec2-13-202-53-68.ap-south-1.compute.amazonaws.com:3000/api/books/getbook/${params.id}`);
-            console.log("Fetched book:", response.data); // Logging the fetched book data
+            console.log("Fetched book:", response.data);
             setBook(response.data);
             setLoadingBook(false);
         } catch (error) {
@@ -30,8 +29,9 @@ function Bookview() {
     const getChapters = async () => {
         try {
             const response = await axios.get(`http://ec2-13-202-53-68.ap-south-1.compute.amazonaws.com:3000/api/chapters/findbybook/${params.id}`);
-            console.log("Fetched chapters:", response.data); // Logging the fetched chapters data
-            setChapters(response.data);
+            console.log("Fetched chapters:", response.data);
+            const sortedChapters = response.data.sort((a, b) => a.c_no - b.c_no);
+            setChapters(sortedChapters);
             setLoadingChapters(false);
         } catch (error) {
             console.error("Error fetching chapters:", error);
@@ -41,7 +41,7 @@ function Bookview() {
 
     return (
         <>
-            <div>Bookview - {params.id}</div>
+            
 
             {/* Render book details */}
             <div className="card shadow mb-4">
@@ -65,24 +65,24 @@ function Bookview() {
                                             <td>{book.b_name}</td>
                                         </tr>
                                         <tr>
-                                            <th>Publisher</th>
-                                            <td>{book.publisher}</td>
+                                            <th>Description</th>
+                                            <td>{book.description}</td>
                                         </tr>
                                         <tr>
                                             <th>Author</th>
                                             <td>{book.author}</td>
                                         </tr>
                                         <tr>
-                                            <th>E-book Price</th>
-                                            <td>{book.eb_price}</td>
+                                            <th>Sell Price</th>
+                                            <td>{book.sell_price}</td>
                                         </tr>
                                         <tr>
-                                            <th>Paperback Price</th>
-                                            <td>{book.pb_price}</td>
+                                            <th>Max Price</th>
+                                            <td>{book.max_price}</td>
                                         </tr>
                                         <tr>
                                             <th>Book URL</th>
-                                            <td><a href={book.b_url}>{book.b_name}</a></td>
+                                            <td><a href={book.b_url} target="_blank" rel="noopener noreferrer">{book.b_name}</a></td>
                                         </tr>
                                         {book.img_path && (
                                             <tr>
@@ -117,8 +117,6 @@ function Bookview() {
                                             <th>Chapter Number</th>
                                             <th>Title</th>
                                             <th>Chapter URL</th>
-                                            <th>Extra Field 1</th>
-                                            <th>Extra Field 2</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -126,9 +124,7 @@ function Bookview() {
                                             <tr key={chapter.id}>
                                                 <td>{chapter.c_no}</td>
                                                 <td>{chapter.title}</td>
-                                                <td><a href={chapter.c_url}>View Chapter</a></td>
-                                                <td>{chapter.extra_field1}</td>
-                                                <td>{chapter.extra_field2}</td>
+                                                <td><a href={chapter.c_url} target="_blank" rel="noopener noreferrer">View Chapter</a></td>
                                             </tr>
                                         ))}
                                     </tbody>

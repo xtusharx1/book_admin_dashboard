@@ -1,14 +1,16 @@
-import { faBook, faBookAtlas, faBookJournalWhills, faBookOpen, faBookSkull, faFaceLaughWink, faHomeAlt, faMagnifyingGlass, faMagnifyingGlassChart, faNoteSticky, faPerson, faPersonShelter, faTachographDigital, faUsers } from '@fortawesome/free-solid-svg-icons'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import React from 'react'
-import { Link } from 'react-router-dom'
+import { faBookOpen, faHomeAlt, faMagnifyingGlassChart, faTachographDigital, faUsers, faFaceLaughWink } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import React from 'react';
+import { Link, useLocation } from 'react-router-dom'; // Import useLocation
 
 function Sidebar() {
+    const location = useLocation(); // Get current location
+
     return (
         <ul className="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion" id="accordionSidebar">
 
             {/* <!-- Sidebar - Brand --> */}
-            <a className="sidebar-brand d-flex align-items-center justify-content-center" href="index.html">
+            <a className="sidebar-brand d-flex align-items-center justify-content-center" href="/portal/dashboard">
                 <div className="sidebar-brand-icon rotate-n-15">
                     <FontAwesomeIcon icon={faFaceLaughWink} size={"2x"} />
                 </div>
@@ -19,7 +21,7 @@ function Sidebar() {
             <hr className="sidebar-divider my-0" />
 
             {/* <!-- Nav Item - Dashboard --> */}
-            <li className="nav-item active">
+            <li className={`nav-item ${location.pathname === '/portal/dashboard' ? 'active' : ''}`}>
                 <Link className="nav-link" to="/portal/dashboard">
                     <FontAwesomeIcon icon={faTachographDigital} style={{ marginRight: "0.5rem" }} />
                     <span>Dashboard</span>
@@ -28,29 +30,25 @@ function Sidebar() {
             {/* <!-- Divider --> */}
             <hr className="sidebar-divider my-0" />
 
-            {/* <!-- Nav Item - Users --> */}
-            <li className="nav-item active">
+            <li className={`nav-item ${location.pathname === '/portal/user-list' ? 'active' : ''}`}>
                 <Link className="nav-link" to="/portal/user-list">
                     <FontAwesomeIcon icon={faUsers} style={{ marginRight: "0.5rem" }} />
                     <span>Students</span>
                 </Link>
             </li>
             
-
-            {/* <!-- Nav Item - Users --> */}
-            <li className="nav-item active">
+            <li className={`nav-item ${location.pathname === '/portal/library-list' ? 'active' : ''}`}>
                 <Link className="nav-link" to="/portal/library-list">
                     <FontAwesomeIcon icon={faBookOpen} style={{ marginRight: "0.5rem" }} />
-                    <span>  Library</span>
+                    <span>App Library</span>
                 </Link>
             </li>
 
             {/* <!-- Divider --> */}
             <hr className="sidebar-divider my-0" />
 
-            {/* <!-- Nav Item - Users --> */}
-            <li className="nav-item active">
-                <Link className="nav-link" to="/portal/user-list">
+            <li className={`nav-item ${location.pathname === '/portal/salesscreen' ? 'active' : ''}`}>
+                <Link className="nav-link" to="/portal/salesscreen">
                     <FontAwesomeIcon icon={faMagnifyingGlassChart} style={{ marginRight: "0.5rem" }} />
                     <span>Sales</span>
                 </Link>
@@ -59,16 +57,15 @@ function Sidebar() {
             {/* <!-- Divider --> */}
             <hr className="sidebar-divider my-0" />
 
-            {/* <!-- Nav Item - Users --> */}
-            <li className="nav-item active">
-                <Link className="nav-link" to="/portal/user-list">
+            <li className={`nav-item ${location.pathname === '/portal/Apphome' ? 'active' : ''}`}>
+                <Link className="nav-link" to="/portal/Apphome">
                     <FontAwesomeIcon icon={faHomeAlt} style={{ marginRight: "0.5rem" }} />
-                    <span>Apphome</span>
+                    <span>App Content</span>
                 </Link>
             </li>
-
+            
         </ul>
-    )
+    );
 }
 
-export default Sidebar
+export default Sidebar;
