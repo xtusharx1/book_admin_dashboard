@@ -32,7 +32,6 @@ function Dashboard() {
         const orderResponse = await axios.get('http://ec2-13-202-53-68.ap-south-1.compute.amazonaws.com:3000/api/payments/all');
         const orders = orderResponse.data;
 
-        // Check if orders is an array
         if (Array.isArray(orders)) {
           setOrderData(orders);
 
@@ -145,7 +144,6 @@ function Dashboard() {
         return;
       }
 
-      // Define a set of colors
       const colors = [
         'rgba(255, 99, 132, 0.2)', 'rgba(54, 162, 235, 0.2)', 'rgba(255, 206, 86, 0.2)',
         'rgba(75, 192, 192, 0.2)', 'rgba(153, 102, 255, 0.2)', 'rgba(255, 159, 64, 0.2)',
@@ -153,7 +151,6 @@ function Dashboard() {
         'rgba(75, 192, 192, 0.2)'
       ];
 
-      // Create an array of background and border colors
       const backgroundColors = bookSalesEntries.map((_, index) => colors[index % colors.length]);
       const borderColors = backgroundColors.map(color => color.replace('0.2', '1'));
 

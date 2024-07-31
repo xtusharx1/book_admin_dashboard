@@ -19,27 +19,26 @@ import Bookcreate from './Bookcreate';
 import Chaptercreate from './Chaptercreate';
 import Salescreen from './Salescreen';
 import Apphome from './apphome';
+import ProtectedRoute from './ProtectedRoute';
 function App() {
   return (
     <BrowserRouter>
       <Routes>
         <Route path='/' element={<Login />} />
-        
         <Route path='/portal' element={<Portal />}>
-          <Route path='dashboard' element={<Dashboard />} />
-          <Route path='user-list' element={<Userlist />} />
-          <Route path='create-user' element={<UserCreate />} />
-          <Route path='user-view/:id' element={<UserView />} />
-          <Route path='user-edit/:id' element={<UserEdit />} />
-          <Route path='Library-list' element={<Librarylist/>}/>
-          <Route path='Book-view/:id' element={<Bookview/>}/>
-          <Route path='Book-edit/:id' element={<Bookedit/>}/>
-          <Route path='chapter-edit/:id' element={<ChapterEdit/>}/>
-          <Route path='Book-create' element={<Bookcreate/>}/>
-          <Route path='Chapter-create/:b_id' element={<Chaptercreate/>}/>
-          <Route path='Salesscreen' element={<Salescreen/>}/>
-          <Route path='Apphome' element={<Apphome/>}/>
-        
+          <Route path="dashboard" element={<ProtectedRoute element={<Dashboard />} />} />
+          <Route path="user-list" element={<ProtectedRoute element={<Userlist />} />} />
+          <Route path="create-user" element={<ProtectedRoute element={<UserCreate />} />} />
+          <Route path="user-view/:id" element={<ProtectedRoute element={<UserView />} />} />
+          <Route path="user-edit/:id" element={<ProtectedRoute element={<UserEdit />} />} />
+          <Route path="Library-list" element={<ProtectedRoute element={<Librarylist />} />} />
+          <Route path="Book-view/:id" element={<ProtectedRoute element={<Bookview />} />} />
+          <Route path="Book-edit/:id" element={<ProtectedRoute element={<Bookedit />} />} />
+          <Route path="chapter-edit/:id" element={<ProtectedRoute element={<ChapterEdit />} />} />
+          <Route path="Book-create" element={<ProtectedRoute element={<Bookcreate />} />} />
+          <Route path="Chapter-create/:b_id" element={<ProtectedRoute element={<Chaptercreate />} />} />
+          <Route path="Salesscreen" element={<ProtectedRoute element={<Salescreen />} />} />
+          <Route path="Apphome" element={<ProtectedRoute element={<Apphome />} />} />
         </Route>
       </Routes>
     </BrowserRouter>

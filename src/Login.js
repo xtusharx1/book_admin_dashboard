@@ -1,65 +1,111 @@
-import React from 'react'
-import { Link } from 'react-router-dom'
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import Cookies from 'js-cookie';
 
 function Login() {
-    return (
-        <div class="row justify-content-center">
-            <div class="col-xl-10 col-lg-12 col-md-9">
-                <div class="card o-hidden border-0 shadow-lg my-5">
-                    <div class="card-body p-0">
-                        {/* <!-- Nested Row within Card Body --> */}
-                        <div class="row">
-                            <div class="col-lg-6 d-none d-lg-block bg-login-image"></div>
-                            <div class="col-lg-6">
-                                <div class="p-5">
-                                    <div class="text-center">
-                                        <h1 class="h4 text-gray-900 mb-4">Welcome Back!</h1>
-                                    </div>
-                                    <form class="user">
-                                        <div class="form-group">
-                                            <input type="email" class="form-control form-control-user"
-                                                id="exampleInputEmail" aria-describedby="emailHelp"
-                                                placeholder="Enter Email Address..." />
-                                        </div>
-                                        <div class="form-group">
-                                            <input type="password" class="form-control form-control-user"
-                                                id="exampleInputPassword" placeholder="Password" />
-                                        </div>
-                                        <div class="form-group">
-                                            <div class="custom-control custom-checkbox small">
-                                                <input type="checkbox" class="custom-control-input" id="customCheck" />
-                                                <label class="custom-control-label" for="customCheck">Remember
-                                                    Me</label>
-                                            </div>
-                                        </div>
-                                        <Link to="/portal/dashboard" class="btn btn-primary btn-user btn-block">
-                                            Login
-                                        </Link>
-                                        <hr />
-                                        <a href="index.html" class="btn btn-google btn-user btn-block">
-                                            <i class="fab fa-google fa-fw"></i> Login with Google
-                                        </a>
-                                        <a href="index.html" class="btn btn-facebook btn-user btn-block">
-                                            <i class="fab fa-facebook-f fa-fw"></i> Login with Facebook
-                                        </a>
-                                    </form>
-                                    <hr />
-                                    <div class="text-center">
-                                        <a class="small" href="forgot-password.html">Forgot Password?</a>
-                                    </div>
-                                    <div class="text-center">
-                                        <a class="small" href="register.html">Create an Account!</a>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const navigate = useNavigate();
 
-            </div>
+  // Redirect to dashboard if session cookie exists
+  useEffect(() => {
+    if (Cookies.get('session')) {
+      navigate('/portal/dashboard');
+    }
+  }, [navigate]);
 
+  const handleLogin = (event) => {
+    event.preventDefault();
+
+    // Hardcoded credentials for demonstration
+    const validEmail = 'dabadacademy@gmail.com';
+    const validPassword = 'dabad@123';
+
+    if (email === validEmail && password === validPassword) {
+      // Set cookie for session management
+      Cookies.set('session', 'user-session-token', { expires: 1 }); // expires in 1 day
+      navigate('/portal/dashboard');
+    } else {
+      alert('Invalid credentials');
+    }
+  };
+
+  return (
+    <div
+      style={{
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        height: '100vh',
+        backgroundColor: '#f8f9fa',
+      }}
+    >
+      <div
+        style={{
+          display: 'flex',
+          flexDirection: 'column',
+          backgroundColor: 'white',
+          borderRadius: '10px',
+          boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
+          padding: '2rem',
+          width: '100%',
+          maxWidth: '400px',
+        }}
+      >
+        <div style={{ textAlign: 'center', marginBottom: '1rem' }}>
+          <h1 style={{ fontSize: '1.5rem', color: '#333' }}>Login</h1>
         </div>
-    )
+        <form onSubmit={handleLogin}>
+          <div style={{ marginBottom: '1rem' }}>
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              style={{
+                width: '100%',
+                padding: '0.75rem',
+                borderRadius: '5px',
+                border: '1px solid #ddd',
+              }}
+              placeholder="Enter Email Address..."
+            />
+          </div>
+          <div style={{ marginBottom: '1rem' }}>
+            <input
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              style={{
+                width: '100%',
+                padding: '0.75rem',
+                borderRadius: '5px',
+                border: '1px solid #ddd',
+              }}
+              placeholder="Password"
+            />
+          </div>
+          <button
+            type="submit"
+            style={{
+              display: 'inline-block',
+              width: '100%',
+              padding: '0.75rem',
+              border: 'none',
+              borderRadius: '5px',
+              fontSize: '1rem',
+              backgroundColor: '#4e73df',
+              color: 'white',
+              textAlign: 'center',
+              textDecoration: 'none',
+              marginTop: '1rem',
+            }}
+          >
+            Login
+          </button>
+        </form>
+      </div>
+    </div>
+  );
 }
 
-export default Login
+export default Login;
