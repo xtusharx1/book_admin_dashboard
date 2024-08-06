@@ -27,7 +27,7 @@ export default function Apphome() {
       const response = await axios.get('http://ec2-13-202-53-68.ap-south-1.compute.amazonaws.com:3000/api/timelines/timeline');
       setEvents(response.data);
     } catch (error) {
-      console.error('Error fetching events:', error);
+      //console.error('Error fetching events:', error);
     }
   };
 
@@ -36,7 +36,7 @@ export default function Apphome() {
       const response = await axios.get('http://ec2-13-202-53-68.ap-south-1.compute.amazonaws.com:3000/api/headlines/headlines');
       setHeadlines(response.data);
     } catch (error) {
-      console.error('Error fetching headlines:', error);
+      //console.error('Error fetching headlines:', error);
     }
   };
 
@@ -45,7 +45,7 @@ export default function Apphome() {
       const response = await axios.get('http://ec2-13-202-53-68.ap-south-1.compute.amazonaws.com:3000/api/images/imagesget');
       setImages(response.data);
     } catch (error) {
-      console.error('Error fetching images:', error);
+      //console.error('Error fetching images:', error);
     }
   };
 
@@ -109,7 +109,7 @@ export default function Apphome() {
     try {
       await axios.post('http://ec2-13-202-53-68.ap-south-1.compute.amazonaws.com:3000/api/timelines/timeline', form);
     } catch (error) {
-      console.error('Error creating event:', error);
+      //console.error('Error creating event:', error);
     }
   };
 
@@ -117,7 +117,7 @@ export default function Apphome() {
     try {
       await axios.put(`http://ec2-13-202-53-68.ap-south-1.compute.amazonaws.com:3000/api/timelines/timeline/${currentEventName}`, form);
     } catch (error) {
-      console.error('Error updating event:', error);
+      //console.error('Error updating event:', error);
     }
   };
 
@@ -126,7 +126,7 @@ export default function Apphome() {
       await axios.delete(`http://ec2-13-202-53-68.ap-south-1.compute.amazonaws.com:3000/api/timelines/timeline/${event_name}`);
       fetchEvents();
     } catch (error) {
-      console.error('Error deleting event:', error);
+      //console.error('Error deleting event:', error);
     }
   };
   
@@ -143,7 +143,7 @@ export default function Apphome() {
     try {
       await axios.post('http://ec2-13-202-53-68.ap-south-1.compute.amazonaws.com:3000/api/headlines/headlines', headlineForm);
     } catch (error) {
-      console.error('Error creating headline:', error);
+      //console.error('Error creating headline:', error);
     }
   };
 
@@ -151,7 +151,7 @@ export default function Apphome() {
     try {
       await axios.put(`http://ec2-13-202-53-68.ap-south-1.compute.amazonaws.com:3000/api/headlines/headlines/${currentHeadlineTitle}`, headlineForm);
     } catch (error) {
-      console.error('Error updating headline:', error);
+      //console.error('Error updating headline:', error);
     }
   };
 
@@ -160,7 +160,7 @@ export default function Apphome() {
       await axios.delete(`http://ec2-13-202-53-68.ap-south-1.compute.amazonaws.com:3000/api/headlines/headlines/${title}`);
       fetchHeadlines();
     } catch (error) {
-      console.error('Error deleting headline:', error);
+      //console.error('Error deleting headline:', error);
     }
   };
 
@@ -179,7 +179,7 @@ export default function Apphome() {
         headers: { 'Content-Type': 'multipart/form-data' }
       });
     } catch (error) {
-      console.error('Error creating image:', error);
+      ////console.error('Error creating image:', error);
     }
   };
 
@@ -189,7 +189,7 @@ export default function Apphome() {
         headers: { 'Content-Type': 'multipart/form-data' }
       });
     } catch (error) {
-      console.error('Error updating image:', error);
+      ////console.error('Error updating image:', error);
     }
   };
 
@@ -198,7 +198,7 @@ export default function Apphome() {
       await axios.delete(`http://ec2-13-202-53-68.ap-south-1.compute.amazonaws.com:3000/api/images/imagesdelete/${id}`);
       fetchImages();
     } catch (error) {
-      console.error('Error deleting image:', error);
+      ////console.error('Error deleting image:', error);
     }
   };
 

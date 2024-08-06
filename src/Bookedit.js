@@ -28,10 +28,10 @@ function BookEdit() {
             if (response.data) {
                 setBookData(response.data);
             } else {
-                console.error('Book not found');
+                //console.error('Book not found');
             }
         } catch (error) {
-            console.error('Error fetching book data:', error);
+            //console.error('Error fetching book data:', error);
         }
     };
 
@@ -66,7 +66,7 @@ function BookEdit() {
             setLoading(false);
             navigate(`/portal/chapter-edit/${id}`);
         } catch (error) {
-            console.error('Error updating book:', error);
+            //console.error('Error updating book:', error);
             setLoading(false);
         }
     };

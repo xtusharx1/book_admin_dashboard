@@ -5,12 +5,15 @@ import {
   Chart as ChartJS, Tooltip, Legend, CategoryScale, LinearScale, PointElement, LineElement, BarElement, Title, ArcElement
 } from 'chart.js';
 import axios from 'axios';
+import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
+import 'leaflet/dist/leaflet.css';
+import L from 'leaflet'; 
 
 ChartJS.register(Tooltip, Legend, CategoryScale, LinearScale, PointElement, LineElement, BarElement, Title, ArcElement);
 
 function Dashboard() {
   const [bookData, setBookData] = useState([]);
-  const [studentData, setStudentData] = useState([]);
+  const [studentData, setStudentData] = useState([]); 
   const [orderData, setOrderData] = useState([]);
   const [bookSoldData, setBookSoldData] = useState(0);
   const [totalBooks, setTotalBooks] = useState(0);
@@ -18,7 +21,9 @@ function Dashboard() {
   const [genderFilter, setGenderFilter] = useState('all');
   const [classFilter, setClassFilter] = useState(null);
   const [dateFilter, setDateFilter] = useState('all');
+  const [customDateRange, setCustomDateRange] = useState({ start: '', end: '' });
   const [bookSalesData, setBookSalesData] = useState({ labels: [], datasets: [] });
+  const [locations, setLocations] = useState([]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -38,7 +43,6 @@ function Dashboard() {
           const bookSoldCount = orders.filter(order => order.haspaid).length;
           setBookSoldData(bookSoldCount);
         } else {
-          console.error('Order data is not an array:', orders);
           setOrderData([]);
         }
 
@@ -46,6 +50,7 @@ function Dashboard() {
         setTotalStudents(studentResponse.data.length);
 
         await fetchBookSalesData();
+        await fetchLocations();
       } catch (error) {
         console.error('Error fetching data:', error);
       }
@@ -169,8 +174,49 @@ function Dashboard() {
     }
   };
 
+  const fetchLocations = async () => {
+    try {
+      const response = await axios.get('http://ec2-13-202-53-68.ap-south-1.compute.amazonaws.com:3000/api/locations/all/');
+      setLocations(response.data);
+    } catch (error) {
+      console.error('Error fetching location data:', error);
+    }
+  };
+  const defaultIcon = new L.Icon({
+    iconUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon.png',
+    iconSize: [25, 41],
+    iconAnchor: [12, 41],
+    popupAnchor: [1, -34],
+    shadowUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-shadow.png',
+    shadowSize: [41, 41]
+  });
+  const filterByDateRange = (data) => {
+    if (dateFilter === 'custom') {
+      const { start, end } = customDateRange;
+      if (start && end) {
+        return data.filter(item => {
+          const date = new Date(item.created_at);
+          return date >= new Date(start) && date <= new Date(end);
+        });
+      }
+    } else if (dateFilter === 'month') {
+      const now = new Date();
+      return data.filter(item => {
+        const date = new Date(item.created_at);
+        return date.getMonth() === now.getMonth() && date.getFullYear() === now.getFullYear();
+      });
+    } else if (dateFilter === 'year') {
+      const now = new Date();
+      return data.filter(item => {
+        const date = new Date(item.created_at);
+        return date.getFullYear() === now.getFullYear();
+      });
+    }
+    return data;
+  };
+
   const getStudentsByState = () => {
-    const filteredStudents = studentData.filter(student =>
+    const filteredStudents = filterByDateRange(studentData).filter(student =>
       (genderFilter === 'all' || student.gender.toLowerCase() === genderFilter) &&
       (!classFilter || student.c_entry.includes(classFilter))
     );
@@ -222,9 +268,10 @@ function Dashboard() {
     };
   };
 
+
   const getGenderDistribution = () => {
-    const maleCount = studentData.filter(student => student.gender === 'Male').length;
-    const femaleCount = studentData.filter(student => student.gender === 'Female').length;
+    const maleCount = studentData.filter(student => student.gender.toLowerCase() === 'male').length;
+    const femaleCount = studentData.filter(student => student.gender.toLowerCase() === 'female').length;
 
     return {
       labels: ['Male', 'Female'],
@@ -272,11 +319,32 @@ function Dashboard() {
           <Line data={getRegistrationData()} />
           <div style={{ marginTop: '20px' }}>
             <label style={{ marginRight: '10px' }}>Date: </label>
-            <select value={dateFilter} onChange={e => setDateFilter(e.target.value)} style={{ padding: '5px' }}>
+            <select value={dateFilter} onChange={e => setDateFilter(e.target.value)} style={{ padding: '5px', marginRight: '20px' }}>
               <option value="all">All</option>
               <option value="month">This Month</option>
               <option value="year">This Year</option>
+              <option value="custom">Custom Range</option>
             </select>
+
+            {dateFilter === 'custom' && (
+              <div style={{ marginTop: '10px' }}>
+                <label style={{ marginRight: '10px' }}>Start Date: </label>
+                <input
+                  type="date"
+                  value={customDateRange.start}
+                  onChange={e => setCustomDateRange(prev => ({ ...prev, start: e.target.value }))}
+                  style={{ padding: '5px', marginRight: '20px' }}
+                />
+
+                <label style={{ marginRight: '10px' }}>End Date: </label>
+                <input
+                  type="date"
+                  value={customDateRange.end}
+                  onChange={e => setCustomDateRange(prev => ({ ...prev, end: e.target.value }))}
+                  style={{ padding: '5px' }}
+                />
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -291,8 +359,30 @@ function Dashboard() {
           <Pie data={bookSalesData} options={{ maintainAspectRatio: false }} />
         </div>
       </div>
+<br></br><br></br><br></br><br></br>
+<h2>Map</h2>
+      <div className="dashboard-map">
+        <MapContainer center={[21.1458, 79.0882]} zoom={5} style={{ height: '800px', width: '100%' }}>
+          <TileLayer
+            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          />
+          {locations.map(location => (
+            <Marker
+              key={location.location_id}
+              position={[location.latitude, location.longitude]}
+              icon={defaultIcon}
+            >
+              <Popup>
+                Location ID: {location.location_id}<br />
+                Latitude: {location.latitude}<br />
+                Longitude: {location.longitude}
+              </Popup>
+            </Marker>
+          ))}
+        </MapContainer>
+      </div>
 
-      <div style={{ marginTop: '40px' }}></div> {/* Added space at the bottom */}
+      <div style={{ marginTop: '40px' }}></div>
     </div>
   );
 }

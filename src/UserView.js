@@ -11,13 +11,15 @@ function UserView() {
     const [payments, setPayments] = useState([]);
     const [cart, setCart] = useState([]);
     const [totalSpend, setTotalSpend] = useState(0);
+    const [appDownloads, setAppDownloads] = useState([]);
     const [isLoadingUser, setLoadingUser] = useState(true);
     const [isLoadingPayments, setLoadingPayments] = useState(true);
     const [isLoadingCart, setLoadingCart] = useState(true);
+    const [isLoadingApps, setLoadingApps] = useState(true);
 
     useEffect(() => {
         const fetchData = async () => {
-            await Promise.all([getUser(), getPayments()]);
+            await Promise.all([getUser(), getPayments(), getAppDownloads()]);
         };
         fetchData();
     }, []);
@@ -27,7 +29,7 @@ function UserView() {
             const response = await axios.get(`http://ec2-13-202-53-68.ap-south-1.compute.amazonaws.com:3000/api/users/getbyid/${params.id}`);
             setUser(response.data);
         } catch (error) {
-            console.error("Error fetching user:", error);
+            //console.error("Error fetching user:", error);
         } finally {
             setLoadingUser(false);
         }
@@ -37,8 +39,7 @@ function UserView() {
         try {
             const response = await axios.get(`http://ec2-13-202-53-68.ap-south-1.compute.amazonaws.com:3000/api/payments/user/${params.id}`);
             const allPayments = response.data;
-            
-            // Separate payments into orders and cart items
+
             const orders = [];
             const cartItems = [];
             const bookDetailsPromises = [];
@@ -49,12 +50,11 @@ function UserView() {
                         .then(bookResponse => ({
                             ...payment,
                             bookName: bookResponse.data.b_name,
-                            sellPrice: parseFloat(bookResponse.data.sell_price) // Ensure it's a number
+                            sellPrice: parseFloat(bookResponse.data.sell_price)
                         }))
                 );
             });
 
-            // Await all book detail promises
             const paymentsWithDetails = await Promise.all(bookDetailsPromises);
 
             paymentsWithDetails.forEach(payment => {
@@ -65,16 +65,37 @@ function UserView() {
                 }
             });
 
-            // Calculate total spend
             const total = orders.reduce((sum, payment) => sum + payment.sellPrice, 0);
             setTotalSpend(total);
             setPayments(orders);
             setCart(cartItems);
         } catch (error) {
-            console.error("Error fetching payments:", error);
+            //console.error("Error fetching payments:", error);
         } finally {
             setLoadingPayments(false);
             setLoadingCart(false);
+        }
+    };
+
+    const getAppDownloads = async () => {
+        try {
+            const response = await axios.get(`http://ec2-13-202-53-68.ap-south-1.compute.amazonaws.com:3000/api/userapplogin/user/${params.id}`);
+            const appLogins = response.data;
+
+            const bookDetailsPromises = appLogins.map(login =>
+                axios.get(`http://ec2-13-202-53-68.ap-south-1.compute.amazonaws.com:3000/api/books/getbook/${login.b_id}`)
+                    .then(bookResponse => ({
+                        ...login,
+                        bookName: bookResponse.data.b_name,
+                    }))
+            );
+
+            const appsWithDetails = await Promise.all(bookDetailsPromises);
+            setAppDownloads(appsWithDetails);
+        } catch (error) {
+            //console.error("Error fetching app downloads:", error);
+        } finally {
+            setLoadingApps(false);
         }
     };
 
@@ -91,9 +112,9 @@ function UserView() {
             hour: '2-digit',
             minute: '2-digit',
             second: '2-digit',
-            hour12: false // 24-hour format
+            hour12: false
         };
-        return date.toLocaleString('en-GB', options).replace(',', ''); // Format date and time
+        return date.toLocaleString('en-GB', options).replace(',', '');
     };
 
     return (
@@ -125,6 +146,7 @@ function UserView() {
                     )
                 )}
             </div>
+            
             <div className="user-orders-cart">
                 <div className="user-orders">
                     <h3>Orders</h3>
@@ -147,14 +169,14 @@ function UserView() {
                                             <tr key={payment.id}>
                                                 <td>{index + 1}</td>
                                                 <td>{payment.bookName}</td>
-                                                <td>{formatDate(payment.updated_at)}</td> {/* Show date with time */}
-                                                <td>₹{payment.sellPrice.toFixed(2)}</td> {/* Format price */}
+                                                <td>{formatDate(payment.updated_at)}</td>
+                                                <td>₹{payment.sellPrice.toFixed(2)}</td>
                                             </tr>
                                         ))}
                                     </tbody>
                                 </table>
                                 <div className="total-spend">
-                                    <p>Total Spend: ₹{totalSpend.toFixed(2)}</p> {/* Format total spend */}
+                                    <p>Total Spend: ₹{totalSpend.toFixed(2)}</p>
                                 </div>
                             </>
                         ) : (
@@ -183,14 +205,14 @@ function UserView() {
                                             <tr key={payment.id}>
                                                 <td>{index + 1}</td>
                                                 <td>{payment.bookName}</td>
-                                                <td>{formatDate(payment.created_at)}</td> {/* Show date with time */}
-                                                <td>₹{payment.sellPrice.toFixed(2)}</td> {/* Format price */}
+                                                <td>{formatDate(payment.created_at)}</td>
+                                                <td>₹{payment.sellPrice.toFixed(2)}</td>
                                             </tr>
                                         ))}
                                     </tbody>
                                 </table>
                                 <div className="total-cart-value">
-                                    <p>Total Cart Value: ₹{cart.reduce((sum, payment) => sum + payment.sellPrice, 0).toFixed(2)}</p> {/* Format total cart value */}
+                                    <p>Total Cart Value: ₹{cart.reduce((sum, payment) => sum + payment.sellPrice, 0).toFixed(2)}</p>
                                 </div>
                             </>
                         ) : (
@@ -199,6 +221,29 @@ function UserView() {
                     )}
                 </div>
             </div>
+            
+            <div className="user-app-downloads">
+                <h3>App Downloads</h3>
+                {isLoadingApps ? (
+                    <img src="https://media.giphy.com/media/ZO9b1ntYVJmjZlsWlm/giphy.gif" alt="Loading" />
+                ) : (
+                    appDownloads.length > 0 ? (
+                        <ul>
+                            {appDownloads.map((app, index) => (
+                                <li key={app.id}>
+                                    <div className="app-info">
+                                        <h4>{app.bookName}</h4>
+                                        <p>Logged in at: {formatDate(app.createdAt)}</p>
+                                    </div>
+                                </li>
+                            ))}
+                        </ul>
+                    ) : (
+                        <p>No app downloads found for this user.</p>
+                    )
+                )}
+            </div>
+
             <div className="user-activity">
                 <h3>Activity</h3>
                 <div className="activity-list">

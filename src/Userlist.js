@@ -25,11 +25,11 @@ function Userlist() {
         setFilteredList(response.data);
         console.log("Users set in state:", response.data);
       } else {
-        console.error("Unexpected response format:", response.data);
+        //console.error("Unexpected response format:", response.data);
       }
       setLoading(false);
     } catch (error) {
-      console.error("Error fetching users:", error);
+      //console.error("Error fetching users:", error);
       setLoading(false);
     }
   };

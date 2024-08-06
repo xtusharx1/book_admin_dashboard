@@ -28,10 +28,10 @@ function UserEdit() {
             if (response.data) {
                 setUserData(response.data); // Assuming response.data directly contains user details
             } else {
-                console.error('User not found');
+                //console.error('User not found');
             }
         } catch (error) {
-            console.error('Error fetching user data:', error);
+            //console.error('Error fetching user data:', error);
         }
     };
 
@@ -49,7 +49,7 @@ function UserEdit() {
             // Redirect to user list or success page after update
             window.location.href = '/portal/user-list';
         } catch (error) {
-            console.error('Error updating user:', error);
+            //console.error('Error updating user:', error);
             setLoading(false);
         }
     };

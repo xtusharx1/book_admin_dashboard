@@ -19,11 +19,11 @@ function ChapterEdit() {
                 const sortedChapters = response.data.sort((a, b) => a.c_no - b.c_no);
                 setChapters(sortedChapters);
             } else {
-                console.error('Chapters not found');
+                //console.error('Chapters not found');
                 setChapters([]);
             }
         } catch (error) {
-            console.error('Error fetching chapters:', error);
+            //console.error('Error fetching chapters:', error);
         }
     };
 
@@ -40,7 +40,7 @@ function ChapterEdit() {
             await axios.put(`http://ec2-13-202-53-68.ap-south-1.compute.amazonaws.com:3000/api/chapters/update/${chapter.id}`, chapter);
             console.log('Chapter updated successfully');
         } catch (error) {
-            console.error('Error updating chapter:', error);
+            //console.error('Error updating chapter:', error);
         } finally {
             setLoading(false);
         }
@@ -53,7 +53,7 @@ function ChapterEdit() {
             console.log('Chapter deleted successfully');
             fetchChapters(); // Refresh the chapters after deletion
         } catch (error) {
-            console.error('Error deleting chapter:', error);
+            //console.error('Error deleting chapter:', error);
         } finally {
             setLoading(false);
         }

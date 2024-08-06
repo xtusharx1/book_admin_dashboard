@@ -41,7 +41,7 @@ function BookCreate() {
       console.log('Created Book:', createdBook);
       navigate(`/portal/Chapter-create/${createdBook.b_id}`);
     } catch (error) {
-      console.error('Error creating book:', error);
+      //console.error('Error creating book:', error);
     }
   };
 

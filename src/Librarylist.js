@@ -26,11 +26,11 @@ function LibraryList() {
         setFilteredBookList(sortedBooks); // Set filteredBookList as well
         console.log("Books set in state:", response.data); // Logging the data set in state
       } else {
-        console.error("Unexpected response format:", response.data);
+        ////console.error("Unexpected response format:", response.data);
       }
       setLoading(false);
     } catch (error) {
-      console.error("Error fetching books:", error);
+      //console.error("Error fetching books:", error);
       setLoading(false);
     }
   };
@@ -65,7 +65,7 @@ function LibraryList() {
       setFilteredBookList(filteredBookList.filter(book => book.b_id !== id));
       console.log(`Deleted book with id ${id}`);
     } catch (error) {
-      console.error("Error deleting book:", error);
+      //console.error("Error deleting book:", error);
     }
   };
 

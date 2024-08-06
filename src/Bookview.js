@@ -21,7 +21,7 @@ function Bookview() {
             setBook(response.data);
             setLoadingBook(false);
         } catch (error) {
-            console.error("Error fetching book:", error);
+            //console.error("Error fetching book:", error);
             setLoadingBook(false);
         }
     };
@@ -34,7 +34,7 @@ function Bookview() {
             setChapters(sortedChapters);
             setLoadingChapters(false);
         } catch (error) {
-            console.error("Error fetching chapters:", error);
+            //console.error("Error fetching chapters:", error);
             setLoadingChapters(false);
         }
     };

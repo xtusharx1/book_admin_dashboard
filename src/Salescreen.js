@@ -14,7 +14,7 @@ export default function Salescreen() {
       try {
         const paymentResponse = await axios.get('http://ec2-13-202-53-68.ap-south-1.compute.amazonaws.com:3000/api/payments/all');
         const paymentData = paymentResponse.data;
-        
+
         // Retrieve user and book details based on payment data
         const detailedPayments = await Promise.all(paymentData.map(async (payment) => {
           let userName = 'Unknown User';
@@ -26,7 +26,7 @@ export default function Salescreen() {
               const userResponse = await axios.get(`http://ec2-13-202-53-68.ap-south-1.compute.amazonaws.com:3000/api/users/getbyid/${payment.u_id}`);
               userName = userResponse.data.f_name || 'Unknown User';
             } catch (err) {
-              console.error(`Error fetching user with ID ${payment.u_id}:`, err);
+              // Handle user fetch error
             }
           }
 
@@ -35,7 +35,7 @@ export default function Salescreen() {
               const bookResponse = await axios.get(`http://ec2-13-202-53-68.ap-south-1.compute.amazonaws.com:3000/api/books/getbook/${payment.b_id}`);
               bookName = bookResponse.data.b_name || 'Unknown Book';
             } catch (err) {
-              console.error(`Error fetching book with ID ${payment.b_id}:`, err);
+              // Handle book fetch error
             }
           }
 
@@ -46,19 +46,25 @@ export default function Salescreen() {
             date = payment.created_at; // Cart
           }
 
+          // Convert UTC date to IST and format
+          const localDate = new Date(date).toLocaleString('en-GB', { 
+            timeZone: 'Asia/Kolkata',
+            hour12: false 
+          });
+
           return {
             userId: payment.u_id,
             userName: userName,
             bookName: bookName,
             hasPaid: payment.haspaid,
-            date: new Date(date).toLocaleString('en-GB', { timeZone: 'UTC', hour12: false }) // Format date to 24-hour format
+            date: localDate // Display the local date
           };
         }));
-        
+
         setPayments(detailedPayments);
       } catch (err) {
         setError('Error fetching data');
-        console.error(err);
+        // Handle fetch error
       }
     };
 

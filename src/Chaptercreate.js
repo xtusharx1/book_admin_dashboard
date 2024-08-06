@@ -31,7 +31,7 @@ function ChapterCreate() {
       }
       setLoading(false);
     } catch (error) {
-      console.error('Error fetching chapters:', error);
+      //console.error('Error fetching chapters:', error);
       setLoading(false);
     }
   };
@@ -80,7 +80,7 @@ function ChapterCreate() {
       fetchChaptersAndSetNextNumber(); // Fetch chapters again to update next chapter number
       resetForm(); // Reset the form after successful submission
     } catch (error) {
-      console.error('Error creating chapter:', error);
+      //console.error('Error creating chapter:', error);
     }
   };
 
