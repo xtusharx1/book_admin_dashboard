@@ -140,6 +140,7 @@ function UserView() {
                                 <p>DOB: {formatDate(user.dob)}</p>
                                 <p>Student Class: {user.c_entry}</p>
                                 <p>First Choice Sainik School: {user.c_school}</p>
+                                <p>Registration Time:{user.created_at}</p>
                             </div>
                             <button className="edit-button" onClick={handleEditClick}>Edit</button>
                         </div>

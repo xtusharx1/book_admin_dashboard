@@ -1,121 +1,128 @@
 import { faSearch, faTimes } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
-import debounce from 'lodash.debounce';
 
 function Userlist() {
   const [userList, setUserList] = useState([]);
   const [filteredList, setFilteredList] = useState([]);
   const [isLoading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
+  const [genderFilter, setGenderFilter] = useState("All");
 
+  // Fetch users from API
   useEffect(() => {
     getUsers();
-    console.log("Welcome to Userlist");
   }, []);
+
+  // Filter users when searchQuery, genderFilter, or userList changes
+  useEffect(() => {
+    filterUsers();
+  }, [searchQuery, genderFilter, userList]);
 
   const getUsers = async () => {
     try {
       const response = await axios.get("http://ec2-13-202-53-68.ap-south-1.compute.amazonaws.com:3000/api/users/showusers");
-      console.log("Fetched users response:", response);
       if (response.data && Array.isArray(response.data)) {
-        setUserList(response.data);
-        setFilteredList(response.data);
-        console.log("Users set in state:", response.data);
-      } else {
-        //console.error("Unexpected response format:", response.data);
+        const sortedUsers = response.data.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+        setUserList(sortedUsers);
+        setFilteredList(sortedUsers);
       }
       setLoading(false);
     } catch (error) {
-      //console.error("Error fetching users:", error);
       setLoading(false);
+      console.error("Error fetching users:", error);
     }
   };
 
-  // Debounced search function
-  const debouncedSearch = useCallback(
-    debounce((query) => {
-      const filtered = userList.filter(user =>
-        user.f_name.toLowerCase().includes(query.toLowerCase())
+  const filterUsers = () => {
+    let filtered = userList;
+
+    if (genderFilter !== "All") {
+      filtered = filtered.filter(user => user.gender === genderFilter);
+    }
+
+    if (searchQuery) {
+      filtered = filtered.filter(user =>
+        user.f_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        user.c_school.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        user.state.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        user.c_entry.toLowerCase().includes(searchQuery.toLowerCase())
       );
-      setFilteredList(filtered);
-    }, 300), [userList]
-  );
+    }
+
+    setFilteredList(filtered);
+  };
 
   const handleSearchInputChange = (event) => {
-    const value = event.target.value;
-    setSearchQuery(value);
-    debouncedSearch(value);
+    setSearchQuery(event.target.value);
+  };
+
+  const handleGenderChange = (event) => {
+    setGenderFilter(event.target.value);
   };
 
   const clearSearch = () => {
     setSearchQuery("");
-    setFilteredList(userList);
   };
 
   // Inline CSS styles
+  const searchButtonStyles = {
+    backgroundColor: '#4e73df',
+    color: '#fff',
+    border: 'none',
+    padding: '6px 12px',
+    cursor: 'pointer',
+    borderRadius: '5px'
+  };
+
+  const clearButtonStyles = {
+    backgroundColor: 'transparent',
+    color: '#000',
+    border: 'none',
+    cursor: 'pointer',
+    fontSize: '20px',
+    marginLeft: '-40px'
+  };
+
   const tableStyles = {
     width: '100%',
     borderCollapse: 'collapse',
-  };
-
-  const thTdStyles = {
-    border: '1px solid #ddd',
-    padding: '8px',
-    textAlign: 'left',
+    borderRadius: '10px',
+    overflow: 'hidden',
+    marginTop: '20px'
   };
 
   const thStyles = {
-    ...thTdStyles,
-    backgroundColor: '#007bff',
+    backgroundColor: '#4e73df',
     color: 'white',
-    position: 'sticky',
-    top: 0,
+    padding: '10px',
+    textAlign: 'left',
+    fontWeight: 'bold',
+    whiteSpace: 'nowrap'
   };
 
   const tdStyles = {
-    ...thTdStyles,
+    padding: '8px',
+    borderBottom: '1px solid #ddd',
+    whiteSpace: 'nowrap',
+    verticalAlign: 'middle'
+  };
+
+  const actionTdStyles = {
+    ...tdStyles,
+    display: 'flex',
+    gap: '5px',
+    justifyContent: 'center',
+    width: '150px', // Adjust width as needed
   };
 
   const noDataStyles = {
     textAlign: 'center',
-    padding: '10px',
-    fontStyle: 'italic',
-  };
-
-  const searchContainerStyles = {
-    position: 'relative',
-    maxWidth: '300px',
-  };
-
-  const searchInputStyles = {
-    width: '100%',
-    padding: '10px 40px 10px 10px',
-    border: '1px solid #ced4da',
-    borderRadius: '4px',
-    fontSize: '16px',
-  };
-
-  const searchButtonStyles = {
-    position: 'absolute',
-    top: '50%',
-    right: '10px',
-    transform: 'translateY(-50%)',
-    background: 'none',
-    border: 'none',
-    cursor: 'pointer',
-  };
-
-  const clearButtonStyles = {
-    position: 'absolute',
-    top: '50%',
-    right: '40px',
-    transform: 'translateY(-50%)',
-    background: 'none',
-    border: 'none',
-    cursor: 'pointer',
+    padding: '20px',
+    color: '#888',
+    fontSize: '18px'
   };
 
   return (
@@ -128,20 +135,30 @@ function Userlist() {
           <h6 className="m-0 font-weight-bold text-primary">Student Data</h6>
         </div>
         <div className="card-body">
-          <div className="mb-3" style={searchContainerStyles}>
+          <div className="mb-3" style={{ display: 'flex', gap: '10px' }}>
             <input
               type="text"
-              placeholder="Search Name"
+              placeholder="Search Name, School, Class, or State"
               value={searchQuery}
               onChange={handleSearchInputChange}
               className="form-control"
-              style={searchInputStyles}
+              style={{ width: '70%' }}
             />
             {searchQuery && (
               <button onClick={clearSearch} style={clearButtonStyles}>
                 <FontAwesomeIcon icon={faTimes} />
               </button>
             )}
+            <select
+              value={genderFilter}
+              onChange={handleGenderChange}
+              className="form-control"
+              style={{ width: '30%' }}
+            >
+              <option value="All">All</option>
+              <option value="Male">Male</option>
+              <option value="Female">Female</option>
+            </select>
             <button style={searchButtonStyles}>
               <FontAwesomeIcon icon={faSearch} />
             </button>
@@ -153,6 +170,7 @@ function Userlist() {
               <table style={tableStyles} id="dataTable" cellSpacing="0">
                 <thead>
                   <tr>
+                    <th style={thStyles}>S No</th>
                     <th style={thStyles}>ID</th>
                     <th style={thStyles}>Name</th>
                     <th style={thStyles}>Phone Number</th>
@@ -168,11 +186,12 @@ function Userlist() {
                 <tbody>
                   {filteredList.length === 0 ? (
                     <tr>
-                      <td colSpan="10" style={noDataStyles}>No users found</td>
+                      <td colSpan="11" style={noDataStyles}>No users found</td>
                     </tr>
                   ) : (
-                    filteredList.map((user) => (
+                    filteredList.map((user, index) => (
                       <tr key={user.u_id}>
+                        <td style={tdStyles}>{index + 1}</td>
                         <td style={tdStyles}>{user.u_id}</td>
                         <td style={tdStyles}>{user.f_name}</td>
                         <td style={tdStyles}>{user.phonenumber}</td>
@@ -182,9 +201,9 @@ function Userlist() {
                         <td style={tdStyles}>{user.state}</td>
                         <td style={tdStyles}>{user.city}</td>
                         <td style={tdStyles}>{new Date(user.dob).toLocaleDateString()}</td>
-                        <td style={tdStyles}>
-                          <Link to={`/portal/user-view/${user.u_id}`} className="btn btn-primary btn-sm mr-1">View</Link>
-                          <Link to={`/portal/user-edit/${user.u_id}`} className="btn btn-info btn-sm mr-1">Edit</Link>
+                        <td style={actionTdStyles}>
+                          <Link to={`/portal/user-view/${user.u_id}`} className="btn btn-primary btn-sm">View</Link>
+                          <Link to={`/portal/user-edit/${user.u_id}`} className="btn btn-info btn-sm">Edit</Link>
                         </td>
                       </tr>
                     ))
