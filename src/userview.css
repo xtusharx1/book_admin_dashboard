@@ -1,125 +1,164 @@
+/* Overall User View Container */
 .user-view-container {
-    display: flex;
+    display: grid;
+    grid-template-columns: 1fr 2fr;
     gap: 20px;
     padding: 20px;
-    font-family: Arial, sans-serif;
-    background-color: #f5f5f5;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #eaeaea;
 }
 
-.user-profile {
-    width: 30%;
-    background: #ffffff;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+/* User Details Section */
+.user-details {
+    background-color: #ffffff;
+    border-radius: 12px;
     padding: 20px;
-    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+    box-sizing: border-box;
+}
+
+/* Profile Details */
+.profile-details {
     display: flex;
     flex-direction: column;
-    align-items: center; /* Center align all items */
+    align-items: center;
+    text-align: center;
 }
 
+/* Profile Header */
 .profile-header {
-    text-align: center; /* Center align text */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
     margin-bottom: 20px;
 }
 
+/* Initials Circle */
 .profile-initials {
-
-    margin-left: 125px;
-    align-items: center;
-    width: 80px;
-    height: 80px;
+    background-color: #007bff;
+    color: #ffffff;
     border-radius: 50%;
-    background: #007bff;
-    color: white;
+    width: 100px;
+    height: 100px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 24px;
-    margin-bottom: 10px;
-    text-align: center; /* Center align text inside */
+    font-size: 40px;
+    font-weight: 600;
+    margin-bottom: 15px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
+/* Name Styling */
 .profile-header h2 {
-    margin: 0;
+    margin: 5px 0;
+    font-size: 28px;
     color: #333;
+    font-weight: 600;
 }
 
-.profile-header p {
-    color: #777;
-    margin: 5px 0;
-}
-
-.profile-contact p,
-.profile-other p {
-    margin: 5px 0;
-    color: #555;
+/* Contact Details */
+.profile-contact {
     display: flex;
+    flex-direction: column;
     align-items: center;
+    margin-bottom: 20px;
 }
 
-.profile-contact i,
-.profile-other i {
+.profile-contact p {
+    margin: 8px 0;
+    font-size: 16px;
+    color: #555;
+}
+
+.profile-contact i {
     margin-right: 10px;
     color: #007bff;
 }
 
-.edit-button {
-    width: 100%;
-    padding: 10px;
+/* Other Details */
+.profile-other {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
     margin-top: 20px;
-    background: #007bff;
-    color: white;
+}
+
+.profile-other p {
+    margin: 8px 0;
+    font-size: 16px;
+    color: #555;
+}
+
+/* Edit Button */
+.edit-button {
+    background-color: #28a745;
+    color: #ffffff;
     border: none;
-    border-radius: 5px;
+    padding: 12px 24px;
+    border-radius: 6px;
     cursor: pointer;
-    transition: background 0.3s;
+    font-size: 16px;
+    margin-top: 20px;
+    transition: background-color 0.3s ease, transform 0.2s ease;
 }
 
 .edit-button:hover {
-    background: #0056b3;
+    background-color: #218838;
+    transform: translateY(-2px);
 }
 
-.user-data {
-    width: 70%;
-}
-
-.user-details-container {
-    display: flex;
-    gap: 20px;
-    flex-wrap: wrap; /* Allows wrapping to next line if needed */
-}
-
+/* User Data Sections */
 .user-orders,
 .user-cart,
-.user-activity {
+.user-activity,
+.app-downloads {
     background: #ffffff;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 12px;
     padding: 20px;
-    border-radius: 10px;
-    flex: 1; /* Allow containers to grow and shrink */
-    min-width: 0; /* Prevent containers from overflowing */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     margin-bottom: 20px;
+    box-sizing: border-box;
 }
 
+/* Background Colors for Different Sections */
 .user-orders {
-    background: #e9f5ff; /* Light blue background for orders */
+    background: #f0faff; /* Light blue background for orders */
 }
 
 .user-cart {
-    background: #e8f7e7; /* Light green background for cart */
+    background: #f1f9f1; /* Light green background for cart */
 }
 
 .user-activity {
-    background: #fdf6e4; /* Light yellow background for activity */
+    background: #fff8e1; /* Light yellow background for activity */
 }
 
+/* App Downloads Container */
+.app-downloads {
+    background-color: #ffffff; /* White background for a clean look */
+    border-radius: 12px; /* Rounded corners for a modern feel */
+    padding: 20px; /* Space inside the container */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Soft shadow for depth */
+    margin-bottom: 20px; /* Ensure consistent spacing */
+    width: 100%; /* Full width within parent container */
+    max-width: 800px; /* Max width to ensure it doesn’t stretch too wide */
+    box-sizing: border-box; /* Include padding and border in element’s total width and height */
+}
+
+/* Title Styling */
 .user-orders h3,
 .user-cart h3,
-.user-activity h3 {
-    margin-bottom: 20px;
+.user-activity h3,
+.app-downloads h3 {
+    margin-bottom: 15px;
+    font-size: 18px;
     color: #333;
+    font-weight: 600;
 }
 
+/* Table Styling */
 .user-orders table,
 .user-cart table {
     width: 100%;
@@ -130,7 +169,7 @@
 .user-cart th,
 .user-orders td,
 .user-cart td {
-    padding: 10px;
+    padding: 12px;
     border: 1px solid #ddd;
     text-align: left;
 }
@@ -138,51 +177,243 @@
 .user-orders th,
 .user-cart th {
     background: #007bff;
-    color: white;
+    color: #ffffff;
 }
 
 .user-orders tbody tr:nth-child(odd),
 .user-cart tbody tr:nth-child(odd) {
-    background: #f2f2f2;
+    background: #f9f9f9;
 }
 
 .total-spend,
 .total-cart-value {
     margin-top: 20px;
     font-size: 18px;
-    font-weight: bold;
+    font-weight: 600;
     text-align: right;
     color: #333;
 }
 
-.user-activity .activity-list p {
-    margin: 10px 0 5px;
+.total-spend {
+    font-weight: bold; /* Ensure the text is bold */
+    font-size: 1.5rem; /* Adjust size if needed */
+    color: #333; /* Optional: Adjust color */
 }
 
-.user-activity .activity-list ul {
-    margin: 0 0 10px 20px;
-    padding: 0;
-    list-style-type: disc;
+/* Activity Container */
+.activity {
+    background-color: #ffffff; /* White background for a clean look */
+    border-radius: 12px; /* Rounded corners for a modern feel */
+    padding: 20px; /* Space inside the container */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Soft shadow for depth */
+    margin-top: 20px; /* Space above each section */
+    width: 100%; /* Full width within parent container */
+    max-width: 800px; /* Max width to ensure it doesn’t stretch too wide */
+    box-sizing: border-box; /* Include padding and border in element’s total width and height */
+}
+.follow-up-add-form,
+.activity-add-form2 {
+    background-color: #ffffff; /* White background for a clean look */
+    border-radius: 12px; /* Rounded corners for a modern feel */
+    padding: 20px; /* Space inside the container */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Soft shadow for depth */
+    margin-top: 20px; /* Space above each section */
+    width: 100%; /* Full width within parent container */
+    max-width: 800px; /* Max width to ensure it doesn’t stretch too wide */
+    box-sizing: border-box; /* Include padding and border in element’s total width and height */
 }
 
-.add-activity-button {
-    
-    margin-bottom: 10px!important ; 
-    display: block;
-    width: 40px;
-    height: 40px;
-    background: #007bff;
-    color: white;
-    border: none;
-    border-radius: 50%;
-    cursor: pointer;
-    font-size: 24px;
+/* Increased Width for Add Follow-Up */
+.follow-up-add-form {
+    background-color: #ffffff; /* White background for consistency */
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    margin-top: 20px;
+    width: 500px; /* Same width as the Add Activity form */
+    max-width: 100%; /* Ensure it doesn’t stretch beyond the container */
+    box-sizing: border-box; /* Include padding and border in element’s total width and height */
+}
+
+/* Grid Layout for Single Line */
+.grid-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* Two columns for form and follow-ups */
+    gap: 20px;
+}
+
+/* Input and Button Styling */
+.dropdown,
+.input-field,
+.button {
+    background-color: #E0F9D9;
+    border-radius: 8px;
+    padding: 8px 12px;
+    margin: 5px 0;
+    font-size: 14px;
+    border: 1px solid #ccc;
+}
+
+.button {
     text-align: center;
-    line-height: 40px;
-    margin: 0 auto;
-    transition: background 0.3s;
+    cursor: pointer;
 }
 
-.add-activity-button:hover {
-    background: #0056b3;
+/* Flexbox for Follow-Up Rows */
+.followup-row {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 10px;
+}
+
+.add-followup {
+    display: flex;
+    align-items: center;
+    margin-left: 10px;
+}
+
+.add-followup .button {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 8px;
+    background-color: #A7F3D0;
+    border-radius: 50%;
+    font-size: 18px;
+    line-height: 0;
+    margin-left: 10px;
+}
+
+/* Form Styles */
+.activity-add-form {
+    color: #333; /* Dark text color for better readability */
+    background-color: #ffffff; /* White background for consistency */
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    margin-top: 20px;
+    width: 500px;
+    max-width: 100%; /* Ensure it doesn’t stretch beyond the container */
+    box-sizing: border-box;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: #333;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 16px;
+}
+
+.activity-add-form button,
+.follow-up-add-form button {
+    background-color: #007bff;
+    color: #ffffff;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 16px;
+    margin-top: 10px;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.activity-add-form button:hover,
+.follow-up-add-form button:hover {
+    background-color: #0056b3;
+    transform: translateY(-2px);
+}
+
+/* Follow-Up Section */
+.user-followups {
+    background-color: #ffffff;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    margin-top: 20px;
+    max-width: 400px; /* Ensure consistent width with other sections */
+    box-sizing: border-box;
+}
+
+.user-followups ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+.user-followups li {
+    padding: 12px;
+    border-bottom: 1px solid #ddd;
+}
+
+.user-followups li:last-child {
+    border-bottom: none;
+}
+
+.user-followups p {
+    margin: 5px 0;
+    font-size: 16px;
+    color: #555;
+}
+
+/* Loading Spinner */
+img[src$=".gif"] {
+    display: block;
+    margin: 20px auto;
+}
+
+/* User Activity Layout */
+.user-activity {
+    display: grid;
+    grid-template-columns: 2fr 1fr; /* Adjust column sizes as needed */
+    gap: 20px;
+}
+
+/* Activity Add Form Alignment */
+.activity-add-form .form-row {
+    display: flex;
+    gap: 10px; /* Space between form groups */
+    margin-bottom: 10px; /* Space below the form row */
+}
+
+.form-group {
+    flex: 1; /* Ensure form groups take equal width */
+}
+
+.add-activity-button,
+.add-followup-button {
+    display: block;
+    margin-top: 10px; /* Space above buttons */
+}
+
+/* Responsive Behavior */
+@media (max-width: 768px) {
+    .user-view-container {
+        grid-template-columns: 1fr; /* Stack columns vertically on smaller screens */
+    }
+
+    .user-orders,
+    .user-cart,
+    .user-activity,
+    .app-downloads,
+    .activity-container,
+    .follow-up-add-form,
+    .activity-add-form2 {
+        width: 100%; /* Full width on smaller screens */
+        padding: 15px; /* Reduce padding on smaller screens */
+    }
 }

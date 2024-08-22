@@ -240,7 +240,11 @@ function Dashboard() {
   };
 
   const getRegistrationData = () => {
-    const filteredData = studentData.filter(student => {
+    // Sort studentData by created_at date in ascending order
+    const sortedData = [...studentData].sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
+  
+    // Filter the sorted data based on the selected date filter
+    const filteredData = sortedData.filter(student => {
       const date = new Date(student.created_at);
       if (dateFilter === 'month') {
         return date.getMonth() === new Date().getMonth() && date.getFullYear() === new Date().getFullYear();
@@ -249,13 +253,14 @@ function Dashboard() {
       }
       return true;
     });
-
+  
+    // Group the filtered data by date
     const groupedData = filteredData.reduce((acc, student) => {
       const date = new Date(student.created_at).toISOString().split('T')[0];
       acc[date] = (acc[date] || 0) + 1;
       return acc;
     }, {});
-
+  
     return {
       labels: Object.keys(groupedData),
       datasets: [{
@@ -267,7 +272,7 @@ function Dashboard() {
       }]
     };
   };
-
+  
 
   const getGenderDistribution = () => {
     const maleCount = studentData.filter(student => student.gender.toLowerCase() === 'male').length;
