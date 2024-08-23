@@ -345,128 +345,171 @@ function UserView() {
                             )
                         )}
                     </div>
+                    <div className="user-activity">
+    {/* Lead Status Section */}
+    <div className="lead-status-row">
+        <h3 className="lead-status-header">Lead Status</h3>
+        {isLoadingActivities ? (
+            <div className="loading-container">
+                <img src="https://media.giphy.com/media/ZO9b1ntYVJmjZlsWlm/giphy.gif" alt="Loading" />
+            </div>
+        ) : (
+            activities.length > 0 ? (
+                activities
+                    .slice() // Create a copy of the array to avoid mutating the original array
+                    .sort((a, b) => new Date(b.created_at) - new Date(a.created_at)) // Sort activities by created_at date in descending order
+                    .map((activity) => (
+                        <div className="activity-card" key={activity.activity_id}>
+                            <h4 className="activity-title">{activity.activity_name}</h4>
+                            <p className="activity-description">{activity.description}</p>
+                            <p className="activity-date">{formatDate(activity.activity_date)}</p>
 
+                            <table className="follow-up-table">
+                                <thead>
+                                    <tr>
+                                        <th>Serial No.</th>
+                                        <th>Follow-Up Task</th>
+                                        <th>Follow-Up Date</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {followUps[activity.activity_id] && followUps[activity.activity_id].length > 0 ? (
+                                        followUps[activity.activity_id]
+                                            .slice() // Create a copy of the array to avoid mutating the original array
+                                            .sort((a, b) => {
+                                                const today = new Date().setHours(0, 0, 0, 0);
+                                                const dateA = new Date(a.followup_date).setHours(0, 0, 0, 0);
+                                                const dateB = new Date(b.followup_date).setHours(0, 0, 0, 0);
 
-            {/* Activities and Follow-Ups */}
-            <div className="user-activity">
-                <div className="activity">
-                    <h3>Lead Status</h3>
-                    {isLoadingActivities ? (
-                        <img src="https://media.giphy.com/media/ZO9b1ntYVJmjZlsWlm/giphy.gif" alt="Loading" />
-                    ) : (
-                        activities.length > 0 ? (
-                            <ul>
-                                {activities.map(activity => (
-                                    <li key={activity.activity_id}>
-                                        <h4>{activity.activity_name}</h4>
-                                        <p>{activity.description}</p>
-                                        <p>{formatDate(activity.activity_date)}</p>
-                                        <ol>
-                                            {followUps[activity.activity_id] && followUps[activity.activity_id].length > 0 ? (
-                                                followUps[activity.activity_id].map(followUp => (
-                                                    <li key={followUp.followup_id}>
-                                                    <b><p>FollowUp Task: {followUp.notes}</p></b>
-                                                    <ul>
-                                                        <b><li>FollowUp Date: {formatDate(followUp.followup_date, false)}</li></b>
-                                                        <li>Created At: {formatDate(followUp.created_at, true)}</li>
-                                                        <br></br>
-                                                    </ul>
-                                                </li>
-                                                ))
-                                            ) : (
-                                                <p>No follow-ups found for this activity.</p>
-                                            )}
-                                        </ol>
-                                    </li>
-                                ))}
-                            </ul>
-                        ) : (
-                            <p>No activities found for this user.</p>
-                        )
-                    )}
-                </div>
+                                                // Prioritize today's dates, then upcoming dates, then past dates
+                                                if (dateA === today && dateB !== today) {
+                                                    return -1; // dateA is today, should be on top
+                                                }
+                                                if (dateB === today && dateA !== today) {
+                                                    return 1; // dateB is today, should be on top
+                                                }
+                                                if (dateA >= today && dateB < today) {
+                                                    return -1; // dateA is upcoming, should be on top
+                                                }
+                                                if (dateB >= today && dateA < today) {
+                                                    return 1; // dateB is upcoming, should be on top
+                                                }
+                                                return dateA - dateB; // Sort by date for both upcoming and past
+                                            })
+                                            .map((followUp, index) => {
+                                                const today = new Date().setHours(0, 0, 0, 0);
+                                                const followUpDate = new Date(followUp.followup_date).setHours(0, 0, 0, 0);
+                                                const status = followUpDate === today ? 'Today' :
+                                                                followUpDate > today ? 'Upcoming' : 'Passed';
 
-                {/* Add Activity Form */}
-                <div className="activity-add-form">
-                <div className="activity-add-form2">
-                    <h4>Add New Activity</h4>
-                    <div className="form-row">
-                        <div className="form-group">
-                            <label htmlFor="leadStatus">Lead Status</label>
-                            <select
-                                id="leadStatus"
-                                value={leadStatus}
-                                onChange={(e) => setLeadStatus(e.target.value)}
-                            >
-                                <option value="Call-not-answered">Call Not Answered</option>
-                                <option value="Call-answered">Call Answered</option>
-                                <option value="Interested">Interested</option>
-                                <option value="Online-demo-taken">Online Demo Taken</option>
-                                <option value="Online-admission-done">Online Admission Done</option>
-                                <option value="Gurgaon-campus-visited">Gurgaon Campus Visited</option>
-                                <option value="Delhi-campus-visited">Delhi Campus Visited</option>
-                                <option value="Online-admission-taken">Online Admission Taken</option>
-                                <option value="Delhi-admission-taken">Delhi Admission Taken</option>
-                                <option value="Gurgaon-admission-taken">Gurgaon Admission Taken</option>
-                                <option value="Not-interested">Not Interested</option>
-                            </select>
+                                                return (
+                                                    <tr key={followUp.followup_id}>
+                                                        <td>{index + 1}</td> {/* Serial number */}
+                                                        <td>{followUp.notes}</td>
+                                                        <td>{formatDate(followUp.followup_date, false)}</td>
+                                                        <td>{status}</td> {/* Status column */}
+                                                    </tr>
+                                                );
+                                            })
+                                    ) : (
+                                        <tr>
+                                            <td colSpan="4" className="no-followups">No follow-ups found for this activity.</td>
+                                        </tr>
+                                    )}
+                                </tbody>
+                            </table>
                         </div>
-                        <div className="form-group">
-                            <label htmlFor="leadLabel">Lead Label</label>
-                            <select
-                                id="leadLabel"
-                                value={leadLabel}
-                                onChange={(e) => setLeadLabel(e.target.value)}
-                            >
-                                <option>SSQ24</option>
-                                <option>SSQ25</option>
-                            </select>
-                        </div>
-                    </div>
-                    <button className="add-activity-button" onClick={handleAddActivity}>Add Activity</button>
-                    </div>
-                    {/* Add Follow-Up Form */}
-                <div className="follow-up-add-form">
-                    <h4>Add Follow-Up</h4>
+                    ))
+            ) : (
+                <p className="no-activities">No activities found for this user.</p>
+            )
+        )}
+    </div>
+
+    {/* Add Activity and Add Follow-Up Forms */}
+    <div className="forms-row">
+        <div className="form-column">
+            <div className="activity-add-form">
+                <h4>Add New Activity</h4>
+                <div className="form-row">
                     <div className="form-group">
-                        <label htmlFor="activitySelect">Select Activity</label>
+                        <label htmlFor="leadStatus">Lead Status</label>
                         <select
-                            id="activitySelect"
-                            value={selectedActivity}
-                            onChange={(e) => setSelectedActivity(e.target.value)}
+                            id="leadStatus"
+                            value={leadStatus}
+                            onChange={(e) => setLeadStatus(e.target.value)}
                         >
-                            <option value="">Select an Activity</option>
-                            {activities.map(activity => (
-                                <option key={activity.activity_id} value={activity.activity_id}>
-                                    {activity.activity_name}
-                                </option>
-                            ))}
+                            <option value="Call-not-answered">Call Not Answered</option>
+                            <option value="Call-answered">Call Answered</option>
+                            <option value="Interested">Interested</option>
+                            <option value="Online-demo-taken">Online Demo Taken</option>
+                            <option value="Online-admission-done">Online Admission Done</option>
+                            <option value="Gurgaon-campus-visited">Gurgaon Campus Visited</option>
+                            <option value="Delhi-campus-visited">Delhi Campus Visited</option>
+                            <option value="Online-admission-taken">Online Admission Taken</option>
+                            <option value="Delhi-admission-taken">Delhi Admission Taken</option>
+                            <option value="Gurgaon-admission-taken">Gurgaon Admission Taken</option>
+                            <option value="Not-interested">Not Interested</option>
                         </select>
                     </div>
                     <div className="form-group">
-                        <label htmlFor="followUpDate">Follow-Up Date</label>
-                        <input
-                            type="date"
-                            id="followUpDate"
-                            value={followUpDate}
-                            onChange={(e) => setFollowUpDate(e.target.value)}
-                        />
+                        <label htmlFor="leadLabel">Lead Label</label>
+                        <select
+                            id="leadLabel"
+                            value={leadLabel}
+                            onChange={(e) => setLeadLabel(e.target.value)}
+                        >
+                            <option>SSQ24</option>
+                            <option>SSQ25</option>
+                        </select>
                     </div>
-                    <div className="form-group">
-                        <label htmlFor="notes">Notes</label>
-                        <textarea
-                            id="notes"
-                            value={notes}
-                            onChange={(e) => setNotes(e.target.value)}
-                        />
-                    </div>
-                    <button className="add-followup-button" onClick={handleAddFollowUp}>Add Follow-Up</button>
                 </div>
-                </div>
-
-                
+                <button className="add-activity-button" onClick={handleAddActivity}>Add Activity</button>
             </div>
         </div>
+        <div className="form-column">
+            <div className="follow-up-add-form">
+                <h4>Add Follow-Up</h4>
+                <div className="form-group">
+                    <label htmlFor="activitySelect">Select Activity</label>
+                    <select
+                        id="activitySelect"
+                        value={selectedActivity}
+                        onChange={(e) => setSelectedActivity(e.target.value)}
+                    >
+                        <option value="">Select an Activity</option>
+                        {activities.map(activity => (
+                            <option key={activity.activity_id} value={activity.activity_id}>
+                                {activity.activity_name}
+                            </option>
+                        ))}
+                    </select>
+                </div>
+                <div className="form-group">
+                    <label htmlFor="followUpDate">Follow-Up Date</label>
+                    <input
+                        type="date"
+                        id="followUpDate"
+                        value={followUpDate}
+                        onChange={(e) => setFollowUpDate(e.target.value)}
+                    />
+                </div>
+                <div className="form-group">
+                    <label htmlFor="notes">Notes</label>
+                    <textarea
+                        id="notes"
+                        value={notes}
+                        onChange={(e) => setNotes(e.target.value)}
+                    />
+                </div>
+                <button className="add-followup-button" onClick={handleAddFollowUp}>Add Follow-Up</button>
+            </div>
+        </div>
+    </div>
+</div>
+  
+            </div>
     );
 }
 

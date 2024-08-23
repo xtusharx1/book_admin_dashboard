@@ -1,3 +1,95 @@
+/* Activity Header */
+.activity-header {
+    font-size: 24px;
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 20px;
+}
+
+/* Loading Container */
+.loading-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+}
+
+/* Activity Card */
+.activity-card {
+    background-color: #ffffff;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.activity-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+}
+
+/* Activity Title */
+.activity-title {
+    font-size: 20px;
+    font-weight: 600;
+    color: #007bff;
+    margin-bottom: 10px;
+}
+
+/* Activity Description */
+.activity-description {
+    font-size: 16px;
+    color: #555;
+    margin-bottom: 15px;
+}
+
+/* Activity Date */
+.activity-date {
+    font-size: 14px;
+    color: #777;
+    margin-bottom: 20px;
+}
+
+/* Follow-Up Table */
+.follow-up-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+}
+
+.follow-up-table th,
+.follow-up-table td {
+    padding: 12px;
+    border-bottom: 1px solid #ddd;
+    text-align: left;
+    font-size: 14px;
+}
+
+.follow-up-table th {
+    background-color: #007bff;
+    color: #ffffff;
+    font-weight: 600;
+}
+
+.follow-up-table tbody tr:nth-child(odd) {
+    background-color: #f9f9f9;
+}
+
+.no-followups {
+    text-align: center;
+    color: #888;
+    font-style: italic;
+}
+
+/* No Activities Found */
+.no-activities {
+    text-align: center;
+    color: #888;
+    font-size: 16px;
+    margin-top: 20px;
+}
+
 /* Overall User View Container */
 .user-view-container {
     display: grid;
@@ -200,220 +292,247 @@
     color: #333; /* Optional: Adjust color */
 }
 
-/* Activity Container */
+/* Container for Activity and Forms */
+.activity-wrapper {
+    display: flex;
+    flex-direction: column; /* Stack items vertically */
+    gap: 20px; /* Space between sections */
+    width: 100%; /* Full width within parent container */
+}
+
+
+
+
+
+
+
+
+
+
+/* Activity Section */
 .activity {
-    background-color: #ffffff; /* White background for a clean look */
-    border-radius: 12px; /* Rounded corners for a modern feel */
+    background-color: #ffffff; /* White background for the activity section */
+    border-radius: 12px; /* Rounded corners */
     padding: 20px; /* Space inside the container */
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Soft shadow for depth */
-    margin-top: 20px; /* Space above each section */
-    width: 100%; /* Full width within parent container */
-    max-width: 800px; /* Max width to ensure it doesn’t stretch too wide */
-    box-sizing: border-box; /* Include padding and border in element’s total width and height */
-}
-.follow-up-add-form,
-.activity-add-form2 {
-    background-color: #ffffff; /* White background for a clean look */
-    border-radius: 12px; /* Rounded corners for a modern feel */
-    padding: 20px; /* Space inside the container */
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Soft shadow for depth */
-    margin-top: 20px; /* Space above each section */
-    width: 100%; /* Full width within parent container */
-    max-width: 800px; /* Max width to ensure it doesn’t stretch too wide */
-    box-sizing: border-box; /* Include padding and border in element’s total width and height */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Soft shadow */
+    box-sizing: border-box; /* Include padding and border in width */
+    width: 100%; /* Full width */
+    margin-bottom: 20px; /* Space below the activity section */
 }
 
-/* Increased Width for Add Follow-Up */
-.follow-up-add-form {
-    background-color: #ffffff; /* White background for consistency */
-    border-radius: 12px;
-    padding: 20px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    margin-top: 20px;
-    width: 500px; /* Same width as the Add Activity form */
-    max-width: 100%; /* Ensure it doesn’t stretch beyond the container */
-    box-sizing: border-box; /* Include padding and border in element’s total width and height */
+/* Container for Add Activity and Add Follow-Up Sections */
+.forms-row {
+    display: flex; /* Flexbox for row layout */
+    gap: 20px; /* Space between the forms */
+    margin-top: 20px; /* Space above the forms container */
 }
 
-/* Grid Layout for Single Line */
-.grid-container {
-    display: grid;
-    grid-template-columns: 1fr 1fr; /* Two columns for form and follow-ups */
-    gap: 20px;
+/* Form Column */
+.form-column {
+    flex: 1; /* Flex-grow to take available space */
 }
 
-/* Input and Button Styling */
-.dropdown,
-.input-field,
-.button {
-    background-color: #E0F9D9;
-    border-radius: 8px;
-    padding: 8px 12px;
-    margin: 5px 0;
-    font-size: 14px;
-    border: 1px solid #ccc;
-}
-
-.button {
-    text-align: center;
-    cursor: pointer;
-}
-
-/* Flexbox for Follow-Up Rows */
-.followup-row {
-    display: flex;
-    gap: 10px;
-    align-items: center;
-    justify-content: space-between;
-    margin-top: 10px;
-}
-
-.add-followup {
-    display: flex;
-    align-items: center;
-    margin-left: 10px;
-}
-
-.add-followup .button {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 8px;
-    background-color: #A7F3D0;
-    border-radius: 50%;
-    font-size: 18px;
-    line-height: 0;
-    margin-left: 10px;
-}
-
-/* Form Styles */
+/* Add Activity Section */
 .activity-add-form {
-    color: #333; /* Dark text color for better readability */
-    background-color: #ffffff; /* White background for consistency */
-    border-radius: 12px;
-    padding: 20px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    margin-top: 20px;
-    width: 500px;
-    max-width: 100%; /* Ensure it doesn’t stretch beyond the container */
-    box-sizing: border-box;
+    background-color: #ffffff; /* White background */
+    border-radius: 12px; /* Rounded corners */
+    padding: 20px; /* Space inside the container */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Soft shadow */
+    margin-bottom: 20px; /* Space below the form */
 }
 
-.form-group {
-    margin-bottom: 20px;
+.activity-add-form h4 {
+    color: #007bff; /* Vibrant blue for headings */
+    margin-bottom: 20px; /* Space below heading */
+    font-size: 24px; /* Larger font size for better readability */
 }
 
-.form-group label {
+.activity-add-form .form-row {
+    display: flex;
+    gap: 20px; /* Increased space between form groups */
+    flex-wrap: wrap; /* Allow wrapping on smaller screens */
+}
+
+.activity-add-form .form-group {
+    flex: 1; /* Flex-grow to take available space */
+    margin-bottom: 25px; /* Increased space below each form group */
+}
+
+.activity-add-form .form-group label {
     display: block;
-    margin-bottom: 8px;
+    margin-bottom: 10px; /* Space below label */
     font-weight: 600;
-    color: #333;
+    color: #333; /* Dark text color */
 }
 
-.form-group input,
-.form-group select,
-.form-group textarea {
+.activity-add-form .form-group select,
+.activity-add-form .form-group input,
+.activity-add-form .form-group textarea {
     width: 100%;
     padding: 12px;
     border: 1px solid #ddd;
     border-radius: 6px;
     font-size: 16px;
+    background-color: #f0f8ff; /* Light blue background for inputs */
 }
 
-.activity-add-form button,
-.follow-up-add-form button {
-    background-color: #007bff;
-    color: #ffffff;
+.activity-add-form .form-group select {
+    background-color: #e6f7ff; /* Slightly different blue for dropdowns */
+    border: 1px solid #b3d9ff; /* Light blue border */
+}
+
+.activity-add-form .form-group input:focus,
+.activity-add-form .form-group textarea:focus,
+.activity-add-form .form-group select:focus {
+    border-color: #007bff; /* Blue border on focus */
+    outline: none; /* Remove default outline */
+}
+
+.activity-add-form button {
+    background-color: #007bff; /* Vibrant blue for button */
+    color: #ffffff; /* White text color */
     border: none;
-    padding: 12px 24px;
+    padding: 14px 24px;
     border-radius: 6px;
     cursor: pointer;
     font-size: 16px;
-    margin-top: 10px;
+    margin-top: 15px; /* Space above the button */
     transition: background-color 0.3s ease, transform 0.2s ease;
+    text-align: center; /* Center text inside button */
 }
 
-.activity-add-form button:hover,
-.follow-up-add-form button:hover {
-    background-color: #0056b3;
-    transform: translateY(-2px);
+.activity-add-form button:hover {
+    background-color: #0056b3; /* Darker blue on hover */
+    transform: translateY(-2px); /* Slight lift effect on hover */
+}
+/* Add Follow-Up Section */
+.follow-up-add-form {
+    background-color: #ffffff; /* White background */
+    border-radius: 12px; /* Rounded corners */
+    padding: 20px; /* Space inside the container */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Soft shadow */
+    margin-bottom: 20px; /* Space below the form */
 }
 
-/* Follow-Up Section */
-.user-followups {
-    background-color: #ffffff;
-    border-radius: 12px;
-    padding: 20px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    margin-top: 20px;
-    max-width: 400px; /* Ensure consistent width with other sections */
-    box-sizing: border-box;
+.follow-up-add-form h4 {
+    color: #007bff; /* Vibrant blue for headings */
+    margin-bottom: 20px; /* Space below heading */
+    font-size: 24px; /* Larger font size for better readability */
 }
 
-.user-followups ul {
-    list-style-type: none;
-    padding: 0;
+.follow-up-add-form .form-group {
+    margin-bottom: 25px; /* Increased space below each form group */
 }
 
-.user-followups li {
+.follow-up-add-form .form-group label {
+    display: block;
+    margin-bottom: 10px; /* Space below label */
+    font-weight: 600;
+    color: #333; /* Dark text color */
+}
+
+.follow-up-add-form .form-group select,
+.follow-up-add-form .form-group input,
+.follow-up-add-form .form-group textarea {
+    width: 100%;
     padding: 12px;
-    border-bottom: 1px solid #ddd;
-}
-
-.user-followups li:last-child {
-    border-bottom: none;
-}
-
-.user-followups p {
-    margin: 5px 0;
+    border: 1px solid #ddd;
+    border-radius: 6px;
     font-size: 16px;
-    color: #555;
+    background-color: #f0f8ff; /* Light blue background for inputs */
 }
 
-/* Loading Spinner */
-img[src$=".gif"] {
-    display: block;
-    margin: 20px auto;
+.follow-up-add-form .form-group select {
+    background-color: #e6f7ff; /* Slightly different blue for dropdowns */
+    border: 1px solid #b3d9ff; /* Light blue border */
 }
 
-/* User Activity Layout */
-.user-activity {
-    display: grid;
-    grid-template-columns: 2fr 1fr; /* Adjust column sizes as needed */
-    gap: 20px;
+.follow-up-add-form .form-group input:focus,
+.follow-up-add-form .form-group textarea:focus,
+.follow-up-add-form .form-group select:focus {
+    border-color: #007bff; /* Blue border on focus */
+    outline: none; /* Remove default outline */
 }
 
-/* Activity Add Form Alignment */
-.activity-add-form .form-row {
-    display: flex;
-    gap: 10px; /* Space between form groups */
-    margin-bottom: 10px; /* Space below the form row */
+.follow-up-add-form button {
+    background-color: #007bff; /* Vibrant blue for button */
+    color: #ffffff; /* White text color */
+    border: none;
+    padding: 14px 24px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 16px;
+    margin-top: 15px; /* Space above the button */
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    text-align: center; /* Center text inside button */
 }
 
-.form-group {
-    flex: 1; /* Ensure form groups take equal width */
+.follow-up-add-form button:hover {
+    background-color: #0056b3; /* Darker blue on hover */
+    transform: translateY(-2px); /* Slight lift effect on hover */
 }
 
-.add-activity-button,
-.add-followup-button {
-    display: block;
-    margin-top: 10px; /* Space above buttons */
+/* Heading Styles */
+.lead-status-header,
+.activity-add-form h4,
+.follow-up-add-form h4 {
+    color: #007bff; /* Vibrant blue for headings */
+}
+
+/* Activity Card Styles */
+.activity-card {
+    background-color: #ffffff; /* White background */
+    border-radius: 12px; /* Rounded corners */
+    padding: 20px; /* Space inside the container */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Soft shadow */
+    margin-bottom: 20px; /* Space below each card */
+}
+
+.activity-title {
+    color: #007bff; /* Vibrant blue for activity title */
+}
+
+.activity-description,
+.activity-date {
+    color: #333; /* Dark text color */
+}
+
+.follow-up-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+.follow-up-table th,
+.follow-up-table td {
+    padding: 12px;
+    border: 1px solid #ddd;
+    text-align: left;
+}
+
+.follow-up-table th {
+    background-color: #007bff; /* Vibrant blue for table header */
+    color: #ffffff; /* White text color for table header */
+}
+
+.follow-up-table tr:nth-child(even) {
+    background-color: #f2f2f2; /* Alternate row color */
+}
+
+.no-followups,
+.no-activities {
+    color: #888; /* Light grey for no data message */
 }
 
 /* Responsive Behavior */
 @media (max-width: 768px) {
-    .user-view-container {
-        grid-template-columns: 1fr; /* Stack columns vertically on smaller screens */
+    .forms-row {
+        flex-direction: column; /* Stack forms vertically on smaller screens */
+        gap: 10px; /* Reduced space between forms */
     }
 
-    .user-orders,
-    .user-cart,
-    .user-activity,
-    .app-downloads,
-    .activity-container,
-    .follow-up-add-form,
-    .activity-add-form2 {
+    .activity-add-form,
+    .follow-up-add-form {
         width: 100%; /* Full width on smaller screens */
-        padding: 15px; /* Reduce padding on smaller screens */
     }
 }
