@@ -453,6 +453,139 @@
     border-color: #007bff; /* Blue border on focus */
     outline: none; /* Remove default outline */
 }
+.status-today {
+    color: green;
+}
+
+.status-upcoming {
+    color: orange;
+}
+
+.status-passed {
+    color: red;
+}
+
+.completed-yes {
+    color: green;
+}
+
+.completed-no {
+    color: red;
+}
+/* Edit Follow-Up Form Styles */
+.edit-follow-up-form {
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 20px;
+    margin: 20px 0;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    max-width: 500px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.edit-follow-up-form h4 {
+    margin-top: 0;
+    color: #333;
+}
+
+.edit-follow-up-form .form-group {
+    margin-bottom: 15px;
+}
+
+.edit-follow-up-form .form-group label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 5px;
+    color: #555;
+}
+
+.edit-follow-up-form .form-group input,
+.edit-follow-up-form .form-group textarea {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+}
+
+.edit-follow-up-form .form-group textarea {
+    resize: vertical;
+    height: 100px;
+}
+
+.edit-follow-up-form button {
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-right: 10px;
+}
+
+.edit-follow-up-form button:hover {
+    background-color: #0056b3;
+}
+
+.edit-follow-up-form button.cancel {
+    background-color: #6c757d;
+}
+
+.edit-follow-up-form button.cancel:hover {
+    background-color: #5a6268;
+}
+/* Edit Button Styles */
+.edit-button {
+    background-color: #28a745; /* Green color for the edit button */
+    color: #fff; /* White text color */
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: bold;
+    text-align: center;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.edit-button:hover {
+    background-color: #218838; /* Darker green on hover */
+}
+
+.edit-button:active {
+    background-color: #1e7e34; /* Even darker green when clicked */
+    transform: scale(0.98); /* Slightly shrink on click for a pressed effect */
+}
+
+.edit-button:focus {
+    outline: none; /* Remove default focus outline */
+    box-shadow: 0 0 0 3px rgba(40, 167, 69, 0.5); /* Add custom focus outline */
+}
+
+/* Table Styles */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+}
+
+table th, table td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+}
+
+table th {
+    background-color: #f2f2f2;
+    color: #333;
+}
+
+.no-followups {
+    text-align: center;
+    color: #999;
+}
+
 
 .follow-up-add-form button {
     background-color: #007bff; /* Vibrant blue for button */

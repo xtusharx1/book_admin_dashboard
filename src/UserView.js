@@ -27,6 +27,12 @@ function UserView() {
     const [followUpDate, setFollowUpDate] = useState('');
     const [notes, setNotes] = useState('');
     const [selectedActivity, setSelectedActivity] = useState('');
+    const [editingFollowUp, setEditingFollowUp] = useState(null); // To store the follow-up being edited
+const [editFollowUpDate, setEditFollowUpDate] = useState('');
+const [editNotes, setEditNotes] = useState('');
+const [editIsCompleted, setEditIsCompleted] = useState(false);
+
+
 
     useEffect(() => {
         const fetchData = async () => {
@@ -176,7 +182,46 @@ function UserView() {
             console.error("Error adding activity:", error);
         }
     };
-
+    const handleEditFollowUp = (followUp) => {
+        setEditingFollowUp(followUp);
+        setEditFollowUpDate(followUp.followup_date.split('T')[0]); // Format to YYYY-MM-DD
+        setEditNotes(followUp.notes);
+        setEditIsCompleted(followUp.isCompleted); // Initialize slider state
+    };
+    
+    
+    const handleUpdateFollowUp = async () => {
+        if (!editingFollowUp) return;
+    
+        const updatedFollowUp = {
+            ...editingFollowUp,
+            followup_date: editFollowUpDate,
+            notes: editNotes,
+            isCompleted: editIsCompleted, // Include completed status
+        };
+    
+        try {
+            const response = await axios.put(`http://ec2-13-202-53-68.ap-south-1.compute.amazonaws.com:3000/api/followups/update/${editingFollowUp.followup_id}`, updatedFollowUp);
+            
+            // Update the state with the updated follow-up
+            setFollowUps(prevFollowUps => ({
+                ...prevFollowUps,
+                [editingFollowUp.activity_id]: prevFollowUps[editingFollowUp.activity_id].map(fu =>
+                    fu.followup_id === editingFollowUp.followup_id ? response.data : fu
+                )
+            }));
+            
+            // Clear editing state
+            setEditingFollowUp(null);
+            setEditFollowUpDate('');
+            setEditNotes('');
+            setEditIsCompleted(false); // Reset slider state
+        } catch (error) {
+            console.error("Error updating follow-up:", error);
+        }
+    };
+    
+        
     const handleAddFollowUp = async () => {
         const newFollowUp = {
             followup_date: followUpDate || new Date(),
@@ -360,9 +405,41 @@ function UserView() {
                     .sort((a, b) => new Date(b.created_at) - new Date(a.created_at)) // Sort activities by created_at date in descending order
                     .map((activity) => (
                         <div className="activity-card" key={activity.activity_id}>
-                            <h4 className="activity-title">{activity.activity_name}</h4>
-                            <p className="activity-description">{activity.description}</p>
-                            <p className="activity-date">{formatDate(activity.activity_date)}</p>
+                            <h4 className="activity-title">{activity.activity_name} ({activity.description})</h4>
+                            <p className="activity-date">Activity Created at : {formatDate(activity.activity_date)}</p>
+                            {editingFollowUp && (
+    <div className="edit-follow-up-form">
+        <h4>Edit Follow-Up</h4>
+        <div className="form-group">
+            <label htmlFor="editFollowUpDate">Follow-Up Date</label>
+            <input
+                type="date"
+                id="editFollowUpDate"
+                value={editFollowUpDate}
+                onChange={(e) => setEditFollowUpDate(e.target.value)}
+            />
+        </div>
+        <div className="form-group">
+            <label htmlFor="editNotes">Notes</label>
+            <textarea
+                id="editNotes"
+                value={editNotes}
+                onChange={(e) => setEditNotes(e.target.value)}
+            />
+        </div>
+        <div className="form-group">
+            <label htmlFor="isCompleted">Completed</label>
+            <input
+                type="checkbox"
+                id="isCompleted"
+                checked={editIsCompleted}
+                onChange={(e) => setEditIsCompleted(e.target.checked)}
+            />
+        </div>
+        <button onClick={handleUpdateFollowUp}>Update Follow-Up</button>
+        <button onClick={() => setEditingFollowUp(null)}>Cancel</button>
+    </div>
+)}
 
                             <table className="follow-up-table">
                                 <thead>
@@ -371,53 +448,72 @@ function UserView() {
                                         <th>Follow-Up Task</th>
                                         <th>Follow-Up Date</th>
                                         <th>Status</th>
+                                        <th>Completed</th>
+                                        <th>Action  </th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {followUps[activity.activity_id] && followUps[activity.activity_id].length > 0 ? (
-                                        followUps[activity.activity_id]
-                                            .slice() // Create a copy of the array to avoid mutating the original array
-                                            .sort((a, b) => {
-                                                const today = new Date().setHours(0, 0, 0, 0);
-                                                const dateA = new Date(a.followup_date).setHours(0, 0, 0, 0);
-                                                const dateB = new Date(b.followup_date).setHours(0, 0, 0, 0);
+    {followUps[activity.activity_id] && followUps[activity.activity_id].length > 0 ? (
+        followUps[activity.activity_id]
+            .slice()
+            .sort((a, b) => {
+                const today = new Date().setHours(0, 0, 0, 0);
+                const dateA = new Date(a.followup_date).setHours(0, 0, 0, 0);
+                const dateB = new Date(b.followup_date).setHours(0, 0, 0, 0);
+                
+                const statusA = dateA === today ? 'Today' :
+                                dateA > today ? 'Upcoming' : 'Passed';
+                const statusB = dateB === today ? 'Today' :
+                                dateB > today ? 'Upcoming' : 'Passed';
 
-                                                // Prioritize today's dates, then upcoming dates, then past dates
-                                                if (dateA === today && dateB !== today) {
-                                                    return -1; // dateA is today, should be on top
-                                                }
-                                                if (dateB === today && dateA !== today) {
-                                                    return 1; // dateB is today, should be on top
-                                                }
-                                                if (dateA >= today && dateB < today) {
-                                                    return -1; // dateA is upcoming, should be on top
-                                                }
-                                                if (dateB >= today && dateA < today) {
-                                                    return 1; // dateB is upcoming, should be on top
-                                                }
-                                                return dateA - dateB; // Sort by date for both upcoming and past
-                                            })
-                                            .map((followUp, index) => {
-                                                const today = new Date().setHours(0, 0, 0, 0);
-                                                const followUpDate = new Date(followUp.followup_date).setHours(0, 0, 0, 0);
-                                                const status = followUpDate === today ? 'Today' :
-                                                                followUpDate > today ? 'Upcoming' : 'Passed';
+                if (statusA === statusB) {
+                    if (statusA === 'Passed') {
+                        return dateB - dateA;
+                    } else {
+                        return dateA - dateB;
+                    }
+                } else {
+                    if (statusA === 'Today') return -1;
+                    if (statusB === 'Today') return 1;
+                    if (statusA === 'Upcoming') return -1;
+                    return 1;
+                }
+            })
+            .map((followUp, index) => {
+                const today = new Date().setHours(0, 0, 0, 0);
+                const followUpDate = new Date(followUp.followup_date).setHours(0, 0, 0, 0);
+                const status = followUpDate === today ? 'Today' :
+                                followUpDate > today ? 'Upcoming' : 'Passed';
+                const completedStatus = followUp.isCompleted ? 'Yes' : 'No';
 
-                                                return (
-                                                    <tr key={followUp.followup_id}>
-                                                        <td>{index + 1}</td> {/* Serial number */}
-                                                        <td>{followUp.notes}</td>
-                                                        <td>{formatDate(followUp.followup_date, false)}</td>
-                                                        <td>{status}</td> {/* Status column */}
-                                                    </tr>
-                                                );
-                                            })
-                                    ) : (
-                                        <tr>
-                                            <td colSpan="4" className="no-followups">No follow-ups found for this activity.</td>
-                                        </tr>
-                                    )}
-                                </tbody>
+                const statusColor = status === 'Today' ? 'green' : 
+                                    status === 'Upcoming' ? 'blue' : 
+                                    'red';
+                const completedColor = completedStatus === 'Yes' ? 'green' : 'red';
+
+                return (
+                    <tr key={followUp.followup_id}>
+                        <td>{index + 1}</td>
+                        <td>{followUp.notes}</td>
+                        <td>{formatDate(followUp.followup_date, false)}</td>
+                        <td style={{ color: statusColor }}>{status}</td>
+                        <td style={{ color: completedColor }}>{completedStatus}</td>
+                        <td>
+    <button className="edit-button" onClick={() => handleEditFollowUp(followUp)}>Edit</button>
+</td>
+
+                    </tr>
+                );
+            })
+    ) : (
+        <tr>
+            <td colSpan="6" className="no-followups">No follow-ups found for this activity.</td>
+        </tr>
+    )}
+</tbody>
+
+
+
                             </table>
                         </div>
                     ))

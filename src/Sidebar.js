@@ -50,7 +50,7 @@ function Sidebar() {
             <li className={`nav-item ${location.pathname === '/portal/salesscreen' ? 'active' : ''}`}>
                 <Link className="nav-link" to="/portal/salesscreen">
                     <FontAwesomeIcon icon={faMagnifyingGlassChart} style={{ marginRight: "0.5rem" }} />
-                    <span>Sales</span>
+                    <span>CRM</span>
                 </Link>
             </li>
 

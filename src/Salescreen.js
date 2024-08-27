@@ -5,6 +5,9 @@ import './Salescreen.css'; // Assuming the CSS is saved in Salescreen.css
 
 export default function Salescreen() {
   const [payments, setPayments] = useState([]);
+  const [users, setUsers] = useState([]);
+  const [activities, setActivities] = useState({});
+  const [followUps, setFollowUps] = useState([]);
   const [error, setError] = useState(null);
   const [currentTab, setCurrentTab] = useState('orders');
   const navigate = useNavigate();
@@ -15,7 +18,6 @@ export default function Salescreen() {
         const paymentResponse = await axios.get('http://ec2-13-202-53-68.ap-south-1.compute.amazonaws.com:3000/api/payments/all');
         const paymentData = paymentResponse.data;
 
-        // Retrieve user and book details based on payment data
         const detailedPayments = await Promise.all(paymentData.map(async (payment) => {
           let userName = 'Unknown User';
           let bookName = 'Unknown Book';
@@ -39,14 +41,12 @@ export default function Salescreen() {
             }
           }
 
-          // Determine the date to display based on the current tab
           if (payment.haspaid) {
             date = payment.updated_at; // Orders
           } else {
             date = payment.created_at; // Cart
           }
 
-          // Convert UTC date to IST and format
           const localDate = new Date(date).toLocaleString('en-GB', { 
             timeZone: 'Asia/Kolkata',
             hour12: false 
@@ -63,13 +63,151 @@ export default function Salescreen() {
 
         setPayments(detailedPayments);
       } catch (err) {
-        setError('Error fetching data');
-        // Handle fetch error
+        setError('Error fetching payments data');
       }
     };
 
-    fetchPayments();
-  }, []);
+    const fetchUsersAndActivities = async () => {
+      try {
+        const userResponse = await axios.get('http://ec2-13-202-53-68.ap-south-1.compute.amazonaws.com:3000/api/users/showusers');
+        const usersData = userResponse.data;
+
+        // Fetch activities for each user
+        const activitiesData = await Promise.all(usersData.map(async (user) => {
+          try {
+            const activityResponse = await axios.get(`http://ec2-13-202-53-68.ap-south-1.compute.amazonaws.com:3000/api/activities/user/${user.u_id}`);
+            return { userId: user.u_id, activities: activityResponse.data };
+          } catch (err) {
+            return { userId: user.u_id, activities: [] };
+          }
+        }));
+
+        const activitiesMap = {};
+        activitiesData.forEach(activityData => {
+          // Sort activities by activity_date or created_at to get the most recent one
+          const sortedActivities = activityData.activities.sort((a, b) => new Date(b.activity_date) - new Date(a.activity_date));
+          activitiesMap[activityData.userId] = sortedActivities;
+        });
+        setActivities(activitiesMap);
+
+        // Sort users: 
+        // 1. Users with activities by the most recent activity's `activity_date`.
+        // 2. Users without activities by their `created_at`.
+        const sortedUsers = usersData.sort((a, b) => {
+          const aRecentActivityDate = activitiesMap[a.u_id]?.[0]?.activity_date || a.created_at;
+          const bRecentActivityDate = activitiesMap[b.u_id]?.[0]?.activity_date || b.created_at;
+          const aHasActivities = activitiesMap[a.u_id]?.length > 0;
+          const bHasActivities = activitiesMap[b.u_id]?.length > 0;
+
+          // Sort users with activities before those without
+          if (aHasActivities && !bHasActivities) return -1;
+          if (!aHasActivities && bHasActivities) return 1;
+
+          // If both have or don't have activities, sort by the date
+          return new Date(bRecentActivityDate) - new Date(aRecentActivityDate);
+        });
+
+        setUsers(sortedUsers);
+      } catch (err) {
+        setError('Error fetching users or activities data');
+      }
+    };
+
+    
+    
+
+    const fetchFollowUps = async () => {
+      try {
+        const followUpResponse = await axios.get('http://ec2-13-202-53-68.ap-south-1.compute.amazonaws.com:3000/api/followups/');
+        const followUpsData = followUpResponse.data;
+    
+        const today = new Date();
+    
+        const detailedFollowUps = await Promise.all(followUpsData.map(async (followUp) => {
+          let activityName = 'Unknown Activity';
+          let userName = 'Unknown User';
+          let userId = 'Unknown User ID';
+    
+          try {
+            const activityResponse = await axios.get(`http://ec2-13-202-53-68.ap-south-1.compute.amazonaws.com:3000/api/activities/${followUp.activity_id}`);
+            const activity = activityResponse.data;
+            activityName = activity ? activity.activity_name : 'Unknown Activity';
+            userId = activity ? activity.u_id : 'Unknown User ID';
+    
+            try {
+              const userResponse = await axios.get(`http://ec2-13-202-53-68.ap-south-1.compute.amazonaws.com:3000/api/users/getbyid/${userId}`);
+              const user = userResponse.data;
+              userName = user ? user.f_name : 'Unknown User';
+            } catch (err) {
+              console.error(`Error fetching user for userId ${userId}:`, err);
+            }
+          } catch (err) {
+            console.error(`Error fetching activity for activity_id ${followUp.activity_id}:`, err);
+          }
+    
+          const followupDate = new Date(followUp.followup_date);
+          let status = '';
+    
+          if (followupDate.toDateString() === today.toDateString()) {
+            status = 'Today';
+          } else if (followupDate > today) {
+            status = 'Upcoming';
+          } else {
+            status = 'Passed';
+          }
+    
+          return {
+            followupId: followUp.followup_id,
+            userId: userId,
+            userName: userName,
+            leadStatus: activityName,
+            followupTask: followUp.notes,
+            followupDate: followupDate.toLocaleDateString('en-GB'),
+            isCompleted: followUp.isCompleted,
+            status: status,
+            rawDate: followupDate // Add rawDate for sorting
+          };
+        }));
+    
+        detailedFollowUps.sort((a, b) => {
+          // Handle Today entries first in ascending order
+          if (a.status === 'Today' && b.status !== 'Today') return -1;
+          if (a.status !== 'Today' && b.status === 'Today') return 1;
+    
+          // Handle Upcoming entries next in ascending order
+          if (a.status === 'Upcoming' && b.status !== 'Upcoming') return -1;
+          if (a.status !== 'Upcoming' && b.status === 'Upcoming') return 1;
+    
+          // Handle Passed entries last in descending order
+          if (a.status === 'Passed' && b.status !== 'Passed') return 1;
+          if (a.status !== 'Passed' && b.status === 'Passed') return -1;
+    
+          // For all statuses, sort by date
+          return a.status === 'Passed'
+            ? new Date(b.rawDate) - new Date(a.rawDate) // Descending order for Passed
+            : new Date(a.rawDate) - new Date(b.rawDate); // Ascending order for Today and Upcoming
+        });
+    
+        setFollowUps(detailedFollowUps);
+      } catch (err) {
+        console.error('Error fetching follow-ups data:', err);
+        setError('Error fetching follow-ups data');
+      }
+    };
+    
+    
+
+
+
+    
+    if (currentTab === 'Lead Status') {
+      fetchUsersAndActivities();
+    } else if (currentTab === 'Follow-Up') {
+      fetchFollowUps();
+    } else {
+      fetchPayments();
+    }
+  }, [currentTab]);
 
   if (error) {
     return <div>{error}</div>;
@@ -85,7 +223,7 @@ export default function Salescreen() {
 
   return (
     <div className="container">
-      <h1 className="title">Sales Dashboard</h1>
+      <h1 className="title">CRM Dashboard</h1>
       <div className="tabs">
         <button
           className={`tab ${currentTab === 'orders' ? 'active' : ''}`}
@@ -99,33 +237,133 @@ export default function Salescreen() {
         >
           Cart
         </button>
+        <button
+          className={`tab ${currentTab === 'Lead Status' ? 'active' : ''}`}
+          onClick={() => setCurrentTab('Lead Status')}
+        >
+          Lead Status
+        </button>
+        <button
+          className={`tab ${currentTab === 'Follow-Up' ? 'active' : ''}`}
+          onClick={() => setCurrentTab('Follow-Up')}
+        >
+          Follow-Up
+        </button>
       </div>
-      <table className="table">
-        <thead>
-          <tr>
-            <th>S. No</th>
-            <th>Student Name</th>
-            <th>App Name</th>
-            <th>Payment Status</th>
-            <th>Date</th> {/* Added new column for date */}
-            <th>Action</th>
-          </tr>
-        </thead>
-        <tbody>
-          {filteredPayments.map((payment, index) => (
-            <tr key={index}>
-              <td>{index + 1}</td>
-              <td>{payment.userName}</td>
-              <td>{payment.bookName}</td>
-              <td>{payment.hasPaid ? 'Paid' : 'Not Paid'}</td>
-              <td>{payment.date}</td> {/* Display date */}
-              <td>
-                <button className="button" onClick={() => handleViewUser(payment.userId)}>View</button>
-              </td>
+      {currentTab === 'Lead Status' ? (
+        <table className="table">
+          <thead>
+            <tr>
+              <th>S. No</th>
+              <th>User ID</th>
+              <th>Student Name</th>
+              <th>Recent Lead Status</th>
+              <th>Recent Activity Date</th>
+              <th>Action</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {users.map((user, index) => {
+              const recentActivity = activities[user.u_id]?.[0];
+              return (
+                <tr key={user.u_id}>
+                  <td>{index + 1}</td>
+                  <td>{user.u_id}</td>
+                  <td>{user.f_name}</td>
+                  <td>{recentActivity ? recentActivity.activity_name : 'No Activity'}</td>
+                  <td>{recentActivity ? new Date(recentActivity.activity_date).toLocaleDateString('en-GB') : 'N/A'}</td>
+                  <td>
+                    <button
+                      className="view-button"
+                      onClick={() => handleViewUser(user.u_id)}
+                    >
+                      View
+                    </button>
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      ) : 
+      currentTab === 'Follow-Up' ? (
+        <div className="table-container">
+          <table className="table">
+            <thead>
+              <tr>
+                <th>S. No</th>
+                <th>User ID</th>
+                <th>User Name</th>
+                <th>Lead Status (Activity Name)</th>
+                <th>Follow-Up Task (Note)</th>
+                <th>Follow-Up Date</th>
+                <th>Status</th> {/* New column for follow-up status */}
+                <th>Completed</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              {followUps.map((followUp, index) => (
+                <tr key={followUp.followupId}>
+                  <td>{index + 1}</td>
+                  <td>{followUp.userId}</td>
+                  <td>{followUp.userName}</td>
+                  <td>{followUp.leadStatus}</td>
+                  <td>{followUp.followupTask}</td>
+                  <td>{followUp.followupDate}</td>
+                  <td className={`status ${followUp.status.toLowerCase()}`}>
+                    {followUp.status}
+                  </td>
+                  <td className={`status ${followUp.isCompleted ? 'completed' : 'not-completed'}`}>
+                    {followUp.isCompleted ? 'Yes' : 'No'}
+                  </td>
+                  <td>
+                    <button
+                      className="view-button"
+                      onClick={() => handleViewUser(followUp.userId)}
+                    >
+                      View
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      
+      ) : (
+        <table className="table">
+          <thead>
+            <tr>
+              <th>User ID</th>
+              <th>User Name</th>
+              <th>Book Name</th>
+              <th>Has Paid</th>
+              <th>Date</th>
+              <th>Action</th> {/* Added Action column */}
+            </tr>
+          </thead>
+          <tbody>
+            {filteredPayments.map((payment, index) => (
+              <tr key={index}>
+                <td>{payment.userId}</td>
+                <td>{payment.userName}</td>
+                <td>{payment.bookName}</td>
+                <td>{payment.hasPaid ? 'Yes' : 'No'}</td>
+                <td>{payment.date}</td>
+                <td>
+                  <button
+                    className="view-button"
+                    onClick={() => handleViewUser(payment.userId)}
+                  >
+                    View
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
     </div>
   );
 }

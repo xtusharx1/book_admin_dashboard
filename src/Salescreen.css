@@ -1,5 +1,7 @@
+/* Salescreen.css */
+
 .container {
-    max-width: 1000px;
+    max-width: 1200px;
     margin: 0 auto;
     padding: 20px;
     font-family: Arial, sans-serif;
@@ -8,7 +10,8 @@
 .title {
     text-align: center;
     margin-bottom: 20px;
-    color: #333;
+    color: black; /* Title color set to black for better readability */
+    font-size: 2em; /* Larger font size for emphasis */
 }
 
 .tabs {
@@ -19,11 +22,14 @@
 
 .tab {
     padding: 10px 20px;
-    margin: 0 10px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
+    margin: 0 5px;
+    border: 1px solid #007bff;
+    border-radius: 5px;
+    background-color: white;
+    color: #007bff;
     cursor: pointer;
-    background-color: #f9f9f9;
+    font-size: 16px;
+    transition: background-color 0.3s, color 0.3s;
 }
 
 .tab.active {
@@ -31,67 +37,83 @@
     color: white;
 }
 
+.tab:hover {
+    background-color: #e6f0ff; /* Light blue background on hover */
+}
+
+.table-container {
+    display: flex;
+    justify-content: center;
+}
+
 .table {
     width: 100%;
+    max-width: 1500px; /* Set a max width for the table */
     border-collapse: collapse;
-    overflow-x: auto; /* Ensures horizontal scroll if needed */
+    margin-top: 20px;
+}
+
+.table thead {
+    background-color: #007bff;
 }
 
 .table th, .table td {
-    padding: 10px;
     border: 1px solid #ddd;
+    padding: 12px;
     text-align: left;
 }
 
 .table th {
-    background-color: #f2f2f2;
-    position: sticky;
-    top: 0;
-    white-space: nowrap; /* Prevents text wrapping in header */
+    background-color: #007bff !important; /* Force background color */
+    color: white !important; /* Force text color */
+    font-weight: bold;
 }
 
-.table td {
-    white-space: nowrap; /* Prevents text wrapping in cells */
+.table tbody tr:nth-child(even) {
+    background-color: #f9f9f9;
 }
 
-.table th:nth-child(1),
-.table td:nth-child(1) {
-    width: 50px; /* Adjust width as needed */
+.table tbody tr:hover {
+    background-color: #f1f1f1;
 }
 
-.table th:nth-child(2),
-.table td:nth-child(2) {
-    width: 200px; /* Adjust width as needed */
-}
-
-.table th:nth-child(3),
-.table td:nth-child(3) {
-    width: 250px; /* Adjust width as needed */
-}
-
-.table th:nth-child(4),
-.table td:nth-child(4) {
-    width: 150px; /* Width for Payment Status */
-}
-
-.table th:nth-child(5),
-.table td:nth-child(5) {
-    width: 150px; /* Width for Action button */
-}
-
-/* Button Styles */
-.button {
-    padding: 8px 12px;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
+.view-button {
     background-color: #007bff;
     color: white;
+    border: none;
+    border-radius: 5px;
+    padding: 8px 15px;
+    cursor: pointer;
     font-size: 14px;
-    text-align: center;
-    transition: background-color 0.3s ease;
+    transition: background-color 0.3s;
 }
 
-.button:hover {
+.view-button:hover {
     background-color: #0056b3;
+}
+
+.status {
+    text-align: center;
+    font-weight: bold;
+}
+
+.status.completed {
+    color: green;
+}
+
+.status.not-completed {
+    color: red;
+}
+
+/* Status Column Styles */
+.status.today {
+    color: green;
+}
+
+.status.upcoming {
+    color: orange;
+}
+
+.status.passed {
+    color: red;
 }
