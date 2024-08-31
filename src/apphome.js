@@ -335,7 +335,7 @@ export default function Apphome() {
                 <td>
                   <center>
                     <button onClick={() => editEvent(event)} className="btn btn-secondary">Edit</button>
-                    <button onClick={() => deleteEvent(event.event_name)} className="btn btn-danger">Delete</button>
+                    <button onClick={() => deleteEvent(event.event_id)} className="btn btn-danger">Delete</button>
                   </center>
                 </td>
               </tr>
