@@ -123,7 +123,7 @@ export default function Apphome() {
 
   const deleteEvent = async (event_name) => {
     try {
-      await axios.delete(`http://ec2-13-202-53-68.ap-south-1.compute.amazonaws.com:3000/api/timelines/timeline/${event_name}`);
+      await axios.delete(`http://ec2-13-202-53-68.ap-south-1.compute.amazonaws.com:3000/api/timelines/timeline/${event_id}`);
       fetchEvents();
     } catch (error) {
       //console.error('Error deleting event:', error);
