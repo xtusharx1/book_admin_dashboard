@@ -126,7 +126,7 @@ export default function Apphome() {
         await axios.delete(`http://ec2-13-202-53-68.ap-south-1.compute.amazonaws.com:3000/api/timelines/timeline/${event_id}`);
         fetchEvents(); // Refresh the events list after deletion
     } catch (error) {
-        console.error('Error deleting event:', error);
+        console.error('Error deleting event:', error.response?.data || error.message);
     }
 };
 
