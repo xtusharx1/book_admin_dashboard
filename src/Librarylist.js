@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
-import debounce from 'lodash.debounce'; // You need to install lodash.debounce
+import debounce from 'lodash.debounce'; // Install lodash.debounce if not already
 
 function LibraryList() {
   const [bookList, setBookList] = useState([]);
@@ -146,15 +146,15 @@ function LibraryList() {
               <table style={tableStyles} className="table table-bordered" id="dataTable" width="100%" cellSpacing="0">
                 <thead>
                   <tr>
-                    <th style={thStyles}>Id</th>
+                    <th style={{ ...thStyles, width: '50px' }}>Id</th>
                     <th style={thStyles}>App Name</th>
-                    <th style={thStyles}>Description</th>
+                    <th style={{ ...thStyles, width: '500px' }}>Description</th>
                     <th style={thStyles}>Author</th>
-                    <th style={thStyles}>Play Store URL</th>
-                    <th style={thStyles}>Book Cover</th>
-                    <th style={thStyles}>Sell Price</th>
-                    <th style={thStyles}>Max Price</th>
-                    <th style={thStyles}>Action</th>
+                    <th style={{ ...thStyles, width: '150px' }}>Play Store URL</th>
+                    <th style={{ ...thStyles, width: '150px' }}>Book Cover</th>
+                    <th style={{ ...thStyles, width: '150px' }}>Sell Price</th>
+                    <th style={{ ...thStyles, width: '150px' }}>Max Price</th>
+                    <th style={{ ...thStyles, width: '300px' }}>Action</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -165,7 +165,7 @@ function LibraryList() {
                   ) : (
                     filteredBookList.map((book) => (
                       <tr key={book.b_id}>
-                        <td style={tdStyles}>{book.b_id}</td>
+                        <td style={{ ...tdStyles, width: '50px' }}>{book.b_id}</td>
                         <td style={tdStyles}>{book.b_name}</td>
                         <td style={{ ...tdStyles, ...descriptionStyles }}>{book.description}</td>
                         <td style={tdStyles}>{book.author}</td>

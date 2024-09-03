@@ -17,12 +17,12 @@ export default function Salescreen() {
       try {
         const paymentResponse = await axios.get('http://ec2-13-202-53-68.ap-south-1.compute.amazonaws.com:3000/api/payments/all');
         const paymentData = paymentResponse.data;
-
+    
         const detailedPayments = await Promise.all(paymentData.map(async (payment) => {
           let userName = 'Unknown User';
           let bookName = 'Unknown Book';
           let date = '';
-
+    
           if (payment.u_id) {
             try {
               const userResponse = await axios.get(`http://ec2-13-202-53-68.ap-south-1.compute.amazonaws.com:3000/api/users/getbyid/${payment.u_id}`);
@@ -31,7 +31,7 @@ export default function Salescreen() {
               // Handle user fetch error
             }
           }
-
+    
           if (payment.b_id) {
             try {
               const bookResponse = await axios.get(`http://ec2-13-202-53-68.ap-south-1.compute.amazonaws.com:3000/api/books/getbook/${payment.b_id}`);
@@ -40,32 +40,34 @@ export default function Salescreen() {
               // Handle book fetch error
             }
           }
-
-          if (payment.haspaid) {
-            date = payment.updated_at; // Orders
-          } else {
-            date = payment.created_at; // Cart
-          }
-
+    
+          // Use the raw created_at date for sorting
+          date = payment.created_at;
+    
           const localDate = new Date(date).toLocaleString('en-GB', { 
             timeZone: 'Asia/Kolkata',
             hour12: false 
           });
-
+    
           return {
             userId: payment.u_id,
             userName: userName,
             bookName: bookName,
             hasPaid: payment.haspaid,
-            date: localDate // Display the local date
+            date: localDate, // Display the local date
+            rawDate: new Date(date) // Raw date for sorting
           };
         }));
-
+    
+        // Sort by raw created_at date in decreasing order (most recent first)
+        detailedPayments.sort((a, b) => b.rawDate - a.rawDate);
+    
         setPayments(detailedPayments);
       } catch (err) {
         setError('Error fetching payments data');
       }
     };
+    
 
     const fetchUsersAndActivities = async () => {
       try {
