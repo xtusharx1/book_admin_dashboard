@@ -1,9 +1,10 @@
 import axios from 'axios';
 import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 
 function Bookview() {
     const params = useParams();
+    const navigate = useNavigate(); // Add useNavigate hook
     const [book, setBook] = useState(null);
     const [chapters, setChapters] = useState([]);
     const [isLoadingBook, setLoadingBook] = useState(true);
@@ -21,7 +22,7 @@ function Bookview() {
             setBook(response.data);
             setLoadingBook(false);
         } catch (error) {
-            //console.error("Error fetching book:", error);
+            console.error("Error fetching book:", error);
             setLoadingBook(false);
         }
     };
@@ -34,15 +35,17 @@ function Bookview() {
             setChapters(sortedChapters);
             setLoadingChapters(false);
         } catch (error) {
-            //console.error("Error fetching chapters:", error);
+            console.error("Error fetching chapters:", error);
             setLoadingChapters(false);
         }
     };
 
+    const handleViewQuestions = (chapterId) => {
+        navigate(`/portal/QuestionsView/${chapterId}`); // Navigate to QuestionsView with chapterId
+    };
+
     return (
         <>
-            
-
             {/* Render book details */}
             <div className="card shadow mb-4">
                 <div className="card-header py-3">
@@ -117,6 +120,7 @@ function Bookview() {
                                             <th>Chapter Number</th>
                                             <th>Title</th>
                                             <th>Chapter URL</th>
+                                            <th>Question Bank</th> {/* New Column */}
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -125,6 +129,14 @@ function Bookview() {
                                                 <td>{chapter.c_no}</td>
                                                 <td>{chapter.title}</td>
                                                 <td><a href={chapter.c_url} target="_blank" rel="noopener noreferrer">View Chapter</a></td>
+                                                <td>
+                                                    <button
+                                                        className="btn btn-primary"
+                                                        onClick={() => handleViewQuestions(chapter.id)}
+                                                    >
+                                                        View Questions
+                                                    </button>
+                                                </td>
                                             </tr>
                                         ))}
                                     </tbody>

@@ -20,6 +20,8 @@ import Chaptercreate from './Chaptercreate';
 import Salescreen from './Salescreen';
 import Apphome from './apphome';
 import ProtectedRoute from './ProtectedRoute';
+import QuestionsView from './QuestionsView';
+import PracticeTest from './PracticeTest';
 function App() {
   return (
     <BrowserRouter>
@@ -39,6 +41,8 @@ function App() {
           <Route path="Chapter-create/:b_id" element={<ProtectedRoute element={<Chaptercreate />} />} />
           <Route path="Salesscreen" element={<ProtectedRoute element={<Salescreen />} />} />
           <Route path="Apphome" element={<ProtectedRoute element={<Apphome />} />} />
+          <Route path="QuestionsView/:chapterId" element={<ProtectedRoute element={<QuestionsView />} />} />
+          <Route path="PracticeTest" element={<ProtectedRoute element={<PracticeTest />} />} />
         </Route>
       </Routes>
     </BrowserRouter>

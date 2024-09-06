@@ -1,4 +1,4 @@
-import { faBookOpen, faHomeAlt, faMagnifyingGlassChart, faTachographDigital, faUsers, faFaceLaughWink } from '@fortawesome/free-solid-svg-icons';
+import { faBookOpen, faHomeAlt, faMagnifyingGlassChart, faTachographDigital, faUsers, faFaceLaughWink, faNoteSticky } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom'; // Import useLocation
@@ -61,6 +61,13 @@ function Sidebar() {
                 <Link className="nav-link" to="/portal/Apphome">
                     <FontAwesomeIcon icon={faHomeAlt} style={{ marginRight: "0.5rem" }} />
                     <span>App Content</span>
+                </Link>
+            </li><hr className="sidebar-divider my-0" />
+
+            <li className={`nav-item ${location.pathname === '/portal/PracticeTest' ? 'active' : ''}`}>
+                <Link className="nav-link" to="/portal/PracticeTest">
+                    <FontAwesomeIcon icon={faNoteSticky} style={{ marginRight: "0.5rem" }} />
+                    <span>Practice Test</span>
                 </Link>
             </li>
             
