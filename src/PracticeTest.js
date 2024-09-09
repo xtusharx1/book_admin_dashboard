@@ -18,17 +18,16 @@ function PracticeTest() {
         const testsWithDetails = await Promise.all(
           response.data.map(async (test) => {
             try {
-              // Fetch user data
               const userResponse = await axios.get(`http://ec2-13-202-53-68.ap-south-1.compute.amazonaws.com:3000/api/users/getbyid/${test.u_id}`);
               const userName = userResponse.data.f_name;
-              
+
               // Fetch chapter and book data
               if (test.chapter_id.length > 0) {
                 const chapterDetails = await Promise.all(
                   test.chapter_id.map(async (chapterId) => {
                     try {
                       const chapterResponse = await axios.get(`http://ec2-13-202-53-68.ap-south-1.compute.amazonaws.com:3000/api/chapters/find/${chapterId}`);
-                      return chapterResponse.data.title; // Assuming 'title' is the chapter name
+                      return chapterResponse.data.title;
                     } catch (err) {
                       console.error(`Error fetching chapter data for chapter ${chapterId}:`, err.message);
                       return 'Unknown Chapter';
@@ -36,55 +35,41 @@ function PracticeTest() {
                   })
                 );
 
-                // Fetch book data based on the first chapter's book ID
-                try {
-                  const firstChapterId = test.chapter_id[0];
-                  const firstChapterResponse = await axios.get(`http://ec2-13-202-53-68.ap-south-1.compute.amazonaws.com:3000/api/chapters/find/${firstChapterId}`);
-                  const bookResponse = await axios.get(`http://ec2-13-202-53-68.ap-south-1.compute.amazonaws.com:3000/api/books/getbook/${firstChapterResponse.data.b_id}`);
-                  const bookName = bookResponse.data.b_name;
-                  
-                  return { 
-                    ...test, 
-                    userName, 
-                    bookName,
-                    chapterNames: chapterDetails.join(', '), // Join chapter names with comma
-                    chapterCount: test.chapter_id.length // Number of chapters
-                  };
-                } catch (err) {
-                  console.error(`Error fetching book data for chapter ${test.chapter_id[0]}:`, err.message);
-                  return { 
-                    ...test, 
-                    userName, 
-                    bookName: 'Unknown',
-                    chapterNames: chapterDetails.join(', '), // Join chapter names with comma
-                    chapterCount: test.chapter_id.length // Number of chapters
-                  };
-                }
+                const firstChapterId = test.chapter_id[0];
+                const firstChapterResponse = await axios.get(`http://ec2-13-202-53-68.ap-south-1.compute.amazonaws.com:3000/api/chapters/find/${firstChapterId}`);
+                const bookResponse = await axios.get(`http://ec2-13-202-53-68.ap-south-1.compute.amazonaws.com:3000/api/books/getbook/${firstChapterResponse.data.b_id}`);
+                const bookName = bookResponse.data.b_name;
+
+                return {
+                  ...test,
+                  userName,
+                  bookName,
+                  chapterNames: chapterDetails.join(', '),
+                  chapterCount: test.chapter_id.length
+                };
               } else {
-                return { 
-                  ...test, 
-                  userName, 
+                return {
+                  ...test,
+                  userName,
                   bookName: 'No Chapters',
                   chapterNames: 'No Chapters',
-                  chapterCount: 0 // No chapters
+                  chapterCount: 0
                 };
               }
             } catch (err) {
               console.error(`Error fetching user data for u_id ${test.u_id}:`, err.message);
-              return { 
-                ...test, 
-                userName: 'Unknown', 
+              return {
+                ...test,
+                userName: 'Unknown',
                 bookName: 'Unknown',
                 chapterNames: 'Unknown',
-                chapterCount: 0 // No chapters
+                chapterCount: 0
               };
             }
           })
         );
 
-        // Sort tests by created_at in descending order
         testsWithDetails.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
-
         setTests(testsWithDetails);
         setFilteredTests(testsWithDetails); // Set filtered tests initially
         setLoading(false);
@@ -97,6 +82,15 @@ function PracticeTest() {
 
     fetchTests();
   }, []);
+
+  // Function to format time_taken
+  const formatTimeTaken = (timeTaken) => {
+    const { minutes = 0, seconds = 0 } = timeTaken; // Destructure with default values
+    if (minutes > 0) {
+      return `${minutes} min${minutes > 1 ? 's' : ''} ${seconds} sec`;
+    }
+    return `${seconds} sec`;
+  };
 
   const handleSearch = (e) => {
     e.preventDefault();
@@ -131,10 +125,7 @@ function PracticeTest() {
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
         />
-        <select
-          value={searchBy}
-          onChange={(e) => setSearchBy(e.target.value)}
-        >
+        <select value={searchBy} onChange={(e) => setSearchBy(e.target.value)}>
           <option value="book">Book Name</option>
           <option value="student">Student Name</option>
         </select>
@@ -148,7 +139,7 @@ function PracticeTest() {
       ) : (
         <table className="test-table">
           <thead>
-            <tr>
+          <tr>
               <th style={{ backgroundColor: '#007bff', color: '#ffffff' }}>Serial No.</th>
               <th style={{ backgroundColor: '#007bff', color: '#ffffff' }}>Student Name</th>
               <th style={{ backgroundColor: '#007bff', color: '#ffffff' }}>Book Name</th>
@@ -157,14 +148,14 @@ function PracticeTest() {
               <th style={{ backgroundColor: '#007bff', color: '#ffffff' }}>Total Questions</th>
               <th style={{ backgroundColor: '#007bff', color: '#ffffff' }}>Correct Answers</th>
               <th style={{ backgroundColor: '#007bff', color: '#ffffff' }}>Wrong Answers</th>
-              <th style={{ backgroundColor: '#007bff', color: '#ffffff' }}>Time Taken (seconds)</th>
+              <th style={{ backgroundColor: '#007bff', color: '#ffffff' }}>Time Taken</th>
               <th style={{ backgroundColor: '#007bff', color: '#ffffff' }}>Result (%)</th>
               <th style={{ backgroundColor: '#007bff', color: '#ffffff' }}>Test Date</th>
             </tr>
           </thead>
           <tbody>
             {filteredTests.map((test, index) => (
-              <tr key={test.test_id}>
+              <tr key={test.test_id} style={{ color: 'grey' }}> {/* Set text color to grey */}
                 <td>{index + 1}</td> {/* Serial Number */}
                 <td>{test.userName}</td>
                 <td>{test.bookName}</td>
@@ -173,7 +164,7 @@ function PracticeTest() {
                 <td>{test.total_questions}</td>
                 <td>{test.correct_answers}</td>
                 <td>{test.wrong_answers}</td>
-                <td>{test.time_taken.seconds} seconds</td>
+                <td>{formatTimeTaken(test.time_taken)}</td> {/* Format time */}
                 <td>{test.result}%</td>
                 <td>{new Date(test.test_date).toDateString()}</td>
               </tr>

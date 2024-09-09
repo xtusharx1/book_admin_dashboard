@@ -17,11 +17,18 @@ function Login() {
   const handleLogin = (event) => {
     event.preventDefault();
 
-    // Hardcoded credentials for demonstration
-    const validEmail = 'dabadacademy@gmail.com';
-    const validPassword = 'dabad@123';
+    // Array of valid credentials for demonstration
+    const validCredentials = [
+      { email: 'dabadacademy@gmail.com', password: 'dabad@123' },
+      { email: 'anmol@sainik.com', password: 'ALPHA@anmol' }, // Second user
+    ];
 
-    if (email === validEmail && password === validPassword) {
+    // Check if entered email and password match any of the valid credentials
+    const isValidUser = validCredentials.some(
+      (user) => user.email === email && user.password === password
+    );
+
+    if (isValidUser) {
       // Set cookie for session management
       Cookies.set('session', 'user-session-token', { expires: 1 }); // expires in 1 day
       navigate('/portal/dashboard');

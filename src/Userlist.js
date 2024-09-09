@@ -11,6 +11,8 @@ function Userlist() {
   const [isLoading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [genderFilter, setGenderFilter] = useState("All");
+  const [currentPage, setCurrentPage] = useState(1);
+  const usersPerPage = 50;
 
   useEffect(() => {
     getUsers();
@@ -19,7 +21,7 @@ function Userlist() {
   useEffect(() => {
     filterUsers();
   }, [searchQuery, genderFilter, userList]);
-  
+
   const getUsers = async () => {
     try {
       const response = await axios.get("http://ec2-13-202-53-68.ap-south-1.compute.amazonaws.com:3000/api/users/showusers");
@@ -37,15 +39,15 @@ function Userlist() {
 
   const convertToIST = (utcDate) => {
     const date = new Date(utcDate);
-  
+
     if (isNaN(date.getTime())) {
       console.error('Invalid date format:', utcDate);
       return 'Invalid date';
     }
-  
+
     return date.toLocaleString('en-GB', { timeZone: 'Asia/Kolkata' });
   };
-  
+
   const filterUsers = () => {
     let filtered = userList;
 
@@ -76,6 +78,16 @@ function Userlist() {
   const clearSearch = () => {
     setSearchQuery("");
   };
+
+  const paginate = (pageNumber) => {
+    setCurrentPage(pageNumber);
+  };
+
+  const indexOfLastUser = currentPage * usersPerPage;
+  const indexOfFirstUser = indexOfLastUser - usersPerPage;
+  const currentUsers = filteredList.slice(indexOfFirstUser, indexOfLastUser);
+
+  const totalPages = Math.ceil(filteredList.length / usersPerPage);
 
   return (
     <div className="userlist-container">
@@ -130,14 +142,14 @@ function Userlist() {
                   </tr>
                 </thead>
                 <tbody>
-                  {filteredList.length === 0 ? (
+                  {currentUsers.length === 0 ? (
                     <tr>
                       <td colSpan="10" className="no-data">No users found</td>
                     </tr>
                   ) : (
-                    filteredList.map((user, index) => (
+                    currentUsers.map((user, index) => (
                       <tr key={user.u_id}>
-                        <td>{index + 1}</td>
+                        <td>{index + 1 + indexOfFirstUser}</td>
                         <td>{user.f_name}</td>
                         <td>{user.phonenumber}</td>
                         <td>{user.gender}</td>
@@ -157,6 +169,17 @@ function Userlist() {
               </table>
             </div>
           )}
+          <div className="pagination">
+            {Array.from({ length: totalPages }, (_, index) => (
+              <button
+                key={index + 1}
+                className={`pagination-button ${currentPage === index + 1 ? 'active' : ''}`}
+                onClick={() => paginate(index + 1)}
+              >
+                {index + 1}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
     </div>
