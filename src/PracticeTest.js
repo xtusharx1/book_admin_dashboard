@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import { Link } from 'react-router-dom'; // Import Link
 import './PracticeTest.css'; // Import custom styles
 
 function PracticeTest() {
@@ -139,7 +140,7 @@ function PracticeTest() {
       ) : (
         <table className="test-table">
           <thead>
-          <tr>
+            <tr>
               <th style={{ backgroundColor: '#007bff', color: '#ffffff' }}>Serial No.</th>
               <th style={{ backgroundColor: '#007bff', color: '#ffffff' }}>Student Name</th>
               <th style={{ backgroundColor: '#007bff', color: '#ffffff' }}>Book Name</th>
@@ -155,18 +156,95 @@ function PracticeTest() {
           </thead>
           <tbody>
             {filteredTests.map((test, index) => (
-              <tr key={test.test_id} style={{ color: 'grey' }}> {/* Set text color to grey */}
-                <td>{index + 1}</td> {/* Serial Number */}
-                <td>{test.userName}</td>
-                <td>{test.bookName}</td>
-                <td className="chapter-cell">{test.chapterNames}</td>
-                <td>{test.chapterCount}</td> {/* Display number of chapters */}
-                <td>{test.total_questions}</td>
-                <td>{test.correct_answers}</td>
-                <td>{test.wrong_answers}</td>
-                <td>{formatTimeTaken(test.time_taken)}</td> {/* Format time */}
-                <td>{test.result}%</td>
-                <td>{new Date(test.test_date).toDateString()}</td>
+              <tr key={test.test_id} style={{ color: 'grey' }}>
+                <td>
+                  <Link
+                    to={`/portal/user-view/${test.u_id}`} // Link to the user view page
+                    style={{ textDecoration: 'none', color: 'inherit' }} // Remove default underline and inherit color
+                  >
+                    {index + 1}
+                  </Link>
+                </td>
+                <td>
+                  <Link
+                    to={`/portal/user-view/${test.u_id}`} // Link to the user view page
+                    style={{ textDecoration: 'none', color: 'inherit' }} // Remove default underline and inherit color
+                  >
+                    {test.userName}
+                  </Link>
+                </td>
+                <td>
+                  <Link
+                    to={`/portal/user-view/${test.u_id}`} // Link to the user view page
+                    style={{ textDecoration: 'none', color: 'inherit' }} // Remove default underline and inherit color
+                  >
+                    {test.bookName}
+                  </Link>
+                </td>
+                <td className="chapter-cell">
+                  <Link
+                    to={`/portal/user-view/${test.u_id}`} // Link to the user view page
+                    style={{ textDecoration: 'none', color: 'inherit' }} // Remove default underline and inherit color
+                  >
+                    {test.chapterNames}
+                  </Link>
+                </td>
+                <td>
+                  <Link
+                    to={`/portal/user-view/${test.u_id}`} // Link to the user view page
+                    style={{ textDecoration: 'none', color: 'inherit' }} // Remove default underline and inherit color
+                  >
+                    {test.chapterCount}
+                  </Link>
+                </td>
+                <td>
+                  <Link
+                    to={`/portal/user-view/${test.u_id}`} // Link to the user view page
+                    style={{ textDecoration: 'none', color: 'inherit' }} // Remove default underline and inherit color
+                  >
+                    {test.total_questions}
+                  </Link>
+                </td>
+                <td>
+                  <Link
+                    to={`/portal/user-view/${test.u_id}`} // Link to the user view page
+                    style={{ textDecoration: 'none', color: 'inherit' }} // Remove default underline and inherit color
+                  >
+                    {test.correct_answers}
+                  </Link>
+                </td>
+                <td>
+                  <Link
+                    to={`/portal/user-view/${test.u_id}`} // Link to the user view page
+                    style={{ textDecoration: 'none', color: 'inherit' }} // Remove default underline and inherit color
+                  >
+                    {test.wrong_answers}
+                  </Link>
+                </td>
+                <td>
+                  <Link
+                    to={`/portal/user-view/${test.u_id}`} // Link to the user view page
+                    style={{ textDecoration: 'none', color: 'inherit' }} // Remove default underline and inherit color
+                  >
+                    {formatTimeTaken(test.time_taken)}
+                  </Link>
+                </td>
+                <td>
+                  <Link
+                    to={`/portal/user-view/${test.u_id}`} // Link to the user view page
+                    style={{ textDecoration: 'none', color: 'inherit' }} // Remove default underline and inherit color
+                  >
+                    {test.result}%
+                  </Link>
+                </td>
+                <td>
+                  <Link
+                    to={`/portal/user-view/${test.u_id}`} // Link to the user view page
+                    style={{ textDecoration: 'none', color: 'inherit' }} // Remove default underline and inherit color
+                  >
+                    {new Date(test.test_date).toDateString()}
+                  </Link>
+                </td>
               </tr>
             ))}
           </tbody>

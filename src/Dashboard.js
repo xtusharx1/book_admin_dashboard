@@ -8,10 +8,16 @@ import axios from 'axios';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet'; 
-
+import { Link } from 'react-router-dom';
 ChartJS.register(Tooltip, Legend, CategoryScale, LinearScale, PointElement, LineElement, BarElement, Title, ArcElement);
 
+
 function Dashboard() {
+  const [loginActivityData, setLoginActivityData] = useState([]);
+  const [loginDataProcessed, setLoginDataProcessed] = useState({
+    labels: [],
+    datasets: []
+  });
   const [bookData, setBookData] = useState([]);
   const [studentData, setStudentData] = useState([]); 
   const [orderData, setOrderData] = useState([]);
@@ -58,9 +64,21 @@ function Dashboard() {
 
     fetchData();
   }, []);
+  
+  const fetchLoginData = async () => {
+    try {
+      const loginResponse = await axios.get('http://ec2-13-202-53-68.ap-south-1.compute.amazonaws.com:3000/api/userapplogin/all');
+      setLoginActivityData(loginResponse.data);
+      processLoginData(loginResponse.data);
+    } catch (error) {
+      console.error('Error fetching login data:', error);
+    }
+  };
+
 
   useEffect(() => {
     fetchBookSalesData();
+    fetchLoginData();
   }, [orderData]);
 
   const fetchBookSalesData = async () => {
@@ -270,9 +288,77 @@ function Dashboard() {
         borderColor: 'rgba(153, 102, 255, 1)',
         borderWidth: 1
       }]
+      
     };
   };
-  
+  const processLoginData = async (loginData) => {
+    try {
+      // Count logins per book
+      const loginCounts = loginData.reduce((acc, login) => {
+        const bookId = login.b_id;
+        if (bookId) {
+          acc[bookId] = (acc[bookId] || 0) + 1;
+        }
+        return acc;
+      }, {});
+
+      const loginEntries = Object.entries(loginCounts);
+
+      if (loginEntries.length === 0) {
+        setLoginDataProcessed({
+          labels: ['No Data'],
+          datasets: [{
+            label: 'Login Activity',
+            data: [1],
+            backgroundColor: ['rgba(255, 99, 132, 0.2)'],
+            borderColor: ['rgba(255, 99, 132, 1)'],
+            borderWidth: 1
+          }]
+        });
+        return;
+      }
+
+      // Fetch book details
+      const bookDetailsPromises = loginEntries.map(([bookId]) => 
+        axios.get(`http://ec2-13-202-53-68.ap-south-1.compute.amazonaws.com:3000/api/books/getbook/${bookId}`)
+          .then(response => ({ bookId, ...response.data }))
+          .catch(error => {
+            console.error(`Error fetching details for bookId: ${bookId}`, error);
+            return { bookId, b_name: 'Unknown' };
+          })
+      );
+
+      const bookDetailsResponses = await Promise.all(bookDetailsPromises);
+
+      const bookDetails = bookDetailsResponses.reduce((acc, { bookId, b_name }) => {
+        acc[bookId] = b_name;
+        return acc;
+      }, {});
+
+      const colors = [
+        'rgba(255, 99, 132, 0.2)', 'rgba(54, 162, 235, 0.2)', 'rgba(255, 206, 86, 0.2)',
+        'rgba(75, 192, 192, 0.2)', 'rgba(153, 102, 255, 0.2)', 'rgba(255, 159, 64, 0.2)',
+        'rgba(255, 99, 132, 0.2)', 'rgba(54, 162, 235, 0.2)', 'rgba(255, 206, 86, 0.2)',
+        'rgba(75, 192, 192, 0.2)'
+      ];
+
+      const backgroundColors = loginEntries.map((_, index) => colors[index % colors.length]);
+      const borderColors = backgroundColors.map(color => color.replace('0.2', '1'));
+
+      setLoginDataProcessed({
+        labels: loginEntries.map(([bookId]) => bookDetails[bookId] || 'Unknown'),
+        datasets: [{
+          label: 'Login Activity',
+          data: loginEntries.map(([_, count]) => count),
+          backgroundColor: backgroundColors,
+          borderColor: borderColors,
+          borderWidth: 1
+        }]
+      });
+    } catch (error) {
+      console.error('Error processing login data:', error);
+    }
+  };
 
   const getGenderDistribution = () => {
     const maleCount = studentData.filter(student => student.gender.toLowerCase() === 'male').length;
@@ -364,6 +450,13 @@ function Dashboard() {
           <Pie data={bookSalesData} options={{ maintainAspectRatio: false }} />
         </div>
       </div>
+      <br></br><br></br><br></br><br></br>
+      <div style={{ height: '400px', width: '100%' }}>
+  <h2>App Downloads</h2>
+  <Bar data={loginDataProcessed} options={{ maintainAspectRatio: false }} />
+  
+</div>
+
 <br></br><br></br><br></br><br></br>
 <h2>Map</h2>
       <div className="dashboard-map">
@@ -378,18 +471,31 @@ function Dashboard() {
               icon={defaultIcon}
             >
               <Popup>
-                Location ID: {location.location_id}<br />
-                Latitude: {location.latitude}<br />
-                Longitude: {location.longitude}
+                <Link
+                    to={`/portal/user-view/${location.u_id}`}
+                    className="btn btn-primary btn-sm"
+                    style={{
+                      padding: '0.5rem',
+                      textDecoration: 'none',
+                      color: 'white',
+                      backgroundColor: '#007bff',
+                      borderRadius: '5px',
+                      display: 'inline-block',
+                    }}
+                  >
+                    View
+                  </Link>
               </Popup>
             </Marker>
           ))}
         </MapContainer>
       </div>
 
-      <div style={{ marginTop: '40px' }}></div>
+      
     </div>
+    
   );
 }
+
 
 export default Dashboard;
