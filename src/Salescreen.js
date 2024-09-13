@@ -261,6 +261,7 @@ export default function Salescreen() {
               <th>Student Name</th>
               <th>Recent Lead Status</th>
               <th>Recent Activity Date</th>
+              <th>Notes</th>
               <th>Action</th>
             </tr>
           </thead>
@@ -274,6 +275,7 @@ export default function Salescreen() {
                   <td>{user.f_name}</td>
                   <td>{recentActivity ? recentActivity.activity_name : 'No Activity'}</td>
                   <td>{recentActivity ? new Date(recentActivity.activity_date).toLocaleDateString('en-GB') : 'N/A'}</td>
+                  <td>{recentActivity ? recentActivity.notes : 'No Notes'}</td>
                   <td>
                     <button
                       className="view-button"
@@ -337,6 +339,7 @@ export default function Salescreen() {
         <table className="table">
           <thead>
             <tr>
+              <th>S. No</th> {/* Added S. No column */}
               <th>User ID</th>
               <th>User Name</th>
               <th>Book Name</th>
@@ -348,6 +351,7 @@ export default function Salescreen() {
           <tbody>
             {filteredPayments.map((payment, index) => (
               <tr key={index}>
+                <td>{index + 1}</td> {/* Display S. No */}
                 <td>{payment.userId}</td>
                 <td>{payment.userName}</td>
                 <td>{payment.bookName}</td>

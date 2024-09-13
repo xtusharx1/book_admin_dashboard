@@ -31,6 +31,7 @@ function UserView() {
 const [editFollowUpDate, setEditFollowUpDate] = useState('');
 const [editNotes, setEditNotes] = useState('');
 const [editIsCompleted, setEditIsCompleted] = useState(false);
+const [newActivityNotes, setNewActivityNotes] = useState(''); // Define state for new activity notes
 
 
 
@@ -172,12 +173,14 @@ const [editIsCompleted, setEditIsCompleted] = useState(false);
             activity_name: leadStatus,
             description: leadLabel,
             activity_date: new Date(),
+            notes: newActivityNotes, // Add notes to the new activity
         };
         try {
             const response = await axios.post(`http://ec2-13-202-53-68.ap-south-1.compute.amazonaws.com:3000/api/activities/add`, newActivity);
             setActivities(prevActivities => [...prevActivities, response.data]);
             setLeadStatus('Call Not Answered'); // Reset form fields
             setLeadLabel('SSQ24');
+            setNewActivityNotes(''); // Clear the notes field
         } catch (error) {
             console.error("Error adding activity:", error);
         }
@@ -407,6 +410,10 @@ const [editIsCompleted, setEditIsCompleted] = useState(false);
                         <div className="activity-card" key={activity.activity_id}>
                             <h4 className="activity-title">{activity.activity_name} ({activity.description})</h4>
                             <p className="activity-date">Activity Created at : {formatDate(activity.activity_date)}</p>
+                            <div className="activity-notes"> 
+                                <strong>Notes:</strong> {activity.notes || 'No notes available'} 
+                            </div>
+                            
                             {editingFollowUp && (
     <div className="edit-follow-up-form">
         <h4>Edit Follow-Up</h4>
@@ -557,8 +564,17 @@ const [editIsCompleted, setEditIsCompleted] = useState(false);
                             onChange={(e) => setLeadLabel(e.target.value)}
                         >
                             <option>SSQ24</option>
-                            <option>SSQ25</option>
+                            <option>SSQ25</option>  
                         </select>
+                    </div>
+                    <div className="form-group"> 
+                        <label htmlFor="activityNotes">Notes</label> 
+                        <textarea
+                            id="activityNotes"
+                            value={newActivityNotes} 
+                            onChange={(e) => setNewActivityNotes(e.target.value)} 
+                            placeholder="Add notes for this activity" 
+                        />
                     </div>
                 </div>
                 <button className="add-activity-button" onClick={handleAddActivity}>Add Activity</button>
