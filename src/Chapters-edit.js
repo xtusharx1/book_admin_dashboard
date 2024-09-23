@@ -43,30 +43,84 @@ function ChapterEdit() {
         setCsvFiles(prevState => ({ ...prevState, [index]: file }));
     };
 
-    const processCSV = (file, chapterId) => {
-        return new Promise((resolve, reject) => {
-            Papa.parse(file, {
-                header: true,
-                skipEmptyLines: true,
-                complete: (parsedData) => {
-                    const formattedData = parsedData.data.map(row => ({
-                        chapter_id: chapterId,
-                        question_text: row['question_text'] || '',
-                        option1: row['option1'] || '',
-                        option2: row['option2'] || '',
-                        option3: row['option3'] || '',
-                        option4: row['option4'] || '',
-                        correct_option: row['correct_option'] || ''
-                    }));
-                    resolve(formattedData);
-                },
-                error: (error) => {
-                    console.error('CSV Parsing Error:', error);
-                    reject(error);
-                }
-            });
+    
+// Superscript map for exponents
+const superscriptMap = {
+    '0': '⁰',
+    '1': '¹',
+    '2': '²',
+    '3': '³',
+    '4': '⁴',
+    '5': '⁵',
+    '6': '⁶',
+    '7': '⁷',
+    '8': '⁸',
+    '9': '⁹'
+};
+
+// Convert text with superscripts
+const convertToSuperscript = (text) => {
+    return text.replace(/\^(\d+)/g, (_, digits) => {
+        return Array.from(digits).map(digit => superscriptMap[digit] || digit).join('');
+    });
+};
+
+// Check if text contains math symbols that need formatting
+const hasMathSymbols = (text) => {
+    return /[\^√±×÷≤≥∞∑π≈→]/.test(text); // Detects math symbols
+};
+
+// Format text with math symbols for LaTeX rendering
+const formatMathSymbols = (text) => {
+    return text
+        .replace(/√/g, '\\sqrt{}')        // Square root
+        .replace(/±/g, '\\pm')            // Plus-minus
+        .replace(/×/g, '\\times')         // Multiplication
+        .replace(/÷/g, '/')               // Division
+        .replace(/≤/g, '\\leq')           // Less than or equal to
+        .replace(/≥/g, '\\geq')           // Greater than or equal to
+        .replace(/∞/g, '\\infty')         // Infinity
+        .replace(/∑/g, '\\sum')           // Summation
+        .replace(/π/g, '\\pi')            // Pi
+        .replace(/≈/g, '\\approx')        // Approximately equal to
+        .replace(/_/g, '\\_')             // Underscore
+        .replace(/→/g, '\\rightarrow');   // Arrow
+};
+
+// Function to process text with symbols (keeping original symbols)
+const processText = (text) => {
+    // Apply superscript conversion
+    const superscriptText = convertToSuperscript(text);
+    // Return the processed text (symbols are kept as they are)
+    return superscriptText;
+};
+
+// Process CSV data with formatting
+const processCSV = (file, chapterId) => {
+    return new Promise((resolve, reject) => {
+        Papa.parse(file, {
+            header: true,
+            skipEmptyLines: true,
+            complete: (parsedData) => {
+                const formattedData = parsedData.data.map(row => ({
+                    chapter_id: chapterId,
+                    question_text: processText(row['question_text'] || ''), // Apply formatting and superscript
+                    option1: processText(row['option1'] || ''),               // Apply formatting and superscript
+                    option2: processText(row['option2'] || ''),               // Apply formatting and superscript
+                    option3: processText(row['option3'] || ''),               // Apply formatting and superscript
+                    option4: processText(row['option4'] || ''),               // Apply formatting and superscript
+                    correct_option: processText(row['correct_option'] || '')  // Apply formatting and superscript
+                }));
+                console.log('Formatted CSV Data:', formattedData); // Debugging line
+                resolve(formattedData);
+            },
+            error: (error) => {
+                console.error('CSV Parsing Error:', error);
+                reject(error);
+            }
         });
-    };
+    });
+};
 
     const handleUploadCSV = async (chapterId, index) => {
         if (!csvFiles[index]) {

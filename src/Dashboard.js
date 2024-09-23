@@ -308,7 +308,7 @@ function Dashboard() {
         setLoginDataProcessed({
           labels: ['No Data'],
           datasets: [{
-            label: 'Login Activity',
+            label: 'App Downloads',
             data: [1],
             backgroundColor: ['rgba(255, 99, 132, 0.2)'],
             borderColor: ['rgba(255, 99, 132, 1)'],
@@ -348,7 +348,7 @@ function Dashboard() {
       setLoginDataProcessed({
         labels: loginEntries.map(([bookId]) => bookDetails[bookId] || 'Unknown'),
         datasets: [{
-          label: 'Login Activity',
+          label: 'App Downloads',
           data: loginEntries.map(([_, count]) => count),
           backgroundColor: backgroundColors,
           borderColor: borderColors,
@@ -471,20 +471,21 @@ function Dashboard() {
               icon={defaultIcon}
             >
               <Popup>
-                <Link
-                    to={`/portal/user-view/${location.u_id}`}
-                    className="btn btn-primary btn-sm"
-                    style={{
-                      padding: '0.5rem',
-                      textDecoration: 'none',
-                      color: 'white',
-                      backgroundColor: '#007bff',
-                      borderRadius: '5px',
-                      display: 'inline-block',
-                    }}
-                  >
-                    View
-                  </Link>
+               <a href={`/portal/user-view/${location.u_id}`}
+                className="btn btn-primary btn-sm"
+                style={{
+                  padding: '0.5rem',
+                  textDecoration: 'none',
+                  color: 'white',
+                  backgroundColor: '#007bff',
+                  borderRadius: '5px',
+                  display: 'inline-block',
+                }}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                View Profile
+              </a>
               </Popup>
             </Marker>
           ))}
