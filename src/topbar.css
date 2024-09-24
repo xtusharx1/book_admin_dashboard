@@ -1,0 +1,46 @@
+/* Navbar container */
+.navbar {
+    display: flex;
+    justify-content: space-between; /* Separate the marquee and user info/logout */
+    align-items: center; /* Vertically center all items */
+    height: 60px; /* Set a fixed height for the navbar */
+    padding: 0 20px;
+    background-color: white;
+}
+
+/* Marquee styling */
+.navbar-marquee {
+    margin-top: 15px;
+    flex-grow: 1; /* Take up all available space */
+    overflow: hidden;
+    white-space: nowrap;
+    padding: 0 20px; /* Padding for horizontal spacing */
+    font-size: 16px;
+}
+
+.navbar-marquee p {
+    display: inline-block;
+    padding-left: 100%;
+    animation: scroll 25s linear infinite;
+}
+
+/* Animation for scrolling text */
+@keyframes scroll {
+    0% {
+        transform: translateX(100%);
+    }
+    100% {
+        transform: translateX(-100%);
+    }
+}
+
+/* Styling for user info and logout button */
+.navbar-nav {
+    display: flex;
+    align-items: center;
+}
+
+.nav-item {
+    display: flex;
+    align-items: center;
+}

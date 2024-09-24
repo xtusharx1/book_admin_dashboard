@@ -8,7 +8,6 @@ import axios from 'axios';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet'; 
-import { Link } from 'react-router-dom';
 ChartJS.register(Tooltip, Legend, CategoryScale, LinearScale, PointElement, LineElement, BarElement, Title, ArcElement);
 
 
@@ -30,6 +29,8 @@ function Dashboard() {
   const [customDateRange, setCustomDateRange] = useState({ start: '', end: '' });
   const [bookSalesData, setBookSalesData] = useState({ labels: [], datasets: [] });
   const [locations, setLocations] = useState([]);
+  const [cartCount, setCartCount] = useState(0);
+
 
   useEffect(() => {
     const fetchData = async () => {
@@ -48,6 +49,10 @@ function Dashboard() {
 
           const bookSoldCount = orders.filter(order => order.haspaid).length;
           setBookSoldData(bookSoldCount);
+          const cartItems = orders.filter(order => !order.haspaid && order.iscart);
+          setCartCount(cartItems.length);  // Set cart count
+
+          
         } else {
           setOrderData([]);
         }
@@ -381,6 +386,7 @@ function Dashboard() {
       <h1 style={{ marginBottom: '20px' }}>Dashboard</h1>
       <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '20px' }}>
         <Card title="Books Sold" value={bookSoldData} />
+        <Card title="Cart Count" value={cartCount} />
         <Card title="Total Books" value={totalBooks} />
         <Card title="Total Students" value={totalStudents} />
       </div>
