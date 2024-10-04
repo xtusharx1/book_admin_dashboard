@@ -70,7 +70,13 @@ function Sidebar() {
                     <span>Practice Test</span>
                 </Link>
             </li>
-            
+            <li className={`nav-item ${location.pathname === '/portal/QuestionBank' ? 'active' : ''}`}>
+    <Link className="nav-link" to="/portal/QuestionBank">
+        <FontAwesomeIcon icon={faNoteSticky} style={{ marginRight: "0.5rem" }} />
+        <span>Question Bank</span>
+    </Link>
+</li>
+
         </ul>
     );
 }

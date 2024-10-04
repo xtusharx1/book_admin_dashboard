@@ -1,6 +1,7 @@
 import axios from 'axios';
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
+ import { Papa } from 'papaparse';
 
 function QuestionsView() {
     const { chapterId } = useParams(); // Get the chapter ID from URL params
@@ -34,9 +35,49 @@ function QuestionsView() {
         }
     };
 
+    const exportToCsv = () => {
+        const headers = ['Question Text', 'Option 1', 'Option 2', 'Option 3', 'Option 4', 'Correct Option'];
+        
+        // This function wraps each field in double quotes to handle commas
+        const escapeCsvField = (field) => {
+            if (typeof field === 'string') {
+                // Escape only the internal double quotes by doubling them
+                return `"${field.replace(/"/g, '""')}"`; 
+            }
+            return field;
+        };
+        
+    
+        const rows = questions.map(question => [
+            escapeCsvField(question.question_text),
+            escapeCsvField(question.option1),
+            escapeCsvField(question.option2),
+            escapeCsvField(question.option3),
+            escapeCsvField(question.option4),
+            escapeCsvField(question.correct_option)
+        ]);
+    
+        let csvContent = 'data:text/csv;charset=utf-8,';
+        csvContent += headers.map(escapeCsvField).join(',') + '\n'; // Join headers with commas
+        rows.forEach(row => {
+            csvContent += row.map(escapeCsvField).join(',') + '\n'; // Join each row with commas
+        });
+    
+        // Create a download link and trigger a download
+        const encodedUri = encodeURI(csvContent);
+        const link = document.createElement('a');
+        link.setAttribute('href', encodedUri);
+        link.setAttribute('download', `${chapterName}_questions.csv`);
+        document.body.appendChild(link);
+        link.click();
+    };
+    
     return (
         <div className="container mt-4">
             <h2>Questions for Chapter: {chapterName}</h2>
+            <button className="btn btn-primary mb-3" onClick={exportToCsv}>
+                Export to CSV
+            </button>
             {isLoading ? (
                 <img src="https://media.giphy.com/media/ZO9b1ntYVJmjZlsWlm/giphy.gif" alt="Loading" />
             ) : (

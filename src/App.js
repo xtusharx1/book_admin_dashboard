@@ -22,6 +22,10 @@ import Apphome from './apphome';
 import ProtectedRoute from './ProtectedRoute';
 import QuestionsView from './QuestionsView';
 import PracticeTest from './PracticeTest';
+import QuestionBank from './QuestionBank';
+import QuestionEditor from './QuestionAdd';
+import UserTestDetails from './UserTestDetails'; 
+
 function App() {
   return (
     <BrowserRouter>
@@ -43,6 +47,12 @@ function App() {
           <Route path="Apphome" element={<ProtectedRoute element={<Apphome />} />} />
           <Route path="QuestionsView/:chapterId" element={<ProtectedRoute element={<QuestionsView />} />} />
           <Route path="PracticeTest" element={<ProtectedRoute element={<PracticeTest />} />} />
+          <Route path="QuestionBank" element={<ProtectedRoute element={<QuestionBank />} />} />
+          <Route path="Questioneditor/:chapterId" element={<QuestionEditor />} />
+          <Route path="Usertestdetails/:u_id" element={<ProtectedRoute element={<UserTestDetails />} />}/>
+    
+
+
         </Route>
       </Routes>
     </BrowserRouter>
