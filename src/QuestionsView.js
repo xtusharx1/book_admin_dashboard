@@ -1,7 +1,6 @@
 import axios from 'axios';
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
- import { Papa } from 'papaparse';
 
 function QuestionsView() {
     const { chapterId } = useParams(); // Get the chapter ID from URL params
@@ -35,19 +34,21 @@ function QuestionsView() {
         }
     };
 
+    // Helper function to check if a string is an image URL
+    const isImageUrl = (url) => {
+        return url?.match(/\.(jpeg|jpg|gif|png|webp)$/) != null;
+    };
+
     const exportToCsv = () => {
         const headers = ['Question Text', 'Option 1', 'Option 2', 'Option 3', 'Option 4', 'Correct Option'];
         
-        // This function wraps each field in double quotes to handle commas
         const escapeCsvField = (field) => {
             if (typeof field === 'string') {
-                // Escape only the internal double quotes by doubling them
                 return `"${field.replace(/"/g, '""')}"`; 
             }
             return field;
         };
         
-    
         const rows = questions.map(question => [
             escapeCsvField(question.question_text),
             escapeCsvField(question.option1),
@@ -58,12 +59,11 @@ function QuestionsView() {
         ]);
     
         let csvContent = 'data:text/csv;charset=utf-8,';
-        csvContent += headers.map(escapeCsvField).join(',') + '\n'; // Join headers with commas
+        csvContent += headers.map(escapeCsvField).join(',') + '\n'; 
         rows.forEach(row => {
-            csvContent += row.map(escapeCsvField).join(',') + '\n'; // Join each row with commas
+            csvContent += row.map(escapeCsvField).join(',') + '\n'; 
         });
     
-        // Create a download link and trigger a download
         const encodedUri = encodeURI(csvContent);
         const link = document.createElement('a');
         link.setAttribute('href', encodedUri);
@@ -97,12 +97,48 @@ function QuestionsView() {
                             <tbody>
                                 {questions.map(question => (
                                     <tr key={question.q_id}>
-                                        <td>{question.question_text}</td>
-                                        <td>{question.option1}</td>
-                                        <td>{question.option2}</td>
-                                        <td>{question.option3}</td>
-                                        <td>{question.option4}</td>
-                                        <td>{question.correct_option}</td>
+                                        <td>
+                                            {isImageUrl(question.question_text) ? (
+                                                <img src={question.question_text} alt="Question" style={{ width: '100px', height: '100px' }} />
+                                            ) : (
+                                                question.question_text
+                                            )}
+                                        </td>
+                                        <td>
+                                            {isImageUrl(question.option1) ? (
+                                                <img src={question.option1} alt="Option 1" style={{ width: '100px', height: '100px' }} />
+                                            ) : (
+                                                question.option1
+                                            )}
+                                        </td>
+                                        <td>
+                                            {isImageUrl(question.option2) ? (
+                                                <img src={question.option2} alt="Option 2" style={{ width: '100px', height: '100px' }} />
+                                            ) : (
+                                                question.option2
+                                            )}
+                                        </td>
+                                        <td>
+                                            {isImageUrl(question.option3) ? (
+                                                <img src={question.option3} alt="Option 3" style={{ width: '100px', height: '100px' }} />
+                                            ) : (
+                                                question.option3
+                                            )}
+                                        </td>
+                                        <td>
+                                            {isImageUrl(question.option4) ? (
+                                                <img src={question.option4} alt="Option 4" style={{ width: '100px', height: '100px' }} />
+                                            ) : (
+                                                question.option4
+                                            )}
+                                        </td>
+                                        <td>
+                                            {isImageUrl(question.correct_option) ? (
+                                                <img src={question.correct_option} alt="Correct Option" style={{ width: '100px', height: '100px' }} />
+                                            ) : (
+                                                question.correct_option
+                                            )}
+                                        </td>
                                     </tr>
                                 ))}
                             </tbody>
