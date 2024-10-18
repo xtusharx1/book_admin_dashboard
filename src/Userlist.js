@@ -11,6 +11,9 @@ function Userlist() {
   const [isLoading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [genderFilter, setGenderFilter] = useState("All");
+  const [stateSearch, setStateSearch] = useState(""); // New state search input
+  const [schoolSearch, setSchoolSearch] = useState(""); // School Choice search input
+  const [classFilter, setClassFilter] = useState("All"); // Class filter
   const [currentPage, setCurrentPage] = useState(1);
   const usersPerPage = 50;
 
@@ -20,7 +23,7 @@ function Userlist() {
 
   useEffect(() => {
     filterUsers();
-  }, [searchQuery, genderFilter, userList]);
+  }, [searchQuery, genderFilter, stateSearch, schoolSearch, classFilter, userList]);
 
   const getUsers = async () => {
     try {
@@ -39,34 +42,43 @@ function Userlist() {
 
   const convertToIST = (utcDate) => {
     const date = new Date(utcDate);
-
-    if (isNaN(date.getTime())) {
-      console.error('Invalid date format:', utcDate);
-      return 'Invalid date';
-    }
-
     return date.toLocaleString('en-GB', { timeZone: 'Asia/Kolkata' });
   };
 
   const filterUsers = () => {
     let filtered = userList;
 
+    // Apply gender filter
     if (genderFilter !== "All") {
       filtered = filtered.filter(user => user.gender === genderFilter);
     }
 
+    // Apply state search filter
+    if (stateSearch) {
+      filtered = filtered.filter(user => user.state.toLowerCase().includes(stateSearch.toLowerCase()));
+    }
+
+    // Apply school search based on "School Choice"
+    if (schoolSearch) {
+      filtered = filtered.filter(user => user.c_school.toLowerCase().includes(schoolSearch.toLowerCase()));
+    }
+
+    // Apply class filter
+    if (classFilter !== "All") {
+      filtered = filtered.filter(user => user.c_entry.includes(classFilter)); // Match "6" or "9" for class entry
+    }
+
+    // Apply search query filter (only by Name)
     if (searchQuery) {
       filtered = filtered.filter(user =>
-        user.f_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        user.c_school.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        user.state.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        user.c_entry.toLowerCase().includes(searchQuery.toLowerCase())
+        user.f_name.toLowerCase().includes(searchQuery.toLowerCase())
       );
     }
 
     setFilteredList(filtered);
   };
 
+  // Handlers for search inputs and filters
   const handleSearchInputChange = (event) => {
     setSearchQuery(event.target.value);
   };
@@ -75,12 +87,57 @@ function Userlist() {
     setGenderFilter(event.target.value);
   };
 
+  const handleClassChange = (event) => {
+    setClassFilter(event.target.value);
+  };
+
+  const handleStateSearchChange = (event) => {
+    setStateSearch(event.target.value);
+  };
+
+  const handleSchoolSearchChange = (event) => {
+    setSchoolSearch(event.target.value);
+  };
+
   const clearSearch = () => {
     setSearchQuery("");
   };
 
   const paginate = (pageNumber) => {
     setCurrentPage(pageNumber);
+  };
+
+  const generatePageNumbers = (totalPages, currentPage) => {
+    const pageNumbers = [];
+
+    if (totalPages <= 7) {
+      for (let i = 1; i <= totalPages; i++) {
+        pageNumbers.push(i);
+      }
+    } else {
+      // Show first 3 pages
+      pageNumbers.push(1, 2, 3);
+
+      if (currentPage > 5) {
+        pageNumbers.push('...');
+      }
+
+      const startPage = Math.max(4, currentPage - 1);
+      const endPage = Math.min(totalPages - 3, currentPage + 1);
+
+      for (let i = startPage; i <= endPage; i++) {
+        pageNumbers.push(i);
+      }
+
+      if (currentPage < totalPages - 4) {
+        pageNumbers.push('...');
+      }
+
+      // Show last 3 pages
+      pageNumbers.push(totalPages - 2, totalPages - 1, totalPages);
+    }
+
+    return pageNumbers;
   };
 
   const indexOfLastUser = currentPage * usersPerPage;
@@ -99,7 +156,7 @@ function Userlist() {
           <div className="search-filter-container">
             <input
               type="text"
-              placeholder="Search Name, School, Class, or State"
+              placeholder="Search Name"
               value={searchQuery}
               onChange={handleSearchInputChange}
               className="form-control search-input"
@@ -109,14 +166,41 @@ function Userlist() {
                 <FontAwesomeIcon icon={faTimes} />
               </button>
             )}
+
+            {/* State Search */}
+            <input
+              type="text"
+              placeholder="Search State"
+              value={stateSearch}
+              onChange={handleStateSearchChange}
+              className="form-control search-input"
+            />
+
+            {/* School Choice Search */}
+            <input
+              type="text"
+              placeholder="Search School Choice"
+              value={schoolSearch}
+              onChange={handleSchoolSearchChange}
+              className="form-control search-input"
+            />
             <select
               value={genderFilter}
               onChange={handleGenderChange}
               className="form-control select-filter"
             >
-              <option value="All">All</option>
+              <option value="All">All Genders</option>
               <option value="Male">Male</option>
               <option value="Female">Female</option>
+            </select>
+            <select
+              value={classFilter}
+              onChange={handleClassChange}
+              className="form-control select-filter"
+            >
+              <option value="All">All Classes</option>
+              <option value="6">Class 6</option>
+              <option value="9">Class 9</option>
             </select>
             <button className="search-button">
               <FontAwesomeIcon icon={faSearch} />
@@ -170,13 +254,16 @@ function Userlist() {
             </div>
           )}
           <div className="pagination">
-            {Array.from({ length: totalPages }, (_, index) => (
+            {generatePageNumbers(totalPages, currentPage).map((page, index) => (
               <button
-                key={index + 1}
-                className={`pagination-button ${currentPage === index + 1 ? 'active' : ''}`}
-                onClick={() => paginate(index + 1)}
+                key={index}
+                className={`pagination-button ${currentPage === page ? 'active' : ''}`}
+                onClick={() => {
+                  if (page !== '...') paginate(page);
+                }}
+                disabled={page === '...'}
               >
-                {index + 1}
+                {page}
               </button>
             ))}
           </div>

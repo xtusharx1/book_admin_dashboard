@@ -243,24 +243,32 @@ function Dashboard() {
       (genderFilter === 'all' || student.gender.toLowerCase() === genderFilter) &&
       (!classFilter || student.c_entry.includes(classFilter))
     );
-
+  
     const studentsByState = filteredStudents.reduce((acc, student) => {
       const state = student.state.trim();
       acc[state] = (acc[state] || 0) + 1;
       return acc;
     }, {});
-
+  
+    // Convert the object into an array and sort it in descending order by the number of students
+    const sortedEntries = Object.entries(studentsByState).sort((a, b) => b[1] - a[1]);
+  
+    // Convert the sorted array back into two separate arrays: one for labels (states) and one for data (number of students)
+    const sortedLabels = sortedEntries.map(([state]) => state);
+    const sortedData = sortedEntries.map(([, count]) => count);
+  
     return {
-      labels: Object.keys(studentsByState),
+      labels: sortedLabels,
       datasets: [{
         label: 'Students',
-        data: Object.values(studentsByState),
+        data: sortedData,
         backgroundColor: 'rgba(75, 192, 192, 0.2)',
         borderColor: 'rgba(75, 192, 192, 1)',
         borderWidth: 1
       }]
     };
   };
+  
 
   const getRegistrationData = () => {
     // Sort studentData by created_at date in ascending order
@@ -306,9 +314,9 @@ function Dashboard() {
         }
         return acc;
       }, {});
-
-      const loginEntries = Object.entries(loginCounts);
-
+  
+      let loginEntries = Object.entries(loginCounts);
+  
       if (loginEntries.length === 0) {
         setLoginDataProcessed({
           labels: ['No Data'],
@@ -322,7 +330,10 @@ function Dashboard() {
         });
         return;
       }
-
+  
+      // Sort the login entries by the number of downloads in descending order
+      loginEntries = loginEntries.sort((a, b) => b[1] - a[1]);
+  
       // Fetch book details
       const bookDetailsPromises = loginEntries.map(([bookId]) => 
         axios.get(`http://ec2-13-202-53-68.ap-south-1.compute.amazonaws.com:3000/api/books/getbook/${bookId}`)
@@ -332,24 +343,24 @@ function Dashboard() {
             return { bookId, b_name: 'Unknown' };
           })
       );
-
+  
       const bookDetailsResponses = await Promise.all(bookDetailsPromises);
-
+  
       const bookDetails = bookDetailsResponses.reduce((acc, { bookId, b_name }) => {
         acc[bookId] = b_name;
         return acc;
       }, {});
-
+  
       const colors = [
         'rgba(255, 99, 132, 0.2)', 'rgba(54, 162, 235, 0.2)', 'rgba(255, 206, 86, 0.2)',
         'rgba(75, 192, 192, 0.2)', 'rgba(153, 102, 255, 0.2)', 'rgba(255, 159, 64, 0.2)',
         'rgba(255, 99, 132, 0.2)', 'rgba(54, 162, 235, 0.2)', 'rgba(255, 206, 86, 0.2)',
         'rgba(75, 192, 192, 0.2)'
       ];
-
+  
       const backgroundColors = loginEntries.map((_, index) => colors[index % colors.length]);
       const borderColors = backgroundColors.map(color => color.replace('0.2', '1'));
-
+  
       setLoginDataProcessed({
         labels: loginEntries.map(([bookId]) => bookDetails[bookId] || 'Unknown'),
         datasets: [{
@@ -364,6 +375,7 @@ function Dashboard() {
       console.error('Error processing login data:', error);
     }
   };
+  
 
   const getGenderDistribution = () => {
     const maleCount = studentData.filter(student => student.gender.toLowerCase() === 'male').length;
@@ -459,6 +471,7 @@ function Dashboard() {
       <br></br><br></br><br></br><br></br>
       <div style={{ height: '400px', width: '100%' }}>
   <h2>App Downloads</h2>
+  
   <Bar data={loginDataProcessed} options={{ maintainAspectRatio: false }} />
   
 </div>
