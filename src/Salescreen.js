@@ -71,28 +71,30 @@ export default function Salescreen() {
 
     const fetchUsersAndActivities = async () => {
       try {
+        // Fetch users
         const userResponse = await axios.get('http://ec2-13-202-53-68.ap-south-1.compute.amazonaws.com:3000/api/users/showusers');
         const usersData = userResponse.data;
-
-        // Fetch activities for each user
-        const activitiesData = await Promise.all(usersData.map(async (user) => {
-          try {
-            const activityResponse = await axios.get(`http://ec2-13-202-53-68.ap-south-1.compute.amazonaws.com:3000/api/activities/user/${user.u_id}`);
-            return { userId: user.u_id, activities: activityResponse.data };
-          } catch (err) {
-            return { userId: user.u_id, activities: [] };
-          }
-        }));
-
+    
+        // Fetch all activities from the provided API
+        const activityResponse = await axios.get('http://ec2-13-202-53-68.ap-south-1.compute.amazonaws.com:3000/api/activities/');
+        const activitiesData = activityResponse.data;
+    
+        // Create a map of user activities by user ID
         const activitiesMap = {};
-        activitiesData.forEach(activityData => {
-          // Sort activities by activity_date or created_at to get the most recent one
-          const sortedActivities = activityData.activities.sort((a, b) => new Date(b.activity_date) - new Date(a.activity_date));
-          activitiesMap[activityData.userId] = sortedActivities;
+        activitiesData.forEach(activity => {
+          const userId = activity.u_id;
+          if (!activitiesMap[userId]) {
+            activitiesMap[userId] = [];
+          }
+          activitiesMap[userId].push(activity);
         });
-        setActivities(activitiesMap);
-
-        // Sort users: 
+    
+        // Sort activities by date (most recent first) for each user
+        Object.keys(activitiesMap).forEach(userId => {
+          activitiesMap[userId] = activitiesMap[userId].sort((a, b) => new Date(b.activity_date) - new Date(a.activity_date));
+        });
+    
+        // Sort users:
         // 1. Users with activities by the most recent activity's `activity_date`.
         // 2. Users without activities by their `created_at`.
         const sortedUsers = usersData.sort((a, b) => {
@@ -100,21 +102,25 @@ export default function Salescreen() {
           const bRecentActivityDate = activitiesMap[b.u_id]?.[0]?.activity_date || b.created_at;
           const aHasActivities = activitiesMap[a.u_id]?.length > 0;
           const bHasActivities = activitiesMap[b.u_id]?.length > 0;
-
+    
           // Sort users with activities before those without
           if (aHasActivities && !bHasActivities) return -1;
           if (!aHasActivities && bHasActivities) return 1;
-
+    
           // If both have or don't have activities, sort by the date
           return new Date(bRecentActivityDate) - new Date(aRecentActivityDate);
         });
-
+    
+        // Update state with sorted users and activities
         setUsers(sortedUsers);
+        setActivities(activitiesMap);
+    
       } catch (err) {
+        console.error('Error fetching users or activities data:', err);
         setError('Error fetching users or activities data');
       }
     };
-
+    
     
     
 
