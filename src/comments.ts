@@ -30,63 +30,84 @@ function Dashboard() {
   const [bookSalesData, setBookSalesData] = useState({ labels: [], datasets: [] });
   const [locations, setLocations] = useState([]);
   const [cartCount, setCartCount] = useState(0);
-  const [activityFilter, setActivityFilter] = useState('all'); // Default filter
-
+  const [filteractivity, setfilteractivity] = useState('all'); // Default filter
 
   useEffect(() => {
     const fetchData = async () => {
-      try {
-        const bookResponse = await axios.get('http://ec2-13-202-53-68.ap-south-1.compute.amazonaws.com:3000/api/books/all');
-        setBookData(bookResponse.data);
+        try {
+            const bookResponse = await axios.get('http://ec2-13-202-53-68.ap-south-1.compute.amazonaws.com:3000/api/books/all');
+            setBookData(bookResponse.data);
 
-        const studentResponse = await axios.get('http://ec2-13-202-53-68.ap-south-1.compute.amazonaws.com:3000/api/users/showusers');
-        setStudentData(studentResponse.data);
+            const studentResponse = await axios.get('http://ec2-13-202-53-68.ap-south-1.compute.amazonaws.com:3000/api/users/showusers');
+            setStudentData(studentResponse.data);
 
-        const orderResponse = await axios.get('http://ec2-13-202-53-68.ap-south-1.compute.amazonaws.com:3000/api/payments/all');
-        const orders = orderResponse.data;
+            const orderResponse = await axios.get('http://ec2-13-202-53-68.ap-south-1.compute.amazonaws.com:3000/api/payments/all');
+            const orders = orderResponse.data;
 
-        if (Array.isArray(orders)) {
-          setOrderData(orders);
-          const bookSoldCount = orders.filter(order => order.haspaid).length;
-          setBookSoldData(bookSoldCount);
+            if (Array.isArray(orders)) {
+                setOrderData(orders);
+                const bookSoldCount = orders.filter(order => order.haspaid).length;
+                setBookSoldData(bookSoldCount);
+            }
+
+            setTotalBooks(bookResponse.data.length);
+            setTotalStudents(studentResponse.data.length);
+
+            // Fetch login data based on the current filter
+            await fetchLoginData(filteractivity); // Await to maintain order if needed
+        } catch (error) {
+            console.error('Error fetching data:', error);
         }
-
-        setTotalBooks(bookResponse.data.length);
-        setTotalStudents(studentResponse.data.length);
-
-        // Fetch login data
-        fetchLoginData();
-      } catch (error) {
-        console.error('Error fetching data:', error);
-      }
     };
 
     fetchData();
-  }, []);
+}, [filteractivity]); // Dependency on filteractivity
 
-  const fetchLoginData = async () => {
-    try {
-      const url = getLoginDataUrl(activityFilter);
+const fetchLoginData = async () => {
+  console.log('Fetching login data for filter:', filteractivity); // Log the selected filter
+  try {
+      const url = getLoginDataUrl(filteractivity);
+      console.log('Using URL:', url); // Log the URL being fetched
+
       const loginResponse = await axios.get(url);
-      setLoginActivityData(loginResponse.data);
-      processLoginData(loginResponse.data);
-    } catch (error) {
-      console.error('Error fetching login data:', error);
-    }
-  };
+      console.log('API Response:', loginResponse.data); // Log the response from the API
 
-  // Helper function to get the appropriate login data URL based on the filter
-  const getLoginDataUrl = (filter) => {
-    switch (filter) {
+      // Ensure that data is in the expected format before setting it
+      if (loginResponse.data) {
+          setLoginActivityData(loginResponse.data);
+          processLoginData(loginResponse.data);
+      } else {
+          console.warn('No data returned from API');
+      }
+  } catch (error) {
+      console.error('Error fetching login data:', error);
+  }
+};
+
+// Helper function to get the appropriate login data URL based on the filter
+const getLoginDataUrl = (filter) => {
+  console.log('Getting URL for filter:', filter); // Log the received filter
+  let url;
+
+  switch (filter) {
       case 'last24':
-        return 'http://ec2-13-202-53-68.ap-south-1.compute.amazonaws.com:3000/api/userapplogin/last24';
+          url = 'http://ec2-13-202-53-68.ap-south-1.compute.amazonaws.com:3000/api/userapplogin/last24';
+          console.log('Selected URL for last 24 hours:', url); // Log URL for last 24 hours
+          break;
       case 'last7':
-        return 'http://ec2-13-202-53-68.ap-south-1.compute.amazonaws.com:3000/api/userapplogin/last7';
+          url = 'http://ec2-13-202-53-68.ap-south-1.compute.amazonaws.com:3000/api/userapplogin/last7';
+          console.log('Selected URL for last 7 days:', url); // Log URL for last 7 days
+          break;
       case 'all':
       default:
-        return 'http://ec2-13-202-53-68.ap-south-1.compute.amazonaws.com:3000/api/userapplogin/all';
-    }
-  };
+          url = 'http://ec2-13-202-53-68.ap-south-1.compute.amazonaws.com:3000/api/userapplogin/all';
+          console.log('Selected URL for all data:', url); // Log URL for all data
+          break;
+  }
+
+  return url;
+};
+  
 
   const fetchBookSalesData = async () => {
     try {
@@ -374,10 +395,11 @@ function Dashboard() {
       console.error('Error processing login data:', error);
     }
   };
-  const handleActivityFilterChange = (e) => {
+  const handlefilteractivityChange = (e) => {
     const selectedFilter = e.target.value;
-    setActivityFilter(selectedFilter);
+    setfilteractivity(selectedFilter);
     fetchLoginData(); // Fetch login data with the new filter
+    console.log('Selected Filter:', selectedFilter);
   };
   
   const getGenderDistribution = () => {
@@ -472,10 +494,11 @@ function Dashboard() {
         </div>
       </div>
       <br></br><br></br><br></br><br></br>
+      
       <div style={{ height: '400px', width: '100%' }}>
       <div>
-      <label htmlFor="activityFilter">Filter Login Activity:</label>
-      <select id="activityFilter" value={activityFilter} onChange={handleActivityFilterChange}>
+      <label htmlFor="filteractivity">Filter Login Activity:</label>
+      <select id="filteractivity" value={filteractivity} onChange={handlefilteractivityChange}>
         <option value="all">All</option>
         <option value="last24">Last 24 Hours</option>
         <option value="last7">Last 7 Days</option>

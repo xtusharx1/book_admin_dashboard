@@ -31,54 +31,80 @@ function Dashboard() {
   const [locations, setLocations] = useState([]);
   const [cartCount, setCartCount] = useState(0);
 
+  const [filteractivity, setfilteractivity] = useState('all'); // Default filter
 
+  
   useEffect(() => {
     const fetchData = async () => {
-      try {
-        const bookResponse = await axios.get('http://ec2-13-202-53-68.ap-south-1.compute.amazonaws.com:3000/api/books/all');
-        setBookData(bookResponse.data);
+        try {
+            const bookResponse = await axios.get('http://ec2-13-202-53-68.ap-south-1.compute.amazonaws.com:3000/api/books/all');
+            setBookData(bookResponse.data);
 
-        const studentResponse = await axios.get('http://ec2-13-202-53-68.ap-south-1.compute.amazonaws.com:3000/api/users/showusers');
-        setStudentData(studentResponse.data);
+            const studentResponse = await axios.get('http://ec2-13-202-53-68.ap-south-1.compute.amazonaws.com:3000/api/users/showusers');
+            setStudentData(studentResponse.data);
 
-        const orderResponse = await axios.get('http://ec2-13-202-53-68.ap-south-1.compute.amazonaws.com:3000/api/payments/all');
-        const orders = orderResponse.data;
+            const orderResponse = await axios.get('http://ec2-13-202-53-68.ap-south-1.compute.amazonaws.com:3000/api/payments/all');
+            const orders = orderResponse.data;
 
-        if (Array.isArray(orders)) {
-          setOrderData(orders);
+            if (Array.isArray(orders)) {
+                setOrderData(orders);
+                const bookSoldCount = orders.filter(order => order.haspaid).length;
+                setBookSoldData(bookSoldCount);
+            }
 
-          const bookSoldCount = orders.filter(order => order.haspaid).length;
-          setBookSoldData(bookSoldCount);
-          const cartItems = orders.filter(order => !order.haspaid && order.iscart);
-          setCartCount(cartItems.length);  // Set cart count
+            setTotalBooks(bookResponse.data.length);
+            setTotalStudents(studentResponse.data.length);
 
-          
-        } else {
-          setOrderData([]);
+            // Fetch login data based on the current filter
+            await fetchLoginData(filteractivity); // Await to maintain order if needed
+        } catch (error) {
+            console.error('Error fetching data:', error);
         }
-
-        setTotalBooks(bookResponse.data.length);
-        setTotalStudents(studentResponse.data.length);
-
-        await fetchBookSalesData();
-        await fetchLocations();
-      } catch (error) {
-        console.error('Error fetching data:', error);
-      }
     };
 
     fetchData();
-  }, []);
+}, [filteractivity]); // Dependency on filteractivity
+
   
-  const fetchLoginData = async () => {
-    try {
-      const loginResponse = await axios.get('http://ec2-13-202-53-68.ap-south-1.compute.amazonaws.com:3000/api/userapplogin/all');
-      setLoginActivityData(loginResponse.data);
-      processLoginData(loginResponse.data);
-    } catch (error) {
+const fetchLoginData = async () => {
+  console.log('Fetching login data for filter:', filteractivity); // Log the selected filter
+  try {
+      const url = getLoginDataUrl(filteractivity);
+
+      const loginResponse = await axios.get(url);
+
+      // Ensure that data is in the expected format before setting it
+      if (loginResponse.data) {
+          setLoginActivityData(loginResponse.data);
+          processLoginData(loginResponse.data);
+      } else {
+          console.warn('No data returned from API');
+      }
+  } catch (error) {
       console.error('Error fetching login data:', error);
-    }
-  };
+  }
+};
+
+// Helper function to get the appropriate login data URL based on the filter
+const getLoginDataUrl = (filter) => {
+  console.log('Getting URL for filter:', filter); // Log the received filter
+  let url;
+
+  switch (filter) {
+      case 'last24':
+          url = 'http://ec2-13-202-53-68.ap-south-1.compute.amazonaws.com:3000/api/userapplogin/last24';
+          break;
+      case 'last7':
+          url = 'http://ec2-13-202-53-68.ap-south-1.compute.amazonaws.com:3000/api/userapplogin/last7';
+          break;
+      case 'all':
+      default:
+          url = 'http://ec2-13-202-53-68.ap-south-1.compute.amazonaws.com:3000/api/userapplogin/all';
+          break;
+  }
+
+  return url;
+};
 
 
   useEffect(() => {
@@ -375,6 +401,12 @@ function Dashboard() {
       console.error('Error processing login data:', error);
     }
   };
+  const handlefilteractivityChange = (e) => {
+    const selectedFilter = e.target.value;
+    setfilteractivity(selectedFilter);
+    fetchLoginData(); // Fetch login data with the new filter
+    console.log('Selected Filter:', selectedFilter);
+  };
   
 
   const getGenderDistribution = () => {
@@ -470,6 +502,12 @@ function Dashboard() {
       </div>
       <br></br><br></br><br></br><br></br>
       <div style={{ height: '400px', width: '100%' }}>
+      <label htmlFor="filteractivity">Filter Login Activity:</label>
+      <select id="filteractivity" value={filteractivity} onChange={handlefilteractivityChange}>
+        <option value="all">All</option>
+        <option value="last24">Last 24 Hours</option>
+        <option value="last7">Last 7 Days</option>
+      </select>
   <h2>App Downloads</h2>
   
   <Bar data={loginDataProcessed} options={{ maintainAspectRatio: false }} />
