@@ -36,35 +36,42 @@ function Dashboard() {
   
   useEffect(() => {
     const fetchData = async () => {
-        try {
-            const bookResponse = await axios.get('http://ec2-13-202-53-68.ap-south-1.compute.amazonaws.com:3000/api/books/all');
-            setBookData(bookResponse.data);
+      try {
+        const bookResponse = await axios.get('http://ec2-13-202-53-68.ap-south-1.compute.amazonaws.com:3000/api/books/all');
+        setBookData(bookResponse.data);
 
-            const studentResponse = await axios.get('http://ec2-13-202-53-68.ap-south-1.compute.amazonaws.com:3000/api/users/showusers');
-            setStudentData(studentResponse.data);
+        const studentResponse = await axios.get('http://ec2-13-202-53-68.ap-south-1.compute.amazonaws.com:3000/api/users/showusers');
+        setStudentData(studentResponse.data);
 
-            const orderResponse = await axios.get('http://ec2-13-202-53-68.ap-south-1.compute.amazonaws.com:3000/api/payments/all');
-            const orders = orderResponse.data;
+        const orderResponse = await axios.get('http://ec2-13-202-53-68.ap-south-1.compute.amazonaws.com:3000/api/payments/all');
+        const orders = orderResponse.data;
 
-            if (Array.isArray(orders)) {
-                setOrderData(orders);
-                const bookSoldCount = orders.filter(order => order.haspaid).length;
-                setBookSoldData(bookSoldCount);
-            }
+        if (Array.isArray(orders)) {
+          setOrderData(orders);
 
-            setTotalBooks(bookResponse.data.length);
-            setTotalStudents(studentResponse.data.length);
+          const bookSoldCount = orders.filter(order => order.haspaid).length;
+          setBookSoldData(bookSoldCount);
+          const cartItems = orders.filter(order => !order.haspaid && order.iscart);
+          setCartCount(cartItems.length);  // Set cart count
 
-            // Fetch login data based on the current filter
-            await fetchLoginData(filteractivity); // Await to maintain order if needed
-        } catch (error) {
-            console.error('Error fetching data:', error);
+          
+        } else {
+          setOrderData([]);
         }
+
+        setTotalBooks(bookResponse.data.length);
+        setTotalStudents(studentResponse.data.length);
+        await fetchLoginData(filteractivity);
+        await fetchBookSalesData();
+        await fetchLocations();
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      }
     };
 
     fetchData();
-}, [filteractivity]); // Dependency on filteractivity
-
+  }, [filteractivity]); 
+  
   
 const fetchLoginData = async () => {
   console.log('Fetching login data for filter:', filteractivity); // Log the selected filter
