@@ -28,7 +28,6 @@ function Dashboard() {
   const [dateFilter, setDateFilter] = useState('all');
   const [customDateRange, setCustomDateRange] = useState({ start: '', end: '' });
   const [bookSalesData, setBookSalesData] = useState({ labels: [], datasets: [] });
-  const [locations, setLocations] = useState([]);
   const [cartCount, setCartCount] = useState(0);
 
   const [filteractivity, setfilteractivity] = useState('all'); // Default filter
@@ -63,7 +62,6 @@ function Dashboard() {
         setTotalStudents(studentResponse.data.length);
         await fetchLoginData(filteractivity);
         await fetchBookSalesData();
-        await fetchLocations();
       } catch (error) {
         console.error('Error fetching data:', error);
       }
@@ -230,22 +228,7 @@ const getLoginDataUrl = (filter) => {
     }
   };
 
-  const fetchLocations = async () => {
-    try {
-      const response = await axios.get('http://ec2-13-202-53-68.ap-south-1.compute.amazonaws.com:3000/api/locations/all/');
-      setLocations(response.data);
-    } catch (error) {
-      console.error('Error fetching location data:', error);
-    }
-  };
-  const defaultIcon = new L.Icon({
-    iconUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon.png',
-    iconSize: [25, 41],
-    iconAnchor: [12, 41],
-    popupAnchor: [1, -34],
-    shadowUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-shadow.png',
-    shadowSize: [41, 41]
-  });
+  
   const filterByDateRange = (data) => {
     if (dateFilter === 'custom') {
       const { start, end } = customDateRange;
@@ -522,41 +505,25 @@ const getLoginDataUrl = (filter) => {
 </div>
 
 <br></br><br></br><br></br><br></br>
-<h2>Map</h2>
-      <div className="dashboard-map">
-        <MapContainer center={[21.1458, 79.0882]} zoom={5} style={{ height: '800px', width: '100%' }}>
-          <TileLayer
-            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-          />
-          {locations.map(location => (
-            <Marker
-              key={location.location_id}
-              position={[location.latitude, location.longitude]}
-              icon={defaultIcon}
-            >
-              <Popup>
-               <a href={`/portal/user-view/${location.u_id}`}
-                className="btn btn-primary btn-sm"
-                style={{
-                  padding: '0.5rem',
-                  textDecoration: 'none',
-                  color: 'white',
-                  backgroundColor: '#007bff',
-                  borderRadius: '5px',
-                  display: 'inline-block',
-                }}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                View Profile
-              </a>
-              </Popup>
-            </Marker>
-          ))}
-        </MapContainer>
-      </div>
 
-      
+<a
+  href="/portal/locationmap"
+  target="_blank" // Open link in a new tab
+  rel="noopener noreferrer" // Security recommendation
+  style={{
+    padding: '0.8rem 1.2rem',
+    marginBottom: '1rem',
+    backgroundColor: '#007bff',
+    color: 'white',
+    border: 'none',
+    borderRadius: '5px',
+    textDecoration: 'none', // Remove underline from the link
+    display: 'inline-block',
+  }}
+>
+  Show Map
+</a>
+
     </div>
     
   );

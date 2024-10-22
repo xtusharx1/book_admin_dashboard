@@ -10,8 +10,9 @@ function Userlist() {
   const [filteredList, setFilteredList] = useState([]);
   const [isLoading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
+  const [phoneSearch, setPhoneSearch] = useState(""); // New state for phone number search
   const [genderFilter, setGenderFilter] = useState("All");
-  const [stateSearch, setStateSearch] = useState(""); // New state search input
+  const [stateSearch, setStateSearch] = useState(""); // State search input
   const [schoolSearch, setSchoolSearch] = useState(""); // School Choice search input
   const [classFilter, setClassFilter] = useState("All"); // Class filter
   const [currentPage, setCurrentPage] = useState(1);
@@ -23,7 +24,7 @@ function Userlist() {
 
   useEffect(() => {
     filterUsers();
-  }, [searchQuery, genderFilter, stateSearch, schoolSearch, classFilter, userList]);
+  }, [searchQuery, phoneSearch, genderFilter, stateSearch, schoolSearch, classFilter, userList]);
 
   const getUsers = async () => {
     try {
@@ -68,10 +69,17 @@ function Userlist() {
       filtered = filtered.filter(user => user.c_entry.includes(classFilter)); // Match "6" or "9" for class entry
     }
 
-    // Apply search query filter (only by Name)
+    // Apply search query filter (by Name)
     if (searchQuery) {
       filtered = filtered.filter(user =>
         user.f_name.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+    }
+
+    // Apply phone number search filter
+    if (phoneSearch) {
+      filtered = filtered.filter(user =>
+        user.phonenumber.includes(phoneSearch)
       );
     }
 
@@ -81,6 +89,10 @@ function Userlist() {
   // Handlers for search inputs and filters
   const handleSearchInputChange = (event) => {
     setSearchQuery(event.target.value);
+  };
+
+  const handlePhoneSearchChange = (event) => {
+    setPhoneSearch(event.target.value);
   };
 
   const handleGenderChange = (event) => {
@@ -101,6 +113,10 @@ function Userlist() {
 
   const clearSearch = () => {
     setSearchQuery("");
+  };
+
+  const clearPhoneSearch = () => {
+    setPhoneSearch("");
   };
 
   const paginate = (pageNumber) => {
@@ -167,6 +183,20 @@ function Userlist() {
               </button>
             )}
 
+            {/* Phone Number Search */}
+            <input
+              type="text"
+              placeholder="Search Phone Number"
+              value={phoneSearch}
+              onChange={handlePhoneSearchChange}
+              className="form-control search-input"
+            />
+            {phoneSearch && (
+              <button onClick={clearPhoneSearch} className="clear-button">
+                <FontAwesomeIcon icon={faTimes} />
+              </button>
+            )}
+
             {/* State Search */}
             <input
               type="text"
@@ -184,6 +214,7 @@ function Userlist() {
               onChange={handleSchoolSearchChange}
               className="form-control search-input"
             />
+
             <select
               value={genderFilter}
               onChange={handleGenderChange}
@@ -193,6 +224,7 @@ function Userlist() {
               <option value="Male">Male</option>
               <option value="Female">Female</option>
             </select>
+
             <select
               value={classFilter}
               onChange={handleClassChange}
@@ -202,6 +234,7 @@ function Userlist() {
               <option value="6">Class 6</option>
               <option value="9">Class 9</option>
             </select>
+
             <button className="search-button">
               <FontAwesomeIcon icon={faSearch} />
             </button>
