@@ -9,10 +9,10 @@ import Underline from '@tiptap/extension-underline';
 import BulletList from '@tiptap/extension-bullet-list';
 import OrderedList from '@tiptap/extension-ordered-list';
 import Placeholder from '@tiptap/extension-placeholder';
-import './QuestionBank.css'; // Custom CSS for styling
+import './QuestionBank.css'; 
 
 const QuestionEditor = () => {
-  const { chapterId } = useParams(); // Get chapterId from URL params
+  const { chapterId } = useParams(); 
   const [option1, setOption1] = useState('');
   const [option2, setOption2] = useState('');
   const [option3, setOption3] = useState('');

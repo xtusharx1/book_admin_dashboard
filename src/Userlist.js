@@ -15,7 +15,10 @@ function Userlist() {
   const [stateSearch, setStateSearch] = useState(""); // State search input
   const [schoolSearch, setSchoolSearch] = useState(""); // School Choice search input
   const [classFilter, setClassFilter] = useState("All"); // Class filter
+  const [bookList, setBookList] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
+  const [bookSearch, setBookSearch] = useState(""); // New state for book search
+
   const usersPerPage = 50;
 
   useEffect(() => {
@@ -24,22 +27,75 @@ function Userlist() {
 
   useEffect(() => {
     filterUsers();
-  }, [searchQuery, phoneSearch, genderFilter, stateSearch, schoolSearch, classFilter, userList]);
+  }, [searchQuery, phoneSearch, genderFilter, stateSearch, schoolSearch,bookSearch, classFilter, userList]);
 
   const getUsers = async () => {
+    setLoading(true);
+  
     try {
-      const response = await axios.get("http://ec2-13-202-53-68.ap-south-1.compute.amazonaws.com:3000/api/users/showusers");
-      if (response.data && Array.isArray(response.data)) {
-        const sortedUsers = response.data.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
-        setUserList(sortedUsers);
-        setFilteredList(sortedUsers);
+      // Fetch users data
+      const usersResponse = await axios.get("http://ec2-13-202-53-68.ap-south-1.compute.amazonaws.com:3000/api/users/showusers");
+      let users = [];
+      if (usersResponse.data && Array.isArray(usersResponse.data)) {
+        users = usersResponse.data.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
       }
-      setLoading(false);
+  
+      // Fetch user login data (which links users to books)
+      const userLoginResponse = await axios.get("http://ec2-13-202-53-68.ap-south-1.compute.amazonaws.com:3000/api/userapplogin/all");
+      let userLoginData = [];
+      if (userLoginResponse.data && Array.isArray(userLoginResponse.data)) {
+        userLoginData = userLoginResponse.data;
+      }
+  
+      // Fetch books data
+      const booksResponse = await axios.get("http://ec2-13-202-53-68.ap-south-1.compute.amazonaws.com:3000/api/books/all");
+      let books = [];
+      if (booksResponse.data && Array.isArray(booksResponse.data)) {
+        books = booksResponse.data;
+      }
+  
+      // Map user login data with book names based on b_id
+      const userListWithBooks = users.map(user => {
+        // Get user login data for this user (filter by u_id)
+        const userLogins = userLoginData.filter(login => login.u_id === user.u_id);
+  
+        console.log(`User: ${user.f_name}, User Logins:`, userLogins); // Debugging to check logins for the user
+  
+        // For each user login, get the corresponding book name using b_id
+        const userBooks = userLogins.map(login => {
+          const book = books.find(book => book.b_id === login.b_id);
+          
+          if (!book) {
+            console.warn(`No book found for user: ${user.f_name}, b_id: ${login.b_id}`);
+            return "Unknown Book"; // Fallback if no book is found
+          }
+  
+          return book.b_name; // Return the book name if found
+        });
+  
+        // Return user with books array
+        return {
+          ...user,
+          books: userBooks
+        };
+      });
+  
+      // Update the state with the user list including books
+      setUserList(userListWithBooks);
+      
+      // Log data for debugging
+      console.log('userLoginData:', userLoginData);
+      console.log('users:', users);
+      console.log('books:', books);
+  
     } catch (error) {
+      console.error("Error fetching data:", error);
+    } finally {
       setLoading(false);
-      console.error("Error fetching users:", error);
     }
   };
+  
+  
 
   const convertToIST = (utcDate) => {
     const date = new Date(utcDate);
@@ -75,7 +131,11 @@ function Userlist() {
         user.f_name.toLowerCase().includes(searchQuery.toLowerCase())
       );
     }
-
+    if (bookSearch) {
+      filtered = filtered.filter(user =>
+        user.books.some(book => book.toLowerCase().includes(bookSearch.toLowerCase()))
+      );
+    }
     // Apply phone number search filter
     if (phoneSearch) {
       filtered = filtered.filter(user =>
@@ -214,6 +274,14 @@ function Userlist() {
               onChange={handleSchoolSearchChange}
               className="form-control search-input"
             />
+            <input
+  type="text"
+  placeholder="Search Book Downloads"
+  value={bookSearch}
+  onChange={(e) => setBookSearch(e.target.value)}
+  className="form-control search-input"
+/>
+
 
             <select
               value={genderFilter}
@@ -255,6 +323,7 @@ function Userlist() {
                     <th>State</th>
                     <th>Date of Birth</th>
                     <th>Registration Time</th>
+                    <th>Books Downloaded</th>
                     <th>Action</th>
                   </tr>
                 </thead>
@@ -275,6 +344,17 @@ function Userlist() {
                         <td>{user.state}</td>
                         <td>{new Date(user.dob).toLocaleDateString()}</td>
                         <td>{convertToIST(user.created_at)}</td>
+                        <td>
+            {user.books.length === 0 ? (
+              "No books downloaded" // If no books are associated
+            ) : (
+              <ul>
+                {user.books.map((bookName, idx) => (
+                  <li key={idx}>{bookName}</li> // List of books
+                ))}
+              </ul>
+            )}
+          </td>
                         <td className="action-buttons">
                           <Link to={`/portal/user-view/${user.u_id}`} className="btn btn-primary btn-sm">View</Link>
                           <Link to={`/portal/user-edit/${user.u_id}`} className="btn btn-info btn-sm">Edit</Link>
