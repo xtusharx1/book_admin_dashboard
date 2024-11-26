@@ -12,80 +12,42 @@ function PracticeTest() {
   useEffect(() => {
     const fetchTests = async () => {
       try {
-        const response = await axios.get('http://ec2-13-202-53-68.ap-south-1.compute.amazonaws.com:3000/api/tests/all');
+        const testsResponse = await axios.get('http://ec2-13-202-53-68.ap-south-1.compute.amazonaws.com:3000/api/tests/summary');
         const testsWithDetails = await Promise.all(
-          response.data.map(async (test) => {
+          testsResponse.data.map(async (test) => {
             try {
               const userResponse = await axios.get(`http://ec2-13-202-53-68.ap-south-1.compute.amazonaws.com:3000/api/users/getbyid/${test.u_id}`);
-              const userName = userResponse.data.f_name;
-
-              if (test.chapter_id.length > 0) {
-                const firstChapterId = test.chapter_id[0];
-                const firstChapterResponse = await axios.get(`http://ec2-13-202-53-68.ap-south-1.compute.amazonaws.com:3000/api/chapters/find/${firstChapterId}`);
-                const bookResponse = await axios.get(`http://ec2-13-202-53-68.ap-south-1.compute.amazonaws.com:3000/api/books/getbook/${firstChapterResponse.data.b_id}`);
-                const bookName = bookResponse.data.b_name;
-
-                return {
-                  ...test,
-                  userName,
-                  bookName,
-                  testDate: new Date(test.created_at)
-                };
-              } else {
-                return {
-                  ...test,
-                  userName,
-                  bookName: 'No Chapters',
-                  testDate: new Date(test.created_at)
-                };
-              }
+              const userName = userResponse.data.f_name || 'Unknown User';
+              
+              // Convert last_test_date to a valid Date object
+              const testDate = new Date(test.last_test_date);
+              
+              return {
+                ...test,
+                userName,
+                testDate
+              };
             } catch (err) {
-              console.error(`Error fetching user or book data for test ID ${test.test_id}:`, err.message);
+              console.error(`Error fetching user data for test ID ${test.u_id}:`, err.message);
               return {
                 ...test,
                 userName: 'Unknown',
-                bookName: 'Unknown',
-                testDate: new Date(test.created_at)
+                testDate: new Date() // Use the current date as fallback
               };
             }
           })
         );
 
-        // Group by user and find the latest test for each user, while also counting tests per user
-        const latestTestMap = {};
-        const testCountMap = {};
+        // Sort the tests by the testDate (most recent first)
+        testsWithDetails.sort((a, b) => b.testDate - a.testDate);
 
-        testsWithDetails.forEach((test) => {
-          const existingTest = latestTestMap[test.u_id];
-          
-          // Update latest test
-          if (!existingTest || test.testDate > existingTest.testDate) {
-            latestTestMap[test.u_id] = test;
-          }
-
-          // Increment the test count
-          if (!testCountMap[test.u_id]) {
-            testCountMap[test.u_id] = 1;
-          } else {
-            testCountMap[test.u_id] += 1;
-          }
-        });
-
-        // Add test count to the latest test data
-        const latestTestsArray = Object.values(latestTestMap).map(test => ({
-          ...test,
-          testCount: testCountMap[test.u_id] // Add test count
-        }));
-
-        // Sort the latestTestsArray by testDate (newest first)
-        latestTestsArray.sort((a, b) => b.testDate - a.testDate);
-
+        // Set the tests with details and sorted order
         setTests(testsWithDetails);
-        setLatestTests(latestTestsArray); // Set latest tests for display
+        setLatestTests(testsWithDetails); // Set latest tests for display
         setLoading(false);
       } catch (err) {
         console.error('Error fetching tests:', err.message);
-        setError(err.message);
+        setError('Failed to load tests. Please try again later.');
         setLoading(false);
       }
     };
@@ -98,12 +60,16 @@ function PracticeTest() {
   }
 
   if (error) {
-    return <div className="error">Error: {error}</div>;
+    return (
+      <div className="error">
+        <p>{error}</p>
+      </div>
+    );
   }
 
   return (
     <div className="test-list-container">
-      <h2 className="heading">"Practice" Details</h2>
+      <h2 className="heading">Practice Test Details</h2>
       {latestTests.length === 0 ? (
         <p>No tests available.</p>
       ) : (
@@ -112,14 +78,13 @@ function PracticeTest() {
             <tr>
               <th style={{ backgroundColor: '#007bff', color: '#ffffff' }}>Serial No.</th>
               <th style={{ backgroundColor: '#007bff', color: '#ffffff' }}>Student Name</th>
-              <th style={{ backgroundColor: '#007bff', color: '#ffffff' }}>Book Name</th>
               <th style={{ backgroundColor: '#007bff', color: '#ffffff' }}>Last Test Date</th>
               <th style={{ backgroundColor: '#007bff', color: '#ffffff' }}>Test Count</th>
             </tr>
           </thead>
           <tbody>
             {latestTests.map((test, index) => (
-              <tr key={test.test_id} style={{ color: 'grey' }}>
+              <tr key={test.u_id} style={{ color: 'grey' }}>
                 <td>
                   <Link
                     to={`/portal/Usertestdetails/${test.u_id}`}
@@ -141,23 +106,15 @@ function PracticeTest() {
                     to={`/portal/Usertestdetails/${test.u_id}`}
                     style={{ textDecoration: 'none', color: 'inherit' }}
                   >
-                    {test.bookName}
-                  </Link>
-                </td>
-                <td>
-                  <Link
-                    to={`/portal/Usertestdetails${test.u_id}`}
-                    style={{ textDecoration: 'none', color: 'inherit' }}
-                  >
                     {test.testDate.toDateString()}
                   </Link>
                 </td>
                 <td>
                   <Link
-                    to={`/portal/sertestdetails/${test.u_id}`}
+                    to={`/portal/Usertestdetails/${test.u_id}`}
                     style={{ textDecoration: 'none', color: 'inherit' }}
                   >
-                    {test.testCount}
+                    {test.test_count}
                   </Link>
                 </td>
               </tr>

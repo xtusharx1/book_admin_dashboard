@@ -1,4 +1,4 @@
-import { faBookOpen, faHomeAlt, faMagnifyingGlassChart, faTachographDigital, faUsers, faFaceLaughWink, faNoteSticky } from '@fortawesome/free-solid-svg-icons';
+import { faBookOpen, faHomeAlt, faMagnifyingGlassChart, faTachographDigital, faUsers, faFaceLaughWink, faNoteSticky, faQuestion, faFileCircleQuestion, faSchoolCircleXmark, faBookBookmark } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom'; // Import useLocation
@@ -63,19 +63,25 @@ function Sidebar() {
                     <span>App Content</span>
                 </Link>
             </li><hr className="sidebar-divider my-0" />
-
-            <li className={`nav-item ${location.pathname === '/portal/PracticeTest' ? 'active' : ''}`}>
-                <Link className="nav-link" to="/portal/PracticeTest">
-                    <FontAwesomeIcon icon={faNoteSticky} style={{ marginRight: "0.5rem" }} />
-                    <span>Practice Test</span>
-                </Link>
-            </li>
             <li className={`nav-item ${location.pathname === '/portal/QuestionBank' ? 'active' : ''}`}>
     <Link className="nav-link" to="/portal/QuestionBank">
-        <FontAwesomeIcon icon={faNoteSticky} style={{ marginRight: "0.5rem" }} />
+        <FontAwesomeIcon icon={faFileCircleQuestion} style={{ marginRight: "0.5rem" }} />
         <span>Question Bank</span>
     </Link>
 </li>
+            <li className={`nav-item ${location.pathname === '/portal/PracticeTest' ? 'active' : ''}`}>
+                <Link className="nav-link" to="/portal/PracticeTest">
+                    <FontAwesomeIcon icon={faBookBookmark} style={{ marginRight: "0.5rem" }} />
+                    <span>Practice Test</span>
+                </Link>
+            </li>
+            
+<li className={`nav-item ${location.pathname === '/portal/Scholarship' ? 'active' : ''}`}>
+                <Link className="nav-link" to="/portal/Scholarship">
+                    <FontAwesomeIcon icon={faSchoolCircleXmark} style={{ marginRight: "0.5rem" }} />
+                    <span>Scholarship Test</span>
+                </Link>
+            </li>
 
         </ul>
     );
