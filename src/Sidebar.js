@@ -1,4 +1,4 @@
-import { faBookOpen, faHomeAlt, faMagnifyingGlassChart, faTachographDigital, faUsers, faFaceLaughWink, faNoteSticky, faQuestion, faFileCircleQuestion, faSchoolCircleXmark, faBookBookmark } from '@fortawesome/free-solid-svg-icons';
+import { faBookOpen, faHomeAlt, faMagnifyingGlassChart, faTachographDigital, faUsers, faFaceLaughWink, faNoteSticky, faQuestion, faFileCircleQuestion, faSchoolCircleXmark, faBookBookmark, faFileAlt } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom'; // Import useLocation
@@ -75,14 +75,19 @@ function Sidebar() {
                     <span>Practice Test</span>
                 </Link>
             </li>
-            
+            <li className={`nav-item ${location.pathname === '/portal/Scholarship-details' ? 'active' : ''}`}>
+                <Link className="nav-link" to="/portal/Scholarship-details">
+                    <FontAwesomeIcon icon={faFileAlt} style={{ marginRight: "0.5rem" }} />
+                    <span>Scholarship Details</span>
+                </Link>
+            </li>
 <li className={`nav-item ${location.pathname === '/portal/Scholarship' ? 'active' : ''}`}>
                 <Link className="nav-link" to="/portal/Scholarship">
                     <FontAwesomeIcon icon={faSchoolCircleXmark} style={{ marginRight: "0.5rem" }} />
-                    <span>Scholarship Test</span>
+                    <span>Scholarship Result</span>
                 </Link>
             </li>
-
+            
         </ul>
     );
 }

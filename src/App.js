@@ -26,7 +26,9 @@ import QuestionBank from './QuestionBank';
 import QuestionEditor from './QuestionAdd';
 import UserTestDetails from './UserTestDetails'; 
 import LocationMap from './LocationMap';
-import ScholarshipDetails from './Scholarship';
+import ScholarshipResults from './Scholarship';
+import ScholarshipDetails from './ScholarshipDetails';
+import AddScholarshipQuestions from './ScholarshipQuestion';
 function App() {
   return (
     <BrowserRouter>
@@ -51,10 +53,11 @@ function App() {
           <Route path="QuestionBank" element={<ProtectedRoute element={<QuestionBank />} />} />
           <Route path="Questioneditor/:chapterId" element={<QuestionEditor />} />
           <Route path="Usertestdetails/:u_id" element={<ProtectedRoute element={<UserTestDetails />} />}/>
-          <Route path="locationmap" element={<LocationMap />} />
-          <Route path="Scholarship" element={<ScholarshipDetails/>}/>
-
-        </Route>
+          <Route path="locationmap" element={<ProtectedRoute element={<LocationMap />} />} />
+          <Route path="Scholarship" element={<ProtectedRoute element={<ScholarshipResults />} />} />
+          <Route path="Scholarship-details" element={<ProtectedRoute element={<ScholarshipDetails />} />} />
+          <Route path="addScholarshipQuestions" element={<ProtectedRoute element={<AddScholarshipQuestions />} />} /> 
+       </Route>
       </Routes>
     </BrowserRouter>
   );
