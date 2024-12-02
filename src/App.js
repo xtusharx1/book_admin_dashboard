@@ -29,6 +29,7 @@ import LocationMap from './LocationMap';
 import ScholarshipResults from './Scholarship';
 import ScholarshipDetails from './ScholarshipDetails';
 import AddScholarshipQuestions from './ScholarshipQuestion';
+import ScholarshipQuestions from './ScholarshipQuestionsview';
 function App() {
   return (
     <BrowserRouter>
@@ -57,6 +58,8 @@ function App() {
           <Route path="Scholarship" element={<ProtectedRoute element={<ScholarshipResults />} />} />
           <Route path="Scholarship-details" element={<ProtectedRoute element={<ScholarshipDetails />} />} />
           <Route path="addScholarshipQuestions" element={<ProtectedRoute element={<AddScholarshipQuestions />} />} /> 
+          <Route path="ScholarshipQuestions" element={<ProtectedRoute element={<ScholarshipQuestions />} />} />
+       
        </Route>
       </Routes>
     </BrowserRouter>

@@ -302,6 +302,12 @@ const ScholarshipDetails = () => {
               <Typography variant="h6">Total Questions: {class9QuestionsCount}</Typography>
             </>
           )}
+          <button
+        onClick={() => navigate("/portal/ScholarshipQuestions")} // Navigate to the page to add question manually
+        className="btn btn-primary" // You can style it using Bootstrap or your custom classes
+      >
+        View
+      </button>
         </Box>
       )}
 
