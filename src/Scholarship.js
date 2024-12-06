@@ -8,7 +8,6 @@ const Scholarship = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  // API URLs
   const urls = {
     class6: "http://ec2-13-202-53-68.ap-south-1.compute.amazonaws.com:3000/api/scholarship-results/scholarship-results/class/6",
     class9: "http://ec2-13-202-53-68.ap-south-1.compute.amazonaws.com:3000/api/scholarship-results/scholarship-results/class/9",
@@ -16,7 +15,6 @@ const Scholarship = () => {
     viewProfile: (u_id) => `/portal/user-view/${u_id}`,
   };
 
-  // Fetch data for active tab
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
@@ -28,11 +26,10 @@ const Scholarship = () => {
           setData([]);
         } else {
           setData(results);
-          // Fetch user names for all results
           const userPromises = results.map((item) =>
             axios.get(urls.getUser(item.u_id)).then((res) => ({
               u_id: item.u_id,
-              name: res.data.f_name, // Extract `f_name` as name
+              name: res.data.f_name,
             }))
           );
           const users = await Promise.all(userPromises);
@@ -51,7 +48,6 @@ const Scholarship = () => {
     fetchData();
   }, [activeTab]);
 
-  // Render content
   const renderContent = () => {
     if (loading) {
       return <p>Loading...</p>;
@@ -67,17 +63,20 @@ const Scholarship = () => {
       <table style={styles.table}>
         <thead>
           <tr>
+            <th style={styles.th}>S.No</th>
             <th style={styles.th}>Name</th>
             <th style={styles.th}>Total Questions</th>
             <th style={styles.th}>Correct Answers</th>
             <th style={styles.th}>Time Taken (seconds)</th>
             <th style={styles.th}>Result (%)</th>
+            <th style={styles.th}>Time</th>
             <th style={styles.th}>View Profile</th>
           </tr>
         </thead>
         <tbody>
-          {data.map((item) => (
+          {data.map((item, index) => (
             <tr key={item.result_id}>
+              <td style={styles.td}>{index + 1}</td>
               <td style={styles.td}>
                 {userNames[item.u_id] || "Fetching..."}
               </td>
@@ -86,6 +85,17 @@ const Scholarship = () => {
               <td style={styles.td}>{item.time_taken}</td>
               <td style={styles.td}>
                 {((item.correct_answers / item.total_questions) * 100).toFixed(2)}%
+              </td>
+              <td style={styles.td}>
+              {new Date(item.created_at).toLocaleString("en-US", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hour12: true,
+  })}
               </td>
               <td style={styles.td}>
                 <a
@@ -134,7 +144,6 @@ const Scholarship = () => {
   );
 };
 
-// Styles
 const styles = {
   title: { textAlign: "center", color: "#007BFF" },
   tabs: { display: "flex", justifyContent: "center", marginBottom: "20px" },

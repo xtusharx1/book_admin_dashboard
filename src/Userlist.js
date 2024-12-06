@@ -274,13 +274,26 @@ function Userlist() {
               onChange={handleSchoolSearchChange}
               className="form-control search-input"
             />
-            <input
-  type="text"
-  placeholder="Search Book Downloads"
+            <select
   value={bookSearch}
   onChange={(e) => setBookSearch(e.target.value)}
-  className="form-control search-input"
-/>
+  className="form-control select-filter"
+>
+  <option value="">Select a Book</option>
+  <option value="Sainik School Maths 6th Book">Sainik School Maths 6th Book</option>
+  <option value="Sainik School English 6th Book">Sainik School English 6th Book</option>
+  <option value="Sainik School Reasoning 6th Book">Sainik School Reasoning 6th Book</option>
+  <option value="Sainik School 6th Exam Papers">Sainik School 6th Exam Papers</option>
+  <option value="Sainik School 6th GK Book">Sainik School 6th GK Book</option>
+  <option value="Sainik School Maths 9th Book">Sainik School Maths 9th Book</option>
+  <option value="Sainik School Reasoning 9th Book">Sainik School Reasoning 9th Book</option>
+  <option value="Sainik School English 9th Book">Sainik School English 9th Book</option>
+  <option value="Military School 6th Exam Papers">Military School 6th Exam Papers</option>
+  <option value="Sainik School 9th Science Book">Sainik School 9th Science Book</option>
+  <option value="Sainik School 9th Past Papers">Sainik School 9th Past Papers</option>
+  <option value="Military School 9 Past Papers">Military School 9 Past Papers</option>
+  <option value="RIMC GK Book">RIMC GK Book</option>
+</select>
 
 
             <select

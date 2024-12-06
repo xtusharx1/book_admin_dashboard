@@ -56,56 +56,57 @@ const ScholarshipQuestions = () => {
     }
     return (
       <Table sx={{ width: "100%", marginTop: "20px" }}>
-        <TableHead>
-          <TableRow>
-            <TableCell>ID</TableCell>
-            <TableCell>Question</TableCell>
-            <TableCell>Option 1</TableCell>
-            <TableCell>Option 2</TableCell>
-            <TableCell>Option 3</TableCell>
-            <TableCell>Option 4</TableCell>
-            <TableCell>Correct Option</TableCell>
-            <TableCell>Actions</TableCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {questions.map((question) => (
-            <TableRow key={question.q_id}>
-              <TableCell>{question.q_id}</TableCell>
-              <TableCell>
-                <div dangerouslySetInnerHTML={{ __html: question.question_text }} />
-                {renderImage(question.question_text)} {/* Display image for question */}
-              </TableCell>
-              <TableCell>
-                {question.option1}
-                {renderImage(question.option1)} {/* Display image for option */}
-              </TableCell>
-              <TableCell>
-                {question.option2}
-                {renderImage(question.option2)} {/* Display image for option */}
-              </TableCell>
-              <TableCell>
-                {question.option3}
-                {renderImage(question.option3)} {/* Display image for option */}
-              </TableCell>
-              <TableCell>
-                {question.option4}
-                {renderImage(question.option4)} {/* Display image for option */}
-              </TableCell>
-              <TableCell>{question.correct_option}</TableCell>
-              <TableCell>
-                <Button
-                  variant="contained"
-                  color="error"
-                  onClick={() => handleDelete(question.q_id)}
-                >
-                  Delete
-                </Button>
-              </TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+  <TableHead>
+    <TableRow>
+      <TableCell>S. No.</TableCell>
+      <TableCell>Question</TableCell>
+      <TableCell>Option 1</TableCell>
+      <TableCell>Option 2</TableCell>
+      <TableCell>Option 3</TableCell>
+      <TableCell>Option 4</TableCell>
+      <TableCell>Correct Option</TableCell>
+      <TableCell>Actions</TableCell>
+    </TableRow>
+  </TableHead>
+  <TableBody>
+    {questions.map((question, index) => (
+      <TableRow key={question.q_id}>
+        <TableCell>{index + 1}</TableCell> {/* S. No. */}
+        <TableCell>
+          <div dangerouslySetInnerHTML={{ __html: question.question_text }} />
+          {renderImage(question.question_text)} {/* Display image for question */}
+        </TableCell>
+        <TableCell>
+          {question.option1}
+          {renderImage(question.option1)} {/* Display image for option */}
+        </TableCell>
+        <TableCell>
+          {question.option2}
+          {renderImage(question.option2)} {/* Display image for option */}
+        </TableCell>
+        <TableCell>
+          {question.option3}
+          {renderImage(question.option3)} {/* Display image for option */}
+        </TableCell>
+        <TableCell>
+          {question.option4}
+          {renderImage(question.option4)} {/* Display image for option */}
+        </TableCell>
+        <TableCell>{question.correct_option}</TableCell>
+        <TableCell>
+          <Button
+            variant="contained"
+            color="error"
+            onClick={() => handleDelete(question.q_id)}
+          >
+            Delete
+          </Button>
+        </TableCell>
+      </TableRow>
+    ))}
+  </TableBody>
+</Table>
+
     );
   };
 
