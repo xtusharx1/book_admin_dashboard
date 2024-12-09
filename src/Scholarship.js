@@ -25,8 +25,11 @@ const Scholarship = () => {
         if (results.message?.includes("No results found")) {
           setData([]);
         } else {
-          setData(results);
-          const userPromises = results.map((item) =>
+          // Sort results by created_at in descending order
+          const sortedResults = results.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+          setData(sortedResults);
+
+          const userPromises = sortedResults.map((item) =>
             axios.get(urls.getUser(item.u_id)).then((res) => ({
               u_id: item.u_id,
               name: res.data.f_name,
@@ -48,6 +51,12 @@ const Scholarship = () => {
     fetchData();
   }, [activeTab]);
 
+  const formatTime = (timeInSeconds) => {
+    const minutes = Math.floor(timeInSeconds / 60);
+    const seconds = timeInSeconds % 60;
+    return `${minutes} min ${seconds} sec`;
+  };
+
   const renderContent = () => {
     if (loading) {
       return <p>Loading...</p>;
@@ -67,7 +76,7 @@ const Scholarship = () => {
             <th style={styles.th}>Name</th>
             <th style={styles.th}>Total Questions</th>
             <th style={styles.th}>Correct Answers</th>
-            <th style={styles.th}>Time Taken (seconds)</th>
+            <th style={styles.th}>Time Taken</th>
             <th style={styles.th}>Result (%)</th>
             <th style={styles.th}>Time</th>
             <th style={styles.th}>View Profile</th>
@@ -82,20 +91,20 @@ const Scholarship = () => {
               </td>
               <td style={styles.td}>{item.total_questions}</td>
               <td style={styles.td}>{item.correct_answers}</td>
-              <td style={styles.td}>{item.time_taken}</td>
+              <td style={styles.td}>{formatTime(item.time_taken)}</td>
               <td style={styles.td}>
                 {((item.correct_answers / item.total_questions) * 100).toFixed(2)}%
               </td>
               <td style={styles.td}>
-              {new Date(item.created_at).toLocaleString("en-US", {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-    second: "2-digit",
-    hour12: true,
-  })}
+                {new Date(item.created_at).toLocaleString("en-US", {
+                  year: "numeric",
+                  month: "long",
+                  day: "numeric",
+                  hour: "2-digit",
+                  minute: "2-digit",
+                  second: "2-digit",
+                  hour12: true,
+                })}
               </td>
               <td style={styles.td}>
                 <a
