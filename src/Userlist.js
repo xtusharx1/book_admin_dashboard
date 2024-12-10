@@ -15,7 +15,7 @@ function Userlist() {
   const [stateSearch, setStateSearch] = useState(""); // State search input
   const [schoolSearch, setSchoolSearch] = useState(""); // School Choice search input
   const [classFilter, setClassFilter] = useState("All"); // Class filter
-  const [bookList, setBookList] = useState([]);
+  const [bookList, setBookList] = useState([]); // State to store book list
   const [currentPage, setCurrentPage] = useState(1);
   const [bookSearch, setBookSearch] = useState(""); // New state for book search
 
@@ -27,7 +27,7 @@ function Userlist() {
 
   useEffect(() => {
     filterUsers();
-  }, [searchQuery, phoneSearch, genderFilter, stateSearch, schoolSearch,bookSearch, classFilter, userList]);
+  }, [searchQuery, phoneSearch, genderFilter, stateSearch, schoolSearch, bookSearch, classFilter, userList]);
 
   const getUsers = async () => {
     setLoading(true);
@@ -82,6 +82,7 @@ function Userlist() {
   
       // Update the state with the user list including books
       setUserList(userListWithBooks);
+      setBookList(books); // Update bookList with the fetched books
       
       // Log data for debugging
       console.log('userLoginData:', userLoginData);
@@ -94,14 +95,14 @@ function Userlist() {
       setLoading(false);
     }
   };
-  
-  
 
+  // Convert UTC to IST
   const convertToIST = (utcDate) => {
     const date = new Date(utcDate);
     return date.toLocaleString('en-GB', { timeZone: 'Asia/Kolkata' });
   };
 
+  // Filter users based on search criteria
   const filterUsers = () => {
     let filtered = userList;
 
@@ -169,6 +170,10 @@ function Userlist() {
 
   const handleSchoolSearchChange = (event) => {
     setSchoolSearch(event.target.value);
+  };
+
+  const handleBookSearchChange = (event) => {
+    setBookSearch(event.target.value);
   };
 
   const clearSearch = () => {
@@ -274,28 +279,19 @@ function Userlist() {
               onChange={handleSchoolSearchChange}
               className="form-control search-input"
             />
+            {/* Book Search */}
             <select
-  value={bookSearch}
-  onChange={(e) => setBookSearch(e.target.value)}
-  className="form-control select-filter"
->
-  <option value="">Select a Book</option>
-  <option value="Sainik School Maths 6th Book">Sainik School Maths 6th Book</option>
-  <option value="Sainik School English 6th Book">Sainik School English 6th Book</option>
-  <option value="Sainik School Reasoning 6th Book">Sainik School Reasoning 6th Book</option>
-  <option value="Sainik School 6th Exam Papers">Sainik School 6th Exam Papers</option>
-  <option value="Sainik School 6th GK Book">Sainik School 6th GK Book</option>
-  <option value="Sainik School Maths 9th Book">Sainik School Maths 9th Book</option>
-  <option value="Sainik School Reasoning 9th Book">Sainik School Reasoning 9th Book</option>
-  <option value="Sainik School English 9th Book">Sainik School English 9th Book</option>
-  <option value="Military School 6th Exam Papers">Military School 6th Exam Papers</option>
-  <option value="Sainik School 9th Science Book">Sainik School 9th Science Book</option>
-  <option value="Sainik School 9th Past Papers">Sainik School 9th Past Papers</option>
-  <option value="Military School 9 Past Papers">Military School 9 Past Papers</option>
-  <option value="RIMC GK Book">RIMC GK Book</option>
-</select>
+              value={bookSearch}
+              onChange={handleBookSearchChange}
+              className="form-control select-filter"
+            >
+              <option value="">Select a Book</option>
+              {bookList.map((book, index) => (
+                <option key={book.b_id} value={book.b_name}>{book.b_name}</option>
+              ))}
+            </select>
 
-
+            {/* Gender Filter */}
             <select
               value={genderFilter}
               onChange={handleGenderChange}
@@ -306,6 +302,7 @@ function Userlist() {
               <option value="Female">Female</option>
             </select>
 
+            {/* Class Filter */}
             <select
               value={classFilter}
               onChange={handleClassChange}
@@ -320,6 +317,7 @@ function Userlist() {
               <FontAwesomeIcon icon={faSearch} />
             </button>
           </div>
+
           {isLoading ? (
             <img src="https://media.giphy.com/media/ZO9b1ntYVJmjZlsWlm/giphy.gif" alt="Loading" />
           ) : (
@@ -358,16 +356,16 @@ function Userlist() {
                         <td>{new Date(user.dob).toLocaleDateString()}</td>
                         <td>{convertToIST(user.created_at)}</td>
                         <td>
-            {user.books.length === 0 ? (
-              "No books downloaded" // If no books are associated
-            ) : (
-              <ul>
-                {user.books.map((bookName, idx) => (
-                    <li key={idx}>{bookName}</li> // List of books
-                ))}
-              </ul>
-            )}
-          </td>
+                          {user.books.length === 0 ? (
+                            "No books downloaded" // If no books are associated
+                          ) : (
+                            <ul>
+                              {user.books.map((bookName, idx) => (
+                                <li key={idx}>{bookName}</li> // List of books
+                              ))}
+                            </ul>
+                          )}
+                        </td>
                         <td className="action-buttons">
                           <Link to={`/portal/user-view/${user.u_id}`} className="btn btn-primary btn-sm">View</Link>
                           <Link to={`/portal/user-edit/${user.u_id}`} className="btn btn-info btn-sm">Edit</Link>
@@ -377,22 +375,24 @@ function Userlist() {
                   )}
                 </tbody>
               </table>
+
+              {/* Pagination */}
+              <nav aria-label="Page navigation">
+                <ul className="pagination">
+                  {generatePageNumbers(totalPages, currentPage).map((pageNumber, index) => (
+                    <li className={`page-item ${currentPage === pageNumber ? 'active' : ''}`} key={index}>
+                      <button
+                        className="page-link"
+                        onClick={() => paginate(pageNumber)}
+                      >
+                        {pageNumber}
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              </nav>
             </div>
           )}
-          <div className="pagination">
-            {generatePageNumbers(totalPages, currentPage).map((page, index) => (
-              <button
-                key={index}
-                className={`pagination-button ${currentPage === page ? 'active' : ''}`}
-                onClick={() => {
-                  if (page !== '...') paginate(page);
-                }}
-                disabled={page === '...'}
-              >
-                {page}
-              </button>
-            ))}
-          </div>
         </div>
       </div>
     </div>
