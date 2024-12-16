@@ -39,8 +39,21 @@ function QuestionsView() {
         return url?.match(/\.(jpeg|jpg|gif|png|webp)$/) != null;
     };
 
+    const handleDelete = async (q_id) => {
+        if (!window.confirm('Are you sure you want to delete this question?')) return;
+
+        try {
+            await axios.delete(`http://ec2-13-202-53-68.ap-south-1.compute.amazonaws.com:3000/api/questions/${q_id}`);
+            setQuestions(questions.filter(question => question.q_id !== q_id));
+            alert('Question deleted successfully');
+        } catch (error) {
+            console.error('Error deleting question:', error);
+            alert('Failed to delete the question. Please try again.');
+        }
+    };
+
     const exportToCsv = () => {
-        const headers = ['Question Text', 'Option 1', 'Option 2', 'Option 3', 'Option 4', 'Correct Option'];
+        const headers = ['S.No.', 'Question Text', 'Option 1', 'Option 2', 'Option 3', 'Option 4', 'Correct Option'];
         
         const escapeCsvField = (field) => {
             if (typeof field === 'string') {
@@ -49,7 +62,8 @@ function QuestionsView() {
             return field;
         };
         
-        const rows = questions.map(question => [
+        const rows = questions.map((question, index) => [
+            escapeCsvField(index + 1),
             escapeCsvField(question.question_text),
             escapeCsvField(question.option1),
             escapeCsvField(question.option2),
@@ -86,17 +100,20 @@ function QuestionsView() {
                         <table className="table table-bordered" id="questionsTable" width="2000px" cellSpacing="0">
                             <thead>
                                 <tr>
+                                    <th>S.No.</th>
                                     <th>Question Text</th>
                                     <th>Option 1</th>
                                     <th>Option 2</th>
                                     <th>Option 3</th>
                                     <th>Option 4</th>
                                     <th>Correct Option</th>
+                                    <th>Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                {questions.map(question => (
+                                {questions.map((question, index) => (
                                     <tr key={question.q_id}>
+                                        <td>{index + 1}</td>
                                         <td>
                                             {isImageUrl(question.question_text) ? (
                                                 <img src={question.question_text} alt="Question" style={{ width: '100px', height: '100px' }} />
@@ -138,6 +155,13 @@ function QuestionsView() {
                                             ) : (
                                                 question.correct_option
                                             )}
+                                        </td>
+                                        <td>
+                                            <button 
+                                                className="btn btn-danger btn-sm" 
+                                                onClick={() => handleDelete(question.q_id)}>
+                                                Delete
+                                            </button>
                                         </td>
                                     </tr>
                                 ))}
