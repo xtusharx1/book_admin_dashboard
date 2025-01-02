@@ -29,11 +29,15 @@ function Dashboard() {
   const [customDateRange, setCustomDateRange] = useState({ start: '', end: '' });
   const [bookSalesData, setBookSalesData] = useState({ labels: [], datasets: [] });
   const [cartCount, setCartCount] = useState(0);
+  const [totalscholarshipStudents, setTotalScholarshipStudents] = useState(0);
+  const [activityData, setActivityData] = useState([]);
+  const [activityChartData, setActivityChartData] = useState({ labels: [], datasets: [] });
 
   const [filteractivity, setfilteractivity] = useState('all'); // Default filter
 
   
   useEffect(() => {
+    fetchTotalScholarshipStudents();
     const fetchData = async () => {
       try {
         const bookResponse = await axios.get('http://ec2-13-202-53-68.ap-south-1.compute.amazonaws.com:3000/api/books/all');
@@ -70,6 +74,12 @@ function Dashboard() {
     fetchData();
   }, [filteractivity]); 
   
+
+// Fetch the count on component mount
+useEffect(() => {
+    
+}, []);
+
   
 const fetchLoginData = async () => {
   console.log('Fetching login data for filter:', filteractivity); // Log the selected filter
@@ -87,6 +97,15 @@ const fetchLoginData = async () => {
       }
   } catch (error) {
       console.error('Error fetching login data:', error);
+  }
+};
+const fetchTotalScholarshipStudents = async () => {
+  try {
+    const response = await axios.get('http://ec2-13-202-53-68.ap-south-1.compute.amazonaws.com:3000/api/scholarship-results/scholarship-results/count');
+    setTotalScholarshipStudents(response.data.count); // Update state with the count for scholarship students
+    console.log('fetch scholarship data successful', response.data.count);
+  } catch (error) {
+    console.error('Error fetching total scholarship students count:', error);
   }
 };
 
@@ -415,15 +434,83 @@ const getLoginDataUrl = (filter) => {
     };
   };
 
+  useEffect(() => {
+    // Fetch activity data
+    const fetchActivityData = async () => {
+      try {
+        const response = await axios.get('http://ec2-13-202-53-68.ap-south-1.compute.amazonaws.com:3000/api/activities/activities/count');
+        const data = response.data;
+
+        // Check if the response is an array
+        if (Array.isArray(data)) {
+          // Sort data in descending order based on count
+          const sortedData = data.sort((a, b) => b.count - a.count);
+          setActivityData(sortedData);
+          // Prepare chart data
+          setActivityChartData({
+            labels: sortedData.map(activity => activity.activity_name),
+            datasets: [{
+              label: 'Activity Count',
+              data: sortedData.map(activity => activity.count),
+              backgroundColor: 'rgba(75, 192, 192, 0.2)',
+              borderColor: 'rgba(75, 192, 192, 1)',
+              borderWidth: 1,
+            }],
+          });
+        } else {
+          console.error('Expected an array but got:', data);
+        }
+      } catch (error) {
+        console.error('Error fetching activity data:', error);
+      }
+    };
+
+    fetchActivityData();
+  }, []); // Fetch activity data on component mount
+
+  // Chart options to display x-axis labels
+  const chartOptions = {
+    maintainAspectRatio: false,
+    scales: {
+      x: {
+        title: {
+          display: true,
+          text: 'Activity Names', // Title for the x-axis
+        },
+        ticks: {
+          autoSkip: false, // Prevent skipping of labels
+          maxRotation: 45, // Rotate labels if they are too long
+          minRotation: 45,
+        },
+      },
+      y: {
+        title: {
+          display: true,
+          text: 'Count', // Title for the y-axis
+        },
+      },
+    },
+  };
+
   return (
     <div style={{ padding: '20px', fontFamily: 'Arial, sans-serif' }}>
       <h1 style={{ marginBottom: '20px' }}>Dashboard</h1>
-      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '20px' }}>
-        <Card title="Books Sold" value={bookSoldData} />
-        <Card title="Cart Count" value={cartCount} />
-        <Card title="Total Books" value={totalBooks} />
-        <Card title="Total Students" value={totalStudents} />
-      </div>
+      <div style={{ 
+  display: 'flex', 
+  justifyContent: 'space-between', 
+  marginBottom: '20px', 
+  gap: '20px',
+  flexWrap: 'wrap', // Allow cards to wrap if they can't fit in a single line
+  overflow: 'hidden', // Prevent scrolling
+  width: '100%' // Ensure the container takes full available width
+}}>
+  <Card style={{ flex: '1 1 20%', minWidth: '180px' }} title="Books Sold" value={bookSoldData} />
+  <Card style={{ flex: '1 1 20%', minWidth: '180px' }} title="Cart Count" value={cartCount} />
+  <Card style={{ flex: '1 1 20%', minWidth: '180px' }} title="Total Books" value={totalBooks} />
+  <Card style={{ flex: '1 1 20%', minWidth: '180px' }} title="Total Students" value={totalStudents} />
+  <Card style={{ flex: '1 1 20%', minWidth: '180px' }} title="Total Scholarship Attempts" value={totalscholarshipStudents} />
+</div>
+
 
       <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '20px' }}>
         <div style={{ width: '48%' }}>
@@ -478,6 +565,11 @@ const getLoginDataUrl = (filter) => {
             )}
           </div>
         </div>
+      </div>
+
+      <div style={{ width: '100%', marginTop: '20px', height: '400px', overflow: 'hidden' }}>
+        <h2>Leads Graph</h2>
+        <Bar data={activityChartData} options={chartOptions} />
       </div>
 
       <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '20px' }}>

@@ -80,6 +80,7 @@ function PracticeTest() {
               <th style={{ backgroundColor: '#007bff', color: '#ffffff' }}>Student Name</th>
               <th style={{ backgroundColor: '#007bff', color: '#ffffff' }}>Last Test Date</th>
               <th style={{ backgroundColor: '#007bff', color: '#ffffff' }}>Test Count</th>
+              <th style={{ backgroundColor: '#007bff', color: '#ffffff' }}>Action</th>
             </tr>
           </thead>
           <tbody>
@@ -117,6 +118,14 @@ function PracticeTest() {
                     {test.test_count}
                   </Link>
                 </td>
+                <td>
+    <Link 
+      to={`/portal/user-view/${test.u_id}`} 
+      className="btn btn-primary btn-sm"
+    >
+      View Profile
+    </Link>
+  </td>
               </tr>
             ))}
           </tbody>
