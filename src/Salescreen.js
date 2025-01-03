@@ -414,32 +414,29 @@ export default function Salescreen() {
                 <th>S. No</th>
                 <th>User ID</th>
                 <th>User Name</th>
-                <th>Recent Lead Status</th>
-                <th>Recent Activity Date</th>
-                <th>Notes</th>
+                <th>Lead Status (Activity Name)</th>
+                <th>Follow-Up Task (Note)</th>
+                <th>Follow-Up Date</th>
+                <th>Status</th>
+                <th>Completed</th>
                 <th>Action</th>
               </tr>
             </thead>
             <tbody>
-              {filteredFollowUps.map((followUp, index) => (
+              {followUps.map((followUp, index) => (
                 <tr key={followUp.followupId}>
                   <td>{index + 1}</td>
                   <td>{followUp.userId}</td>
                   <td>{followUp.userName}</td>
-                  <td>
-                    <select
-                      value={followUp.leadStatus} // Assuming followUp has a leadStatus property
-                      onChange={(e) => console.log(`User ID: ${followUp.userId}, New Status: ${e.target.value}`)} // Use the function here
-                    >
-                      {activityData.map((activity, index) => (
-                        <option key={index} value={activity.activity_name}>
-                          {activity.activity_name}
-                        </option>
-                      ))}
-                    </select>
-                  </td>
+                  <td>{followUp.leadStatus}</td>
+                  <td>{followUp.followupTask}</td>
                   <td>{followUp.followupDate}</td>
-                  <td>{followUp.notes}</td>
+                  <td className={`status ${followUp.status.toLowerCase()}`}>
+                    {followUp.status}
+                  </td>
+                  <td className={`status ${followUp.isCompleted ? 'completed' : 'not-completed'}`}>
+                    {followUp.isCompleted ? 'Yes' : 'No'}
+                  </td>
                   <td>
                     <button
                       className="view-button"
@@ -454,7 +451,7 @@ export default function Salescreen() {
           </table>
         </div>
       
-      ) : (
+      ): (
         <table className="table">
           <thead>
             <tr>

@@ -31,7 +31,6 @@ function Dashboard() {
   const [cartCount, setCartCount] = useState(0);
   const [totalscholarshipStudents, setTotalScholarshipStudents] = useState(0);
   const [activityData, setActivityData] = useState([]);
-  const [activityChartData, setActivityChartData] = useState({ labels: [], datasets: [] });
 
   const [filteractivity, setfilteractivity] = useState('all'); // Default filter
 
@@ -434,40 +433,7 @@ const getLoginDataUrl = (filter) => {
     };
   };
 
-  useEffect(() => {
-    // Fetch activity data
-    const fetchActivityData = async () => {
-      try {
-        const response = await axios.get('http://ec2-13-202-53-68.ap-south-1.compute.amazonaws.com:3000/api/activities/activities/count');
-        const data = response.data;
-
-        // Check if the response is an array
-        if (Array.isArray(data)) {
-          // Sort data in descending order based on count
-          const sortedData = data.sort((a, b) => b.count - a.count);
-          setActivityData(sortedData);
-          // Prepare chart data
-          setActivityChartData({
-            labels: sortedData.map(activity => activity.activity_name),
-            datasets: [{
-              label: 'Activity Count',
-              data: sortedData.map(activity => activity.count),
-              backgroundColor: 'rgba(75, 192, 192, 0.2)',
-              borderColor: 'rgba(75, 192, 192, 1)',
-              borderWidth: 1,
-            }],
-          });
-        } else {
-          console.error('Expected an array but got:', data);
-        }
-      } catch (error) {
-        console.error('Error fetching activity data:', error);
-      }
-    };
-
-    fetchActivityData();
-  }, []); // Fetch activity data on component mount
-
+  
   // Chart options to display x-axis labels
   const chartOptions = {
     maintainAspectRatio: false,
@@ -567,10 +533,7 @@ const getLoginDataUrl = (filter) => {
         </div>
       </div>
 
-      <div style={{ width: '100%', marginTop: '20px', height: '400px', overflow: 'hidden' }}>
-        <h2>Leads Graph</h2>
-        <Bar data={activityChartData} options={chartOptions} />
-      </div>
+      
 
       <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '20px' }}>
         <div style={{ width: '48%', height: '400px' }}>
