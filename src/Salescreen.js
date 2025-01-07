@@ -374,6 +374,7 @@ export default function Salescreen() {
                   <th>User ID</th>
                   <th>User Name</th>
                   <th>Recent Lead Status</th>
+                  <th>Label</th>
                   <th>Recent Activity Date</th>
                   <th>Notes</th>
                   <th>Action</th>
@@ -388,6 +389,7 @@ export default function Salescreen() {
                       <td>{user.u_id}</td>
                       <td>{user.f_name}</td>
                       <td>{recentActivity ? recentActivity.activity_name : 'No Activity'}</td>
+                      <td>{recentActivity ? recentActivity.description : 'N/A'}</td>
                       <td>{recentActivity ? new Date(recentActivity.activity_date).toLocaleDateString('en-GB') : 'N/A'}</td>
                       <td>{recentActivity ? recentActivity.notes : 'No Notes'}</td>
                       <td>

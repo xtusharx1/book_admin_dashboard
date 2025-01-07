@@ -22,7 +22,7 @@ function UserView() {
     const [isLoadingActivities, setLoadingActivities] = useState(true);
     const [isLoadingFollowUps, setLoadingFollowUps] = useState(true);
 
-    const [leadStatus, setLeadStatus] = useState('Call Not Answered');
+    const [leadStatus, setLeadStatus] = useState('Call-not-answered');
     const [leadLabel, setLeadLabel] = useState('SSQ24');
     const [followUpDate, setFollowUpDate] = useState('');
     const [notes, setNotes] = useState('');
@@ -178,7 +178,7 @@ const [newActivityNotes, setNewActivityNotes] = useState(''); // Define state fo
         try {
             const response = await axios.post(`http://ec2-13-202-53-68.ap-south-1.compute.amazonaws.com:3000/api/activities/add`, newActivity);
             setActivities(prevActivities => [...prevActivities, response.data]);
-            setLeadStatus('Call Not Answered'); // Reset form fields
+            setLeadStatus('Call-not-answered'); // Reset form fields
             setLeadLabel('SSQ24');
             setNewActivityNotes(''); // Clear the notes field
         } catch (error) {
@@ -547,7 +547,6 @@ const [newActivityNotes, setNewActivityNotes] = useState(''); // Define state fo
                             <option value="Call-answered">Call Answered</option>
                             <option value="Interested">Interested</option>
                             <option value="Online-demo-taken">Online Demo Taken</option>
-                            <option value="Online-admission-done">Online Admission Done</option>
                             <option value="Gurgaon-campus-visited">Gurgaon Campus Visited</option>
                             <option value="Delhi-campus-visited">Delhi Campus Visited</option>
                             <option value="Online-admission-taken">Online Admission Taken</option>
@@ -565,6 +564,7 @@ const [newActivityNotes, setNewActivityNotes] = useState(''); // Define state fo
                         >
                             <option>SSQ24</option>
                             <option>SSQ25</option>  
+                            <option>SSQ26</option> 
                         </select>
                     </div>
                     <div className="form-group"> 
