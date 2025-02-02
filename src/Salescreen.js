@@ -201,41 +201,32 @@ export default function Salescreen() {
       setUsers([]); // Clear previous users
       setActivities({}); // Clear previous activities
   
-      // Fetch all activities
-      const activityResponse = await axios.get('http://ec2-13-202-53-68.ap-south-1.compute.amazonaws.com:3000/api/activities/');
+      // Fetch users
+      const userResponse = await axios.get('http://ec2-13-202-53-68.ap-south-1.compute.amazonaws.com:3000/api/users/showusers');
+      const usersData = userResponse.data;
+  
+      // Fetch activities by name
+      const activityResponse = await axios.get(`http://ec2-13-202-53-68.ap-south-1.compute.amazonaws.com:3000/api/activities/activities/name/${activityName}`);
       const activitiesData = activityResponse.data;
   
-      // Filter activities based on the selected activity name
-      const filteredActivities = activitiesData.filter(activity => activity.activity_name === activityName);
+      console.log("Fetched Activities:", activitiesData); // Log the raw data
+      
+      // Sort activities by activity_date in descending order
+      activitiesData.sort((a, b) => new Date(b.activity_date) - new Date(a.activity_date));
   
-      // Sort activities by latest first (based on activity_date)
-      filteredActivities.sort((a, b) => new Date(b.activity_date) - new Date(a.activity_date));
+      console.log("Sorted Activities:", activitiesData); // Log after sorting
   
-      // Create a map of user activities by user ID
+      // Process data...
       const activitiesMap = {};
-      for (let activity of filteredActivities) {
+      activitiesData.forEach(activity => {
         const userId = activity.u_id;
         if (!activitiesMap[userId]) {
           activitiesMap[userId] = [];
         }
         activitiesMap[userId].push(activity);
-      }
+      });
   
-      // Fetch user details using u_id for each activity
-      const usersWithActivities = [];
-      for (let userId in activitiesMap) {
-        const userResponse = await axios.get(`http://ec2-13-202-53-68.ap-south-1.compute.amazonaws.com:3000/api/users/getbyid/${userId}`);
-        const userData = userResponse.data;
-  
-        // Combine user details with activities
-        usersWithActivities.push({
-          ...userData,
-          activities: activitiesMap[userId],
-        });
-      }
-  
-      // Set the final data into state
-      setUsers(usersWithActivities);
+      setUsers(usersData);
       setActivities(activitiesMap);
     } catch (err) {
       console.error('Error fetching users or activities:', err);
