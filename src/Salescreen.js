@@ -75,17 +75,16 @@ export default function Salescreen() {
   }, []); // Fetch payments on component mount
 
   const activityData = [
-    { activity_name: "Interested", count: 17 },
-    { activity_name: "Gurgaon-campus-visited", count: 1 },
-    { activity_name: "Call Not Answered", count: 507 },
-    { activity_name: "Online-demo-taken", count: 10 },
-    { activity_name: "Call-answered", count: 525 },
-    { activity_name: "Not-interested", count: 410 },
-    { activity_name: "Online-admission-done", count: 9 },
-    { activity_name: "Gurgaon-admission-taken", count: 6 },
-    { activity_name: "Delhi-admission-taken", count: 4 },
-    { activity_name: "Call-not-answered", count: 14 },
-    { activity_name: "Online-admission-taken", count: 1 },
+    { activity_name: "Not-interested", count: 0 },
+    { activity_name: "Call-not-answered", count: 0 },
+    { activity_name: "Online-admission-taken", count: 0 },
+    { activity_name: "Interested", count: 0 },
+    { activity_name: "Call-answered", count: 0 },
+    { activity_name: "Gurgaon-campus-visited", count: 0 },
+    { activity_name: "Gurgaon-admission-taken", count: 0 },
+    { activity_name: "Delhi-campus-visited", count: 0 },
+    { activity_name: "Online-admission-done", count: 0 },
+    { activity_name: "Online-demo-taken", count: 0 },
   ];
 
   useEffect(() => {
@@ -196,6 +195,50 @@ export default function Salescreen() {
     }
   };
   
+  
+  const fetchUsersAndActivitiesByName = async (activityName) => {
+    try {
+      setUsers([]); // Clear previous users
+      setActivities({}); // Clear previous activities
+  
+      // Fetch all activities
+      const activityResponse = await axios.get('http://ec2-13-202-53-68.ap-south-1.compute.amazonaws.com:3000/api/activities/');
+      const activitiesData = activityResponse.data;
+  
+      // Filter activities based on the selected activity name
+      const filteredActivities = activitiesData.filter(activity => activity.activity_name === activityName);
+  
+      // Create a map of user activities by user ID
+      const activitiesMap = {};
+      for (let activity of filteredActivities) {
+        const userId = activity.u_id;
+        if (!activitiesMap[userId]) {
+          activitiesMap[userId] = [];
+        }
+        activitiesMap[userId].push(activity);
+      }
+  
+      // Fetch user details using u_id for each activity
+      const usersWithActivities = [];
+      for (let userId in activitiesMap) {
+        const userResponse = await axios.get(`http://ec2-13-202-53-68.ap-south-1.compute.amazonaws.com:3000/api/users/getbyid/${userId}`);
+        const userData = userResponse.data;
+  
+        // Combine user details with activities
+        usersWithActivities.push({
+          ...userData,
+          activities: activitiesMap[userId],
+        });
+      }
+  
+      // Set the final data into state
+      setUsers(usersWithActivities);
+      setActivities(activitiesMap);
+    } catch (err) {
+      console.error('Error fetching users or activities:', err);
+      setError('Error fetching users or activities');
+    }
+  };
   
   
 
@@ -309,12 +352,13 @@ export default function Salescreen() {
     ? followUps.filter(followUp => followUp.leadStatus === selectedActivity)
     : followUps; // Filter follow-ups based on selected activity
 
-  const filteredUsers = selectedActivity === 'All'
+    const filteredUsers = selectedActivity === 'All'
     ? users
     : users.filter(user => {
         const recentActivity = activities[user.u_id]?.[0];
         return recentActivity && recentActivity.activity_name === selectedActivity;
       });
+
 
   return (
     <div className="container">
@@ -346,68 +390,86 @@ export default function Salescreen() {
         </button>
       </div>
       {currentTab === 'Lead Status' ? (
-        <>
-          <div style={{ width: '100%', marginTop: '20px', height: '400px', overflow: 'hidden' }}>
-            <h2>Leads Graph</h2>
-            <Bar data={activityChartData} options={chartOptions} />
-          </div>
-          <div>
-            <label htmlFor="activityFilter">Filter by Activity: </label>
-            <select
-              id="activityFilter"
-              value={selectedActivity}
-              onChange={(e) => setSelectedActivity(e.target.value)} // Update selected activity
-            >
-              <option value="All">All</option>
-              {activityData.map((activity, index) => (
-                <option key={index} value={activity.activity_name}>
-                  {activity.activity_name}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div className="table-container">
-            <table className="table">
-              <thead>
-                <tr>
-                  <th>S. No</th>
-                  <th>User ID</th>
-                  <th>User Name</th>
-                  <th>Recent Lead Status</th>
-                  <th>Label</th>
-                  <th>Recent Activity Date</th>
-                  <th>Notes</th>
-                  <th>Action</th>
+  <>
+    <div style={{ width: '100%', marginTop: '20px', height: '400px', overflow: 'hidden' }}>
+      <h2>Leads Graph</h2>
+      <Bar data={activityChartData} options={chartOptions} />
+    </div>
+
+    <div>
+      <label htmlFor="activityFilter">Filter by Activity: </label>
+      <select
+        id="activityFilter"
+        value={selectedActivity}
+        onChange={(e) => {
+          const selectedValue = e.target.value;
+          setSelectedActivity(selectedValue);
+
+          // Clear table data before fetching new data
+          setUsers([]);
+          setActivities({});
+
+          if (selectedValue === "All") {
+            fetchUsersAndActivities(); // Fetch all activities
+          } else {
+            fetchUsersAndActivitiesByName(selectedValue); // Fetch by activity name
+          }
+        }}
+      >
+        <option value="All">All</option>
+        {activityData.map((activity, index) => (
+          <option key={index} value={activity.activity_name}>
+            {activity.activity_name}
+          </option>
+        ))}
+      </select>
+    </div>
+
+    <div className="table-container">
+      <table className="table">
+        <thead>
+          <tr>
+            <th>S. No</th>
+            <th>User ID</th>
+            <th>User Name</th>
+            <th>Recent Lead Status</th>
+            <th>Label</th>
+            <th>Recent Activity Date</th>
+            <th>Notes</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {filteredUsers.length === 0 ? (
+            <tr>
+              <td colSpan="8" style={{ textAlign: 'center' }}>No Data Available</td>
+            </tr>
+          ) : (
+            filteredUsers.map((user, index) => {
+              const recentActivity = activities[user.u_id]?.[0];
+              return (
+                <tr key={user.u_id}>
+                  <td>{index + 1}</td>
+                  <td>{user.u_id}</td>
+                  <td>{user.f_name}</td>
+                  <td>{recentActivity ? recentActivity.activity_name : 'No Activity'}</td>
+                  <td>{recentActivity ? recentActivity.description : 'N/A'}</td>
+                  <td>{recentActivity ? new Date(recentActivity.activity_date).toLocaleDateString('en-GB') : 'N/A'}</td>
+                  <td>{recentActivity ? recentActivity.notes : 'No Notes'}</td>
+                  <td>
+                    <button className="view-button" onClick={() => handleViewUser(user.u_id)}>
+                      View
+                    </button>
+                  </td>
                 </tr>
-              </thead>
-              <tbody>
-                {filteredUsers.map((user, index) => {
-                  const recentActivity = activities[user.u_id]?.[0];
-                  return (
-                    <tr key={user.u_id}>
-                      <td>{index + 1}</td>
-                      <td>{user.u_id}</td>
-                      <td>{user.f_name}</td>
-                      <td>{recentActivity ? recentActivity.activity_name : 'No Activity'}</td>
-                      <td>{recentActivity ? recentActivity.description : 'N/A'}</td>
-                      <td>{recentActivity ? new Date(recentActivity.activity_date).toLocaleDateString('en-GB') : 'N/A'}</td>
-                      <td>{recentActivity ? recentActivity.notes : 'No Notes'}</td>
-                      <td>
-                        <button
-                          className="view-button"
-                          onClick={() => handleViewUser(user.u_id)}
-                        >
-                          View
-                        </button>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-        </>
-      ) : 
+              );
+            })
+          )}
+        </tbody>
+      </table>
+    </div>
+  </>
+)  : 
       currentTab === 'Follow-Up' ? (
         <div className="table-container">
           <table className="table">
