@@ -218,6 +218,11 @@ export default function Salescreen() {
         activitiesMap[userId].push(activity);
       }
   
+      // Sort activities by date (most recent first) for each user
+      Object.keys(activitiesMap).forEach(userId => {
+        activitiesMap[userId] = activitiesMap[userId].sort((a, b) => new Date(b.activity_date) - new Date(a.activity_date));
+      });
+  
       // Fetch user details using u_id for each activity
       const usersWithActivities = [];
       for (let userId in activitiesMap) {
