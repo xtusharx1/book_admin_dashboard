@@ -208,6 +208,9 @@ export default function Salescreen() {
       // Filter activities based on the selected activity name
       const filteredActivities = activitiesData.filter(activity => activity.activity_name === activityName);
   
+      // Sort activities by latest first (based on activity_date)
+      filteredActivities.sort((a, b) => new Date(b.activity_date) - new Date(a.activity_date));
+  
       // Create a map of user activities by user ID
       const activitiesMap = {};
       for (let activity of filteredActivities) {
@@ -217,11 +220,6 @@ export default function Salescreen() {
         }
         activitiesMap[userId].push(activity);
       }
-  
-      // Sort activities by date (most recent first) for each user
-      Object.keys(activitiesMap).forEach(userId => {
-        activitiesMap[userId] = activitiesMap[userId].sort((a, b) => new Date(b.activity_date) - new Date(a.activity_date));
-      });
   
       // Fetch user details using u_id for each activity
       const usersWithActivities = [];
