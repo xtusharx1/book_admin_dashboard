@@ -6,10 +6,10 @@ import {Bar,} from 'react-chartjs-2';
 
 export default function Salescreen() {
   const [payments, setPayments] = useState([]);
+  const [error, setError] = useState(null);
   const [users, setUsers] = useState([]);
   const [activities, setActivities] = useState({});
   const [followUps, setFollowUps] = useState([]);
-  const [error, setError] = useState(null);
   const [currentTab, setCurrentTab] = useState('orders');
   const [selectedActivity, setSelectedActivity] = useState('All'); // State for selected activity
   const navigate = useNavigate();
@@ -17,62 +17,53 @@ export default function Salescreen() {
 
   const fetchPayments = async () => {
     try {
-      const paymentResponse = await axios.get('http://ec2-13-202-53-68.ap-south-1.compute.amazonaws.com:3000/api/payments/all');
-      const paymentData = paymentResponse.data;
+      const paymentResponse = await axios.get(
+        'http://ec2-13-202-53-68.ap-south-1.compute.amazonaws.com:3000/api/payments/all-with-details'
+      );
+      const paymentData = paymentResponse.data || [];
 
-      const detailedPayments = await Promise.all(paymentData.map(async (payment) => {
-        let userName = 'Unknown User';
-        let bookName = 'Unknown Book';
-        let date = '';
-
-        if (payment.u_id) {
-          try {
-            const userResponse = await axios.get(`http://ec2-13-202-53-68.ap-south-1.compute.amazonaws.com:3000/api/users/getbyid/${payment.u_id}`);
-            userName = userResponse.data.f_name || 'Unknown User';
-          } catch (err) {
-            // Handle user fetch error
-          }
-        }
-
-        if (payment.b_id) {
-          try {
-            const bookResponse = await axios.get(`http://ec2-13-202-53-68.ap-south-1.compute.amazonaws.com:3000/api/books/getbook/${payment.b_id}`);
-            bookName = bookResponse.data.b_name || 'Unknown Book';
-          } catch (err) {
-            // Handle book fetch error
-          }
-        }
-
-        // Use the raw created_at date for sorting
-        date = payment.created_at;
-
-        const localDate = new Date(date).toLocaleString('en-GB', { 
-          timeZone: 'Asia/Kolkata',
-          hour12: false 
-        });
+      const detailedPayments = paymentData.map(payment => {
+        const date = payment.created_at || '';
+        const rawDate = new Date(date);
+        const localDate = isNaN(rawDate.getTime())
+          ? 'Invalid Date'
+          : rawDate.toLocaleString('en-GB', {
+              timeZone: 'Asia/Kolkata',
+              hour12: false,
+            });
 
         return {
+          sNo: payment.id,
           userId: payment.u_id,
-          userName: userName,
-          bookName: bookName,
-          hasPaid: payment.haspaid,
-          date: localDate, // Display the local date
-          rawDate: new Date(date) // Raw date for sorting
+          userName: payment.user?.f_name || 'Unknown User',
+          bookName: payment.book?.b_name || 'Unknown Book',
+          hasPaid: payment.haspaid || false,
+          date: localDate,
+          rawDate: rawDate,
+          // Additional details if needed
+          userEmail: payment.user?.email,
+          userPhone: payment.user?.phonenumber,
+          bookPrice: payment.book?.sell_price,
+          bookDescription: payment.book?.description
         };
-      }));
+      });
 
-      // Sort by raw created_at date in decreasing order (most recent first)
-      detailedPayments.sort((a, b) => b.rawDate - a.rawDate);
-
-      setPayments(detailedPayments);
+      // Sort by date (most recent first)
+      const sortedPayments = detailedPayments.sort((a, b) => b.rawDate - a.rawDate);
+      
+      console.log('Processed Payments:', sortedPayments);
+      setPayments(sortedPayments);
     } catch (err) {
+      console.error('Error fetching payments:', err.message);
       setError('Error fetching payments data');
     }
   };
 
   useEffect(() => {
-    fetchPayments(); // Call fetchPayments here
-  }, []); // Fetch payments on component mount
+    if (currentTab === 'orders' || currentTab === 'cart') {
+      fetchPayments();
+    }
+  }, [currentTab]);
 
   const activityData = [
     { activity_name: "Not-interested", count: 0 },
