@@ -14,7 +14,8 @@ export default function Salescreen() {
   const [selectedActivity, setSelectedActivity] = useState('All'); // State for selected activity
   const navigate = useNavigate();
   const [activityChartData, setActivityChartData] = useState({ labels: [], datasets: [] });
-
+  const [selectedLabel, setSelectedLabel] = useState('All'); // Add this line
+  
   const fetchPayments = async () => {
     try {
       const paymentResponse = await axios.get(
@@ -410,6 +411,20 @@ export default function Salescreen() {
       </select>
     </div>
 
+    <div>
+      <label htmlFor="labelFilter">Filter by Label: </label>
+      <select
+        id="labelFilter"
+        value={selectedLabel}
+        onChange={(e) => setSelectedLabel(e.target.value)}
+      >
+        <option value="All">All</option>
+        {[...new Set(filteredUsers.map(user => activities[user.u_id]?.[0]?.description).filter(Boolean))].map((label, index) => (
+          <option key={index} value={label}>{label}</option>
+        ))}
+      </select>
+    </div>
+
     <div className="table-container">
       <table className="table">
         <thead>
@@ -430,25 +445,30 @@ export default function Salescreen() {
               <td colSpan="8" style={{ textAlign: 'center' }}>No Data Available</td>
             </tr>
           ) : (
-            filteredUsers.map((user, index) => {
-              const recentActivity = activities[user.u_id]?.[0];
-              return (
-                <tr key={user.u_id}>
-                  <td>{index + 1}</td>
-                  <td>{user.u_id}</td>
-                  <td>{user.f_name}</td>
-                  <td>{recentActivity ? recentActivity.activity_name : 'No Activity'}</td>
-                  <td>{recentActivity ? recentActivity.description : 'N/A'}</td>
-                  <td>{recentActivity ? new Date(recentActivity.activity_date).toLocaleDateString('en-GB') : 'N/A'}</td>
-                  <td>{recentActivity ? recentActivity.notes : 'No Notes'}</td>
-                  <td>
-                    <button className="view-button" onClick={() => handleViewUser(user.u_id)}>
-                      View
-                    </button>
-                  </td>
-                </tr>
-              );
-            })
+            filteredUsers
+              .filter(user => {
+                const recentActivity = activities[user.u_id]?.[0];
+                return selectedLabel === 'All' || recentActivity?.description === selectedLabel;
+              })
+              .map((user, index) => {
+                const recentActivity = activities[user.u_id]?.[0];
+                return (
+                  <tr key={user.u_id}>
+                    <td>{index + 1}</td>
+                    <td>{user.u_id}</td>
+                    <td>{user.f_name}</td>
+                    <td>{recentActivity ? recentActivity.activity_name : 'No Activity'}</td>
+                    <td>{recentActivity ? recentActivity.description : 'N/A'}</td>
+                    <td>{recentActivity ? new Date(recentActivity.activity_date).toLocaleDateString('en-GB') : 'N/A'}</td>
+                    <td>{recentActivity ? recentActivity.notes : 'No Notes'}</td>
+                    <td>
+                      <button className="view-button" onClick={() => handleViewUser(user.u_id)}>
+                        View
+                      </button>
+                    </td>
+                  </tr>
+                );
+              })
           )}
         </tbody>
       </table>
