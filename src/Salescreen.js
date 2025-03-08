@@ -331,8 +331,8 @@ export default function Salescreen() {
     : payments.filter(payment => !payment.hasPaid);
 
   const handleViewUser = (userId) => {
-    navigate(`/portal/user-view/${userId}`);
-  };
+  window.open(`/portal/user-view/${userId}`, '_blank');
+};
 
   const filteredFollowUps = selectedActivity && selectedActivity !== 'All'
     ? followUps.filter(followUp => followUp.leadStatus === selectedActivity)
