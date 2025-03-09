@@ -367,9 +367,18 @@ function Userlist() {
                           )}
                         </td>
                         <td className="action-buttons">
-                          <Link to={`/portal/user-view/${user.u_id}`} className="btn btn-primary btn-sm">View</Link>
-                          <Link to={`/portal/user-edit/${user.u_id}`} className="btn btn-info btn-sm">Edit</Link>
-                        </td>
+  <Link to={`/portal/user-view/${user.u_id}`} className="btn btn-primary btn-sm">View</Link>
+  <Link to={`/portal/user-edit/${user.u_id}`} className="btn btn-info btn-sm">Edit</Link>
+  <a
+    href={`https://wa.me/${user.phonenumber}`}
+    target="_blank"
+    rel="noopener noreferrer"
+    className="btn btn-success btn-sm"
+  >
+    Chat on WhatsApp
+  </a>
+</td>
+
                       </tr>
                     ))
                   )}
