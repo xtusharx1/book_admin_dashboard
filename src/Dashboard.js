@@ -357,7 +357,8 @@ function Dashboard() {
         backgroundColor: 'rgba(153, 102, 255, 0.6)',
         borderColor: 'rgba(153, 102, 255, 1)',
         borderWidth: 2,
-        pointRadius: 4,
+        pointRadius: 0, // Explicitly set to 0 to remove dots
+        pointHoverRadius: 5, // Show on hover
         tension: 0.4
       }]
     };
@@ -419,8 +420,16 @@ function Dashboard() {
           color: 'rgba(0, 0, 0, 0.05)'
         }
       }
+    },
+    elements: {
+      point: {
+        radius: 0, // Remove dots for all data points
+        hoverRadius: 5 // Show dot only when hovering
+      },
+      line: {
+        tension: 0.4 // Adding a slight curve to the line for a smoother appearance
+      }
     }
-    
   };
 
   if (loading) {
