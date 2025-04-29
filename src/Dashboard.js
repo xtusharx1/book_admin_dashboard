@@ -357,12 +357,18 @@ function Dashboard() {
         backgroundColor: 'rgba(153, 102, 255, 0.6)',
         borderColor: 'rgba(153, 102, 255, 1)',
         borderWidth: 2,
-        pointRadius: 0, // Explicitly set to 0 to remove dots
-        pointHoverRadius: 5, // Show on hover
+        pointRadius: 2, // Smaller, less intrusive dots
+        pointBackgroundColor: 'rgba(153, 102, 255, 1)',
+        pointBorderColor: 'white',
+        pointBorderWidth: 1,
+        pointHoverRadius: 6, // Larger hover area
+        pointHoverBackgroundColor: 'rgba(153, 102, 255, 1)',
+        pointHoverBorderColor: 'white',
+        pointHoverBorderWidth: 2,
         tension: 0.4
       }]
     };
-  };
+  };  
 
   const getGenderDistribution = () => {
     const maleCount = studentData.filter(student => student.gender?.toLowerCase() === 'male').length;
@@ -423,12 +429,19 @@ function Dashboard() {
     },
     elements: {
       point: {
-        radius: 0, // Remove dots for all data points
-        hoverRadius: 5 // Show dot only when hovering
+        radius: 2, // Small dot
+        hoverRadius: 6, // Larger hover area
+        hitRadius: 20, // Much larger invisible area for interaction
+        hoverBorderWidth: 2
       },
       line: {
         tension: 0.4 // Adding a slight curve to the line for a smoother appearance
       }
+    },
+    interaction: {
+      mode: 'index', // Show tooltips for all datasets at the current x-index
+      intersect: false // Don't require the pointer to intersect the point
+    
     }
   };
 
