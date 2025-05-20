@@ -1,4 +1,4 @@
-import { faBookOpen, faHomeAlt, faMagnifyingGlassChart, faTachographDigital, faUsers, faFaceLaughWink, faNoteSticky, faQuestion, faFileCircleQuestion, faSchoolCircleXmark, faBookBookmark, faFileAlt } from '@fortawesome/free-solid-svg-icons';
+import { faBookOpen, faHomeAlt, faMagnifyingGlassChart, faTachographDigital, faUsers, faFaceLaughWink, faNoteSticky, faQuestion, faFileCircleQuestion, faSchoolCircleXmark, faBookBookmark, faFileAlt, faPhoneVolume } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom'; // Import useLocation
@@ -53,6 +53,7 @@ function Sidebar() {
                     <span>CRM</span>
                 </Link>
             </li>
+
 
             {/* <!-- Divider --> */}
             <hr className="sidebar-divider my-0" />

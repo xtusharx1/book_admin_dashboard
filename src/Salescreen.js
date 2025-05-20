@@ -2,7 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import './Salescreen.css'; // Assuming the CSS is saved in Salescreen.css
-import {Bar,} from 'react-chartjs-2';
+import { Bar } from 'react-chartjs-2';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faPhone, faUser } from '@fortawesome/free-solid-svg-icons';
+import { Link } from 'react-router-dom';
 
 export default function Salescreen() {
   const [payments, setPayments] = useState([]);
@@ -14,12 +17,19 @@ export default function Salescreen() {
   const [selectedActivity, setSelectedActivity] = useState('All'); // State for selected activity
   const navigate = useNavigate();
   const [activityChartData, setActivityChartData] = useState({ labels: [], datasets: [] });
-  const [selectedLabel, setSelectedLabel] = useState('All'); // Add this line
+  const [selectedLabel, setSelectedLabel] = useState('All');
   
+  // New state for callbacks
+  const [callbacks, setCallbacks] = useState([]);
+  const [loadingCallbacks, setLoadingCallbacks] = useState(true);
+  const [modeFilter, setModeFilter] = useState('all');
+  
+  const API_BASE_URL = "http://ec2-13-202-53-68.ap-south-1.compute.amazonaws.com:3000/api";
+
   const fetchPayments = async () => {
     try {
       const paymentResponse = await axios.get(
-        'http://ec2-13-202-53-68.ap-south-1.compute.amazonaws.com:3000/api/payments/all-with-details'
+        `${API_BASE_URL}/payments/all-with-details`
       );
       const paymentData = paymentResponse.data || [];
 
@@ -60,9 +70,58 @@ export default function Salescreen() {
     }
   };
 
+  // Added function to fetch callbacks
+  const fetchCallbacks = async () => {
+    setLoadingCallbacks(true);
+    try {
+      // Fetch callback requests from the API
+      const response = await axios.get(`${API_BASE_URL}/student-callback`);
+      const callbackData = response.data;
+      
+      // For each callback, fetch the user data
+      const enhancedCallbacks = await Promise.all(
+        callbackData.map(async (callback) => {
+          try {
+            const userResponse = await axios.get(`${API_BASE_URL}/users/getbyid/${callback.s_id}`);
+            const userData = userResponse.data;
+            
+            // Combine callback and user data
+            return {
+              ...callback,
+              name: userData.f_name,
+              phone: userData.phonenumber,
+              email: userData.email
+            };
+          } catch (error) {
+            console.error(`Error fetching user data for ID ${callback.s_id}:`, error);
+            return {
+              ...callback,
+              name: 'Unknown User',
+              phone: 'N/A',
+              email: 'N/A'
+            };
+          }
+        })
+      );
+      
+      setCallbacks(enhancedCallbacks);
+      setLoadingCallbacks(false);
+    } catch (error) {
+      console.error('Error fetching callback requests:', error);
+      setCallbacks([]);  // Set empty array on error
+      setLoadingCallbacks(false);
+    }
+  };
+
   useEffect(() => {
     if (currentTab === 'orders' || currentTab === 'cart') {
       fetchPayments();
+    } else if (currentTab === 'Lead Status') {
+      fetchUsersAndActivities();
+    } else if (currentTab === 'Follow-Up') {
+      fetchFollowUps();
+    } else if (currentTab === 'Callback Requests') {
+      fetchCallbacks();
     }
   }, [currentTab]);
 
@@ -82,7 +141,7 @@ export default function Salescreen() {
   useEffect(() => {
     const fetchActivityData = async () => {
       try {
-        const response = await axios.get('http://ec2-13-202-53-68.ap-south-1.compute.amazonaws.com:3000/api/activities/activities/count');
+        const response = await axios.get(`${API_BASE_URL}/activities/activities/count`);
         const data = response.data;
 
         // Check if the response is an array
@@ -138,11 +197,11 @@ export default function Salescreen() {
   const fetchUsersAndActivities = async () => {
     try {
       // Fetch users
-      const userResponse = await axios.get('http://ec2-13-202-53-68.ap-south-1.compute.amazonaws.com:3000/api/users/showusers');
+      const userResponse = await axios.get(`${API_BASE_URL}/users/showusers`);
       const usersData = userResponse.data;
   
       // Fetch all activities from the provided API
-      const activityResponse = await axios.get('http://ec2-13-202-53-68.ap-south-1.compute.amazonaws.com:3000/api/activities/');
+      const activityResponse = await axios.get(`${API_BASE_URL}/activities/`);
       const activitiesData = activityResponse.data;
   
       // Create a map of user activities by user ID
@@ -187,18 +246,17 @@ export default function Salescreen() {
     }
   };
   
-  
   const fetchUsersAndActivitiesByName = async (activityName) => {
     try {
       setUsers([]); // Clear previous users
       setActivities({}); // Clear previous activities
   
       // Fetch users
-      const userResponse = await axios.get('http://ec2-13-202-53-68.ap-south-1.compute.amazonaws.com:3000/api/users/showusers');
+      const userResponse = await axios.get(`${API_BASE_URL}/users/showusers`);
       const usersData = userResponse.data;
   
       // Fetch activities by name
-      const activityResponse = await axios.get(`http://ec2-13-202-53-68.ap-south-1.compute.amazonaws.com:3000/api/activities/activities/name/${activityName}`);
+      const activityResponse = await axios.get(`${API_BASE_URL}/activities/activities/name/${activityName}`);
       const activitiesData = activityResponse.data;
   
       console.log("Fetched Activities:", activitiesData); // Log the raw data
@@ -225,12 +283,10 @@ export default function Salescreen() {
       setError('Error fetching users or activities');
     }
   };
-  
-  
 
   const fetchFollowUps = async () => {
     try {
-      const followUpResponse = await axios.get('http://ec2-13-202-53-68.ap-south-1.compute.amazonaws.com:3000/api/followups/');
+      const followUpResponse = await axios.get(`${API_BASE_URL}/followups/`);
       const followUpsData = followUpResponse.data;
   
       const today = new Date();
@@ -241,13 +297,13 @@ export default function Salescreen() {
         let userId = 'Unknown User ID';
   
         try {
-          const activityResponse = await axios.get(`http://ec2-13-202-53-68.ap-south-1.compute.amazonaws.com:3000/api/activities/${followUp.activity_id}`);
+          const activityResponse = await axios.get(`${API_BASE_URL}/activities/${followUp.activity_id}`);
           const activity = activityResponse.data;
           activityName = activity ? activity.activity_name : 'Unknown Activity';
           userId = activity ? activity.u_id : 'Unknown User ID';
   
           try {
-            const userResponse = await axios.get(`http://ec2-13-202-53-68.ap-south-1.compute.amazonaws.com:3000/api/users/getbyid/${userId}`);
+            const userResponse = await axios.get(`${API_BASE_URL}/users/getbyid/${userId}`);
             const user = userResponse.data;
             userName = user ? user.f_name : 'Unknown User';
           } catch (err) {
@@ -306,21 +362,6 @@ export default function Salescreen() {
       setError('Error fetching follow-ups data');
     }
   };
-  
-  
-
-
-
-  
-  useEffect(() => {
-    if (currentTab === 'Lead Status') {
-      fetchUsersAndActivities();
-    } else if (currentTab === 'Follow-Up') {
-      fetchFollowUps();
-    } else {
-      fetchPayments();
-    }
-  }, [currentTab]);
 
   if (error) {
     return <div>{error}</div>;
@@ -331,20 +372,115 @@ export default function Salescreen() {
     : payments.filter(payment => !payment.hasPaid);
 
   const handleViewUser = (userId) => {
-  window.open(`/portal/user-view/${userId}`, '_blank');
-};
+    window.open(`/portal/user-view/${userId}`, '_blank');
+  };
 
   const filteredFollowUps = selectedActivity && selectedActivity !== 'All'
     ? followUps.filter(followUp => followUp.leadStatus === selectedActivity)
     : followUps; // Filter follow-ups based on selected activity
 
-    const filteredUsers = selectedActivity === 'All'
+  const filteredUsers = selectedActivity === 'All'
     ? users
     : users.filter(user => {
         const recentActivity = activities[user.u_id]?.[0];
         return recentActivity && recentActivity.activity_name === selectedActivity;
       });
+  
+  // New function for filtered callbacks based on mode
+  const filteredCallbacks = modeFilter === 'all' 
+    ? callbacks 
+    : callbacks.filter(callback => callback.preferred_mode === modeFilter);
 
+  const handleFilterChange = (e) => {
+    setModeFilter(e.target.value);
+  };
+
+  // Render function for callback requests tab content
+  const renderCallbackRequestsTab = () => {
+    return (
+      <div className="card shadow mb-4">
+        <div className="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+          <h6 className="m-0 font-weight-bold text-primary">Callback Request List</h6>
+          <div className="form-inline">
+            <label htmlFor="modeFilter" className="mr-2">Filter by Mode:</label>
+            <select 
+              className="form-control form-control-sm text-dark" 
+              id="modeFilter" 
+              value={modeFilter} 
+              onChange={handleFilterChange}
+              style={{ 
+                color: '#000', 
+                fontWeight: 'normal', 
+                opacity: 1,
+                height: 'calc(1.8125rem + 6px)', // Increase height slightly
+                paddingTop: '0.25rem',
+                paddingBottom: '0.25rem',
+                lineHeight: '1.5'
+              }}
+            >
+              <option value="all">All Modes</option>
+              <option value="online">Online</option>
+              <option value="offline">Offline</option>
+            </select>
+          </div>
+        </div>
+        <div className="card-body">
+          {loadingCallbacks ? (
+            <div className="text-center">
+              <div className="spinner-border text-primary" role="status">
+                <span className="sr-only">Loading...</span>
+              </div>
+            </div>
+          ) : (
+            <div className="table-responsive">
+              <table className="table table-bordered" id="dataTable" width="100%" cellSpacing="0">
+                <thead>
+                  <tr>
+                    <th width="5%">S.No</th>
+                    <th>Name</th>
+                    <th>Phone</th>
+                    <th>Email</th>
+                    <th>Request Date</th>
+                    <th>Preferred Mode</th>
+                    <th>Start Date</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredCallbacks.length === 0 ? (
+                    <tr>
+                      <td colSpan="8" className="text-center">No callback requests found</td>
+                    </tr>
+                  ) : (
+                    filteredCallbacks.map((callback, index) => (
+                      <tr key={callback.id}>
+                        <td>{index + 1}</td>
+                        <td>{callback.name}</td>
+                        <td>{callback.phone}</td>
+                        <td>{callback.email}</td>
+                        <td>{new Date(callback.created_at).toLocaleString()}</td>
+                        <td>{callback.preferred_mode}</td>
+                        <td>{callback.start_date}</td>
+                        <td>
+                          <Link
+                            to={`/portal/user-view/${callback.s_id}`}
+                            className="btn btn-primary btn-sm"
+                            title="View student profile"
+                          >
+                            <FontAwesomeIcon icon={faUser} className="mr-1" /> View Profile
+                          </Link>
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  };
 
   return (
     <div className="container">
@@ -374,108 +510,118 @@ export default function Salescreen() {
         >
           Follow-Up
         </button>
+        {/* New Callback Requests tab */}
+        <button
+          className={`tab ${currentTab === 'Callback Requests' ? 'active' : ''}`}
+          onClick={() => setCurrentTab('Callback Requests')}
+        >
+          Callback Requests
+        </button>
       </div>
-      {currentTab === 'Lead Status' ? (
-  <>
-    <div style={{ width: '100%', marginTop: '20px', height: '400px', overflow: 'hidden' }}>
-      <h2>Leads Graph</h2>
-      <Bar data={activityChartData} options={chartOptions} />
-    </div>
+      
+      {/* Render different content based on current tab */}
+      {currentTab === 'Callback Requests' ? (
+        renderCallbackRequestsTab()
+      ) : currentTab === 'Lead Status' ? (
+        <>
+          <div style={{ width: '100%', marginTop: '20px', height: '400px', overflow: 'hidden' }}>
+            <h2>Leads Graph</h2>
+            <Bar data={activityChartData} options={chartOptions} />
+          </div>
 
-    <div>
-      <label htmlFor="activityFilter">Filter by Activity: </label>
-      <select
-        id="activityFilter"
-        value={selectedActivity}
-        onChange={(e) => {
-          const selectedValue = e.target.value;
-          setSelectedActivity(selectedValue);
+          <div>
+            <label htmlFor="activityFilter">Filter by Activity: </label>
+            <select
+              id="activityFilter"
+              value={selectedActivity}
+              onChange={(e) => {
+                const selectedValue = e.target.value;
+                setSelectedActivity(selectedValue);
 
-          // Clear table data before fetching new data
-          setUsers([]);
-          setActivities({});
+                // Clear table data before fetching new data
+                setUsers([]);
+                setActivities({});
 
-          if (selectedValue === "All") {
-            fetchUsersAndActivities(); // Fetch all activities
-          } else {
-            fetchUsersAndActivitiesByName(selectedValue); // Fetch by activity name
-          }
-        }}
-      >
-        <option value="All">All</option>
-        {activityData.map((activity, index) => (
-          <option key={index} value={activity.activity_name}>
-            {activity.activity_name}
-          </option>
-        ))}
-      </select>
-    </div>
+                if (selectedValue === "All") {
+                  fetchUsersAndActivities(); // Fetch all activities
+                } else {
+                  fetchUsersAndActivitiesByName(selectedValue); // Fetch by activity name
+                }
+              }}
+            >
+              <option value="All">All</option>
+              {activityData.map((activity, index) => (
+                <option key={index} value={activity.activity_name}>
+                  {activity.activity_name}
+                </option>
+              ))}
+            </select>
+          </div>
 
-    <div>
-      <label htmlFor="labelFilter">Filter by Label: </label>
-      <select
-        id="labelFilter"
-        value={selectedLabel}
-        onChange={(e) => setSelectedLabel(e.target.value)}
-      >
-        <option value="All">All</option>
-        {[...new Set(filteredUsers.map(user => activities[user.u_id]?.[0]?.description).filter(Boolean))].map((label, index) => (
-          <option key={index} value={label}>{label}</option>
-        ))}
-      </select>
-    </div>
+          <div>
+            <label htmlFor="labelFilter">Filter by Label: </label>
+            <select
+              id="labelFilter"
+              value={selectedLabel}
+              onChange={(e) => setSelectedLabel(e.target.value)}
+            >
+              <option value="All">All</option>
+              {[...new Set(filteredUsers.map(user => activities[user.u_id]?.[0]?.description).filter(Boolean))].map((label, index) => (
+                <option key={index} value={label}>{label}</option>
+              ))}
+            </select>
+          </div>
 
-    <div className="table-container">
-      <table className="table">
-        <thead>
-          <tr>
-            <th>S. No</th>
-            <th>User ID</th>
-            <th>User Name</th>
-            <th>Recent Lead Status</th>
-            <th>Label</th>
-            <th>Recent Activity Date</th>
-            <th>Notes</th>
-            <th>Action</th>
-          </tr>
-        </thead>
-        <tbody>
-          {filteredUsers.length === 0 ? (
-            <tr>
-              <td colSpan="8" style={{ textAlign: 'center' }}>No Data Available</td>
-            </tr>
-          ) : (
-            filteredUsers
-              .filter(user => {
-                const recentActivity = activities[user.u_id]?.[0];
-                return selectedLabel === 'All' || recentActivity?.description === selectedLabel;
-              })
-              .map((user, index) => {
-                const recentActivity = activities[user.u_id]?.[0];
-                return (
-                  <tr key={user.u_id}>
-                    <td>{index + 1}</td>
-                    <td>{user.u_id}</td>
-                    <td>{user.f_name}</td>
-                    <td>{recentActivity ? recentActivity.activity_name : 'No Activity'}</td>
-                    <td>{recentActivity ? recentActivity.description : 'N/A'}</td>
-                    <td>{recentActivity ? new Date(recentActivity.activity_date).toLocaleDateString('en-GB') : 'N/A'}</td>
-                    <td>{recentActivity ? recentActivity.notes : 'No Notes'}</td>
-                    <td>
-                      <button className="view-button" onClick={() => handleViewUser(user.u_id)}>
-                        View
-                      </button>
-                    </td>
+          <div className="table-container">
+            <table className="table">
+              <thead>
+                <tr>
+                  <th>S. No</th>
+                  <th>User ID</th>
+                  <th>User Name</th>
+                  <th>Recent Lead Status</th>
+                  <th>Label</th>
+                  <th>Recent Activity Date</th>
+                  <th>Notes</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredUsers.length === 0 ? (
+                  <tr>
+                    <td colSpan="8" style={{ textAlign: 'center' }}>No Data Available</td>
                   </tr>
-                );
-              })
-          )}
-        </tbody>
-      </table>
-    </div>
-  </>
-)  : 
-      currentTab === 'Follow-Up' ? (
+                ) : (
+                  filteredUsers
+                    .filter(user => {
+                      const recentActivity = activities[user.u_id]?.[0];
+                      return selectedLabel === 'All' || recentActivity?.description === selectedLabel;
+                    })
+                    .map((user, index) => {
+                      const recentActivity = activities[user.u_id]?.[0];
+                      return (
+                        <tr key={user.u_id}>
+                          <td>{index + 1}</td>
+                          <td>{user.u_id}</td>
+                          <td>{user.f_name}</td>
+                          <td>{recentActivity ? recentActivity.activity_name : 'No Activity'}</td>
+                          <td>{recentActivity ? recentActivity.description : 'N/A'}</td>
+                          <td>{recentActivity ? new Date(recentActivity.activity_date).toLocaleDateString('en-GB') : 'N/A'}</td>
+                          <td>{recentActivity ? recentActivity.notes : 'No Notes'}</td>
+                          <td>
+                            <button className="view-button" onClick={() => handleViewUser(user.u_id)}>
+                              View
+                            </button>
+                          </td>
+                        </tr>
+                      );
+                    })
+                )}
+              </tbody>
+            </table>
+          </div>
+        </>
+      ) : currentTab === 'Follow-Up' ? (
         <div className="table-container">
           <table className="table">
             <thead>
@@ -519,24 +665,23 @@ export default function Salescreen() {
             </tbody>
           </table>
         </div>
-      
-      ): (
+      ) : (
         <table className="table">
           <thead>
             <tr>
-              <th>S. No</th> {/* Added S. No column */}
+              <th>S. No</th>
               <th>User ID</th>
               <th>User Name</th>
               <th>Book Name</th>
               <th>Has Paid</th>
               <th>Date</th>
-              <th>Action</th> {/* Added Action column */}
+              <th>Action</th>
             </tr>
           </thead>
           <tbody>
             {filteredPayments.map((payment, index) => (
               <tr key={index}>
-                <td>{index + 1}</td> {/* Display S. No */}
+                <td>{index + 1}</td>
                 <td>{payment.userId}</td>
                 <td>{payment.userName}</td>
                 <td>{payment.bookName}</td>

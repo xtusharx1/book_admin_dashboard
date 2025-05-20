@@ -30,6 +30,8 @@ import ScholarshipResults from './Scholarship';
 import ScholarshipDetails from './ScholarshipDetails';
 import AddScholarshipQuestions from './ScholarshipQuestion';
 import ScholarshipQuestions from './ScholarshipQuestionsview';
+import CallbackRequest from './CallbackRequest'; // Import the CallbackRequest component
+
 function App() {
   return (
     <BrowserRouter>
@@ -48,6 +50,7 @@ function App() {
           <Route path="Book-create" element={<ProtectedRoute element={<Bookcreate />} />} />
           <Route path="Chapter-create/:b_id" element={<ProtectedRoute element={<Chaptercreate />} />} />
           <Route path="Salesscreen" element={<ProtectedRoute element={<Salescreen />} />} />
+          <Route path="callback-request" element={<ProtectedRoute element={<CallbackRequest />} />} /> {/* Add new route for Callback Request */}
           <Route path="Apphome" element={<ProtectedRoute element={<Apphome />} />} />
           <Route path="QuestionsView/:chapterId" element={<ProtectedRoute element={<QuestionsView />} />} />
           <Route path="PracticeTest" element={<ProtectedRoute element={<PracticeTest />} />} />
